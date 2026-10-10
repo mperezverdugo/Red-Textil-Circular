@@ -16,6 +16,64 @@
     <string name="nav_admin_automatizaciones">Automatizaciones</string>
     <string name="nav_admin_cuenta">Cuenta</string>
 
+    <!-- Pantalla 1: Bienvenida -->
+    <string name="bienvenida_titulo">Directorio Textil Circular</string>
+    <string name="bienvenida_bajada">Conectamos el trabajo de las emprendedoras textiles de Chile con clientes conscientes y sustentables.</string>
+    <string name="bienvenida_boton_crear_cuenta">Crear mi cuenta</string>
+    <string name="bienvenida_boton_iniciar_sesion">Ya tengo una cuenta</string>
+
+    <!-- Pantalla 2: Iniciar Sesión (RF-08) -->
+    <string name="login_titulo">Iniciar sesión</string>
+    <string name="login_bajada">Ingresa a tu cuenta para administrar tus creaciones y responder consultas.</string>
+    <string name="login_campo_correo">Correo electrónico</string>
+    <string name="login_campo_password">Contraseña</string>
+    <string name="login_boton_ingresar">Ingresar</string>
+    <string name="login_seccion_demo">Accesos rápidos de demostración</string>
+    <string name="login_boton_demo_emprendedora">Entrar como emprendedora (demo)</string>
+    <string name="login_boton_demo_admin">Entrar como administradora (demo)</string>
+
+    <!-- Pantalla 3: Registro Guiado (RF-01 a RF-06) -->
+    <string name="registro_titulo">Crea tu cuenta de emprendedora</string>
+    <string name="registro_paso1_titulo">Tus datos personales</string>
+    <string name="registro_campo_nombre">Nombre completo</string>
+    <string name="registro_campo_nombre_ayuda">Ejemplo: Francisca Silva (con mayúsculas iniciales)</string>
+    <string name="registro_campo_rut">RUT</string>
+    <string name="registro_campo_rut_ayuda">Ejemplo: 12.345.678-9</string>
+    <string name="registro_campo_correo">Correo electrónico</string>
+    <string name="registro_campo_correo_ayuda">Te enviaremos un correo de bienvenida y aviso de consultas</string>
+    <string name="registro_campo_password">Contraseña</string>
+    <string name="registro_campo_password_ayuda">Al menos 6 caracteres seguros</string>
+
+    <string name="registro_paso2_titulo">Tu emprendimiento</string>
+    <string name="registro_campo_nombre_comercial">Nombre comercial o de tu taller</string>
+    <string name="registro_campo_nombre_comercial_ayuda">El nombre con el que tus clientes te conocen</string>
+    <string name="registro_rubros_explicacion">Selecciona hasta 2 rubros de economía circular textil en los que trabajas.</string>
+
+    <string name="registro_paso3_titulo">Dónde estás y cómo te contactan</string>
+    <string name="registro_campo_region">Región</string>
+    <string name="registro_campo_comuna">Comuna</string>
+    <string name="registro_campo_instagram">Usuario de Instagram (opcional)</string>
+    <string name="registro_campo_instagram_ayuda">Escribe solo tu usuario, por ejemplo: taller_reciclaje (sin @ ni enlaces)</string>
+    <string name="registro_aviso_chat">Los clientes se contactarán contigo directamente a través del chat de esta aplicación para mayor seguridad.</string>
+
+    <string name="registro_paso4_titulo">Confirma tus datos</string>
+    <string name="registro_resumen_explicacion">Revisa que tus datos estén correctos antes de publicar tu ficha.</string>
+    <string name="registro_ley_datos">Acepto el tratamiento de mis datos personales según la Ley N.º 21.719 para visibilizar mi trabajo en el Directorio Textil Circular.</string>
+    <string name="registro_boton_finalizar">Crear mi cuenta</string>
+
+    <!-- Errores visuales de Registro -->
+    <string name="error_campo_obligatorio">Este campo no puede quedar en blanco.</string>
+    <string name="error_formato_nombre">Escribe tu nombre con mayúscula inicial.</string>
+    <string name="error_rut_duplicado">Este RUT ya tiene una cuenta registrada en la Fundación (RF-06).</string>
+    <string name="error_formato_instagram">El usuario de Instagram no debe incluir enlaces ni caracteres raros (RF-05).</string>
+    <string name="error_debe_aceptar_ley">Debes aceptar los términos para registrar tu cuenta.</string>
+
+    <!-- Pantalla 4: Registro Exitoso (RF-07) -->
+    <string name="exito_registro_titulo">¡Bienvenida a la Red!</string>
+    <string name="exito_registro_mensaje">Tu cuenta ha sido creada exitosamente. Hemos enviado un correo de bienvenida con tus datos de acceso.</string>
+    <string name="exito_registro_aviso_correo">Revisa tu bandeja de entrada o spam si no lo ves de inmediato.</string>
+    <string name="exito_registro_boton_comenzar">Ir a mi cuenta</string>
+
     <!-- Acciones generales -->
     <string name="accion_guardar">Guardar</string>
     <string name="accion_cancelar">Cancelar</string>

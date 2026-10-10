@@ -21,6 +21,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.textilcircular.ui.components.BannerSinConexion
 import com.example.textilcircular.ui.screens.PantallaProvisoria
+import com.example.textilcircular.ui.screens.auth.BienvenidaScreen
+import com.example.textilcircular.ui.screens.auth.LoginScreen
+import com.example.textilcircular.ui.screens.auth.RegistroExitosoScreen
+import com.example.textilcircular.ui.screens.auth.RegistroGuiadoScreen
 
 /**
  * Componente principal de navegación y andamiaje (Scaffold) de Textil Circular.
@@ -104,21 +108,28 @@ fun NavHostApp(
                     // 1. GRAFO DE AUTENTICACIÓN Y ACCESO
                     // ==========================================
                     composable(Ruta.Bienvenida.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "1. Bienvenida",
-                            descripcion = "Identidad de la Fundación Textil Circular.",
-                            textoAccion = "Comenzar (Ir a Login)",
-                            onAccion = { navController.navigate(Ruta.Login.ruta) }
+                        BienvenidaScreen(
+                            onCrearCuentaClick = { navController.navigate(Ruta.Registro.ruta) },
+                            onIniciarSesionClick = { navController.navigate(Ruta.Login.ruta) }
                         )
                     }
 
                     composable(Ruta.Login.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "2. Iniciar Sesión (RF-08)",
-                            descripcion = "Ingreso con correo y contraseña. Acceso rápido a demostración.",
-                            textoAccion = "Entrar como Emprendedora (Demo)",
-                            onAccion = {
+                        LoginScreen(
+                            onNavegarAtras = { navController.popBackStack() },
+                            onIngresarClick = { _, _ ->
+                                // TODO(Capa 2): Autenticación con ViewModel y obtención de token de sesión
                                 navController.navigate(Ruta.Inicio.ruta) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onDemoEmprendedoraClick = {
+                                navController.navigate(Ruta.Inicio.ruta) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onDemoAdminClick = {
+                                navController.navigate(Ruta.PanelAdmin.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
                             }
@@ -126,20 +137,17 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.Registro.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "3. Registro Guiado de 4 Pasos (RF-01 a RF-06)",
-                            descripcion = "Paso a paso con datos personales, emprendimiento y comuna.",
-                            textoAccion = "Confirmar registro",
-                            onAccion = { navController.navigate(Ruta.RegistroExitoso.ruta) }
+                        RegistroGuiadoScreen(
+                            onNavegarAtras = { navController.popBackStack() },
+                            onRegistroCompletado = {
+                                navController.navigate(Ruta.RegistroExitoso.ruta)
+                            }
                         )
                     }
 
                     composable(Ruta.RegistroExitoso.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "4. Registro Exitoso (RF-07)",
-                            descripcion = "Confirmación y aviso de correo de bienvenida enviado.",
-                            textoAccion = "Ir a mi cuenta",
-                            onAccion = {
+                        RegistroExitosoScreen(
+                            onIrACuentaClick = {
                                 navController.navigate(Ruta.Inicio.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
