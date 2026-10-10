@@ -1,0 +1,285 @@
+package com.example.textilcircular.ui.screens.admin
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.textilcircular.R
+import com.example.textilcircular.ui.components.BarraSuperior
+import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.AzulRevision
+import com.example.textilcircular.ui.theme.AzulRevisionFondo
+import com.example.textilcircular.ui.theme.TextilCircularTheme
+
+/**
+ * Pantalla A1: Panel Administrativo (RF-31, RF-32)
+ * Provee visibilidad del impacto de la plataforma, contactos por región y rubro mediante barras Box nativas.
+ */
+@Composable
+fun PanelAdminScreen(
+    onVerFichasPorRevisarClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Scaffold(
+        topBar = {
+            BarraSuperior(titulo = stringResource(id = R.string.admin_panel_titulo))
+        },
+        modifier = modifier
+    ) { paddingValores ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValores)
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(id = R.string.admin_panel_bajada),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            // Tarjetas de Métricas de Uso y Trazabilidad (RF-31)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                TarjetaMetricaResumen(
+                    titulo = stringResource(id = R.string.admin_metrica_busquedas),
+                    valor = "1.420",
+                    modifier = Modifier.weight(1f)
+                )
+                TarjetaMetricaResumen(
+                    titulo = stringResource(id = R.string.admin_metrica_consultas),
+                    valor = "385",
+                    modifier = Modifier.weight(1f)
+                )
+                TarjetaMetricaResumen(
+                    titulo = stringResource(id = R.string.admin_metrica_clics),
+                    valor = "890",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Alerta de Fichas con Advertencias o por Revisar (RF-29)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onVerFichasPorRevisarClick() },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = AzulRevisionFondo)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(AzulRevision),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(id = R.string.admin_alerta_fichas_revisar),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = AzulRevision
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(id = R.string.admin_alerta_fichas_desc, DatosDemo.FichasPorRevisarContador),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = AzulRevision
+                        )
+                    }
+                }
+            }
+
+            // Gráfico de Barras Horizontales: Contactos por Región (RF-32)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.admin_grafico_region_titulo),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    val valorMaxRegion = DatosDemo.ContactosPorRegionDemo.maxOf { it.second }.toFloat()
+
+                    DatosDemo.ContactosPorRegionDemo.forEach { (region, cantidad) ->
+                        val proporcion = (cantidad / valorMaxRegion).coerceIn(0.1f, 1f)
+                        FilaBarraGrafico(
+                            etiqueta = region,
+                            cantidad = cantidad,
+                            proporcion = proporcion,
+                            colorBarra = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+
+            // Gráfico de Barras Horizontales: Contactos por Rubro (RF-32)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.admin_grafico_rubro_titulo),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    val valorMaxRubro = DatosDemo.ContactosPorRubroDemo.maxOf { it.second }.toFloat()
+
+                    DatosDemo.ContactosPorRubroDemo.forEach { (rubro, cantidad) ->
+                        val proporcion = (cantidad / valorMaxRubro).coerceIn(0.1f, 1f)
+                        FilaBarraGrafico(
+                            etiqueta = rubro,
+                            cantidad = cantidad,
+                            proporcion = proporcion,
+                            colorBarra = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun TarjetaMetricaResumen(
+    titulo: String,
+    valor: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = valor,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilaBarraGrafico(
+    etiqueta: String,
+    cantidad: Int,
+    proporcion: Float,
+    colorBarra: androidx.compose.ui.graphics.Color
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = etiqueta,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "$cantidad contactos",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        // Barra hecha con Box nativo sin dependencias externas
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(proporcion)
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(colorBarra)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PanelAdminScreenPreview() {
+    TextilCircularTheme {
+        PanelAdminScreen(onVerFichasPorRevisarClick = {})
+    }
+}

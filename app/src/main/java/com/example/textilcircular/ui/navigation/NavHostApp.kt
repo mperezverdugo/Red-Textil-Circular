@@ -22,7 +22,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.textilcircular.ui.components.BannerSinConexion
-import com.example.textilcircular.ui.screens.PantallaProvisoria
 import com.example.textilcircular.ui.screens.auth.BienvenidaScreen
 import com.example.textilcircular.ui.screens.auth.LoginScreen
 import com.example.textilcircular.ui.screens.auth.RegistroExitosoScreen
@@ -39,6 +38,14 @@ import com.example.textilcircular.ui.screens.profile.BajaExitosaScreen
 import com.example.textilcircular.ui.screens.profile.EditarPerfilScreen
 import com.example.textilcircular.ui.screens.profile.PerfilScreen
 import com.example.textilcircular.ui.screens.profile.SincronizacionScreen
+import com.example.textilcircular.ui.screens.admin.AutomatizacionesAdminScreen
+import com.example.textilcircular.ui.screens.admin.CuentaAdminScreen
+import com.example.textilcircular.ui.screens.admin.DetalleEmprendimientoAdminScreen
+import com.example.textilcircular.ui.screens.admin.EmprendimientosAdminScreen
+import com.example.textilcircular.ui.screens.admin.FormEmprendimientoAdminScreen
+import com.example.textilcircular.ui.screens.admin.PanelAdminScreen
+import com.example.textilcircular.model.EstadoFichaEmprendimiento
+import com.example.textilcircular.model.FichaAdminEmprendimiento
 import com.example.textilcircular.model.Mensaje
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.preview.DatosDemo
@@ -67,6 +74,9 @@ fun NavHostApp(
     var simularListasVacias by remember { mutableStateOf(false) }
     val mensajesChatEstado = remember {
         mutableStateListOf<Mensaje>().apply { addAll(DatosDemo.MensajesConversacionDemo) }
+    }
+    val fichasAdminEstado = remember {
+        mutableStateListOf<FichaAdminEmprendimiento>().apply { addAll(DatosDemo.EmprendimientosAdminDemo) }
     }
 
     // Detección de rol y pestañas activas
@@ -355,32 +365,46 @@ fun NavHostApp(
                     // 3. GRAFO DE LA ADMINISTRADORA
                     // ==========================================
                     composable(Ruta.PanelAdmin.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "A1. Panel Administrativo (RF-31, RF-32)",
-                            descripcion = "Métricas territoriales e interacciones.",
-                            textoAccion = "Ver lista de emprendimientos",
-                            onAccion = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) }
+                        PanelAdminScreen(
+                            onVerFichasPorRevisarClick = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) }
                         )
                     }
 
                     composable(Ruta.EmprendimientosAdmin.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "A2. Directorio de Emprendimientos (RF-27)",
-                            descripcion = "Búsqueda y filtros por región, comuna y rubro.",
-                            textoAccion = "Agregar nuevo",
-                            onAccion = { navController.navigate(Ruta.FormEmprendimientoAdmin.crearRuta()) }
+                        EmprendimientosAdminScreen(
+                            fichas = fichasAdminEstado,
+                            onEmprendimientoClick = { id -> navController.navigate(Ruta.DetalleEmprendimientoAdmin.crearRuta(id)) },
+                            onAgregarEmprendimientoClick = { navController.navigate(Ruta.FormEmprendimientoAdmin.crearRuta()) }
                         )
                     }
 
                     composable(
                         route = Ruta.DetalleEmprendimientoAdmin.ruta,
                         arguments = listOf(navArgument("emprendimientoId") { type = NavType.IntType })
-                    ) {
-                        PantallaProvisoria(
-                            nombrePantalla = "A3. Detalle Emprendimiento (RF-28, RF-29)",
-                            descripcion = "Revisión de consistencia y acciones de moderación.",
-                            textoAccion = "Volver",
-                            onAccion = { navController.popBackStack() }
+                    ) { backStackEntry ->
+                        val empId = backStackEntry.arguments?.getInt("emprendimientoId") ?: 1
+                        val ficha = fichasAdminEstado.find { it.emprendedora.id == empId } ?: fichasAdminEstado.first()
+
+                        DetalleEmprendimientoAdminScreen(
+                            ficha = ficha,
+                            onEditarClick = { id -> navController.navigate(Ruta.FormEmprendimientoAdmin.crearRuta(id)) },
+                            onCambiarVisibilidadClick = { id ->
+                                val idx = fichasAdminEstado.indexOfFirst { it.emprendedora.id == id }
+                                if (idx >= 0) {
+                                    val actual = fichasAdminEstado[idx]
+                                    val nuevoEstado = if (actual.estadoFicha == EstadoFichaEmprendimiento.ACTIVA) {
+                                        EstadoFichaEmprendimiento.OCULTA
+                                    } else {
+                                        EstadoFichaEmprendimiento.ACTIVA
+                                    }
+                                    fichasAdminEstado[idx] = actual.copy(estadoFicha = nuevoEstado)
+                                }
+                            },
+                            onEliminarClick = { idAEliminar ->
+                                fichasAdminEstado.removeAll { it.emprendedora.id == idAEliminar }
+                                navController.popBackStack()
+                            },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
@@ -391,30 +415,42 @@ fun NavHostApp(
                             nullable = true
                             defaultValue = null
                         })
-                    ) {
-                        PantallaProvisoria(
-                            nombrePantalla = "A4. Formulario de Emprendimiento (RF-28)",
-                            descripcion = "Creación o edición manual de fichas.",
-                            textoAccion = "Guardar",
-                            onAccion = { navController.popBackStack() }
+                    ) { backStackEntry ->
+                        val empIdStr = backStackEntry.arguments?.getString("emprendimientoId")
+                        val empId = empIdStr?.toIntOrNull()
+                        val empExistente = if (empId != null) fichasAdminEstado.find { it.emprendedora.id == empId }?.emprendedora else null
+
+                        FormEmprendimientoAdminScreen(
+                            emprendedoraExistente = empExistente,
+                            onGuardarClick = { empGuardada ->
+                                if (empId != null) {
+                                    val idx = fichasAdminEstado.indexOfFirst { it.emprendedora.id == empId }
+                                    if (idx >= 0) {
+                                        fichasAdminEstado[idx] = fichasAdminEstado[idx].copy(emprendedora = empGuardada)
+                                    }
+                                } else {
+                                    val nuevoId = (fichasAdminEstado.maxOfOrNull { it.emprendedora.id } ?: 10) + 1
+                                    fichasAdminEstado.add(
+                                        FichaAdminEmprendimiento(
+                                            emprendedora = empGuardada.copy(id = nuevoId),
+                                            estadoFicha = EstadoFichaEmprendimiento.ACTIVA,
+                                            problemasDetectados = emptyList()
+                                        )
+                                    )
+                                }
+                                navController.popBackStack()
+                            },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.AutomatizacionesAdmin.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "A5. Auditoría de Automatizaciones (RF-30)",
-                            descripcion = "Supervisión de correos de bienvenida automáticos.",
-                            textoAccion = "Volver al panel",
-                            onAccion = { navController.navigate(Ruta.PanelAdmin.ruta) }
-                        )
+                        AutomatizacionesAdminScreen()
                     }
 
                     composable(Ruta.CuentaAdmin.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "A6. Cuenta de Administradora",
-                            descripcion = "Datos de sesión y control del sistema.",
-                            textoAccion = "Cerrar sesión de Administradora",
-                            onAccion = {
+                        CuentaAdminScreen(
+                            onCerrarSesionClick = {
                                 navController.navigate(Ruta.Bienvenida.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }

@@ -175,6 +175,56 @@
     <string name="baja_exitosa_cuerpo">Hemos desactivado tu ficha del directorio web. Agradecemos enormemente tu aporte a la economía circular textil de Chile.</string>
     <string name="baja_exitosa_boton_inicio">Volver al inicio</string>
 
+    <!-- Pantalla A1: Panel Administrativo (RF-31, RF-32) -->
+    <string name="admin_panel_titulo">Panel de control</string>
+    <string name="admin_panel_bajada">Métricas de impacto y actividad del Directorio Textil Circular.</string>
+    <string name="admin_metrica_busquedas">Búsquedas en la web</string>
+    <string name="admin_metrica_consultas">Consultas enviadas</string>
+    <string name="admin_metrica_clics">Clics en contacto</string>
+    <string name="admin_alerta_fichas_revisar">Fichas por revisar</string>
+    <string name="admin_alerta_fichas_desc">Hay %1$d emprendimientos con advertencias o datos pendientes de confirmación.</string>
+    <string name="admin_grafico_region_titulo">Interacciones por región</string>
+    <string name="admin_grafico_rubro_titulo">Interacciones por rubro textil</string>
+
+    <!-- Pantalla A2: Directorio de Emprendimientos (RF-27) -->
+    <string name="admin_emp_titulo">Emprendimientos</string>
+    <string name="admin_emp_buscar_placeholder">Buscar por nombre o comuna…</string>
+    <string name="admin_emp_boton_agregar">Agregar ficha</string>
+    <string name="admin_emp_filtro_todos">Todos</string>
+    <string name="admin_emp_total">%1$d fichas registradas</string>
+
+    <!-- Pantalla A3: Detalle de Emprendimiento (RF-28, RF-29) -->
+    <string name="admin_detalle_titulo">Ficha del emprendimiento</string>
+    <string name="admin_detalle_problemas_titulo">Problemas detectados (RF-29)</string>
+    <string name="admin_detalle_sin_problemas">Esta ficha tiene todos sus datos consistentes y validados.</string>
+    <string name="admin_detalle_boton_ocultar">Ocultar del directorio</string>
+    <string name="admin_detalle_boton_mostrar">Hacer visible en directorio</string>
+    <string name="admin_detalle_eliminar_titulo">¿Eliminar este emprendimiento?</string>
+    <string name="admin_detalle_eliminar_mensaje">Esta acción borrará definitivamente la ficha de la base de datos.</string>
+
+    <!-- Pantalla A4: Formulario de Emprendimiento (RF-28) -->
+    <string name="admin_form_titulo_crear">Nueva ficha de emprendimiento</string>
+    <string name="admin_form_titulo_editar">Editar ficha de emprendimiento</string>
+
+    <!-- Pantalla A5: Automatizaciones (RF-30) -->
+    <string name="admin_auto_titulo">Automatizaciones</string>
+    <string name="admin_auto_bajada">Supervisión y control del envío de correos automáticos de bienvenida.</string>
+    <string name="admin_auto_total_enviados">%1$d Enviados</string>
+    <string name="admin_auto_total_pendientes">%1$d Pendientes</string>
+    <string name="admin_auto_total_fallidos">%1$d Fallidos</string>
+    <string name="admin_auto_correo_bienvenida">Correo de bienvenida</string>
+    <string name="admin_auto_reenviado_exito">El correo ha sido reenviado exitosamente.</string>
+
+    <!-- Pantalla A6: Cuenta Administradora -->
+    <string name="admin_cuenta_titulo">Cuenta de administración</string>
+    <string name="admin_cuenta_nombre_default">Catalina Herrera</string>
+    <string name="admin_cuenta_rol_default">Cofundadora y Administradora</string>
+    <string name="admin_cuenta_permisos_titulo">Permisos del perfil</string>
+    <string name="admin_cuenta_permiso_1">Supervisión integral de las 982 fichas del directorio</string>
+    <string name="admin_cuenta_permiso_2">Moderación, altas y bajas manuales de emprendimientos</string>
+    <string name="admin_cuenta_permiso_3">Auditoría de correos automáticos de bienvenida</string>
+    <string name="admin_cuenta_permiso_4">Visualización de métricas de impacto territorial</string>
+
     <!-- Acciones generales -->
     <string name="accion_guardar">Guardar</string>
     <string name="accion_cancelar">Cancelar</string>
