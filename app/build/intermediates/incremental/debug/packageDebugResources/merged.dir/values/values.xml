@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="accion_atras">Atrás</string>
+    <string name="accion_buscar">Buscar</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="accion_cerrar">Cerrar</string>
+    <string name="accion_cerrar_sesion">Cerrar sesión</string>
+    <string name="accion_continuar">Continuar</string>
+    <string name="accion_editar">Editar</string>
+    <string name="accion_elegir_galeria">Elegir de la galería</string>
+    <string name="accion_eliminar">Eliminar</string>
+    <string name="accion_filtrar">Filtrar</string>
+    <string name="accion_guardar">Guardar</string>
+    <string name="accion_limpiar_filtros">Limpiar filtros</string>
+    <string name="accion_reenviar">Reenviar</string>
+    <string name="accion_siguiente">Siguiente</string>
+    <string name="accion_sincronizar_ahora">Sincronizar ahora</string>
+    <string name="accion_subir_foto">Subir foto</string>
+    <string name="accion_tomar_foto">Tomar foto</string>
+    <string name="app_name">Textil Circular</string>
+    <string name="cd_icono_alerta">Alerta de advertencia</string>
+    <string name="cd_icono_atras">Volver a la pantalla anterior</string>
+    <string name="cd_icono_borrar">Eliminar</string>
+    <string name="cd_icono_buscar">Buscar</string>
+    <string name="cd_icono_error">Error en el campo</string>
+    <string name="cd_icono_exito">Acción completada</string>
+    <string name="cd_icono_foto">Imagen del producto</string>
+    <string name="cd_icono_menu">Menú de navegación</string>
+    <string name="dialogo_eliminar_advertencia">Esta acción no se puede deshacer.</string>
+    <string name="dialogo_eliminar_pregunta">¿Estás segura de que deseas eliminar este elemento?</string>
+    <string name="dialogo_titulo_atencion">Atención</string>
+    <string name="estado_cargando">Cargando…</string>
+    <string name="estado_error_conexion">No pudimos conectar con el servidor.</string>
+    <string name="estado_pendiente_subir">Pendiente de subir</string>
+    <string name="estado_preparando_foto">Preparando foto…</string>
+    <string name="estado_sin_conexion">Sin conexión a internet. Los cambios se guardarán en tu teléfono.</string>
+    <string name="estado_sincronizado_ok">Todo está al día</string>
+    <string name="estado_sincronizando">Sincronizando tus datos…</string>
+    <string name="ficha_estado_activa">Activa</string>
+    <string name="ficha_estado_dada_de_baja">Dada de baja</string>
+    <string name="ficha_estado_oculta">Oculta</string>
+    <string name="ficha_estado_por_revisar">Por revisar</string>
+    <string name="fundacion_nombre">Fundación Textil Circular</string>
+    <string name="hola_mundo">Hola</string>
+    <string name="paso_indicador">Paso %1$d de %2$d</string>
+    <string name="producto_fotos_contador">%1$d de %2$d fotos</string>
+    <string name="producto_placeholder_foto">Foto del trabajo</string>
+    <string name="producto_sin_foto">Sin foto asignada</string>
+    <string name="rubros_contador">Elige hasta %1$d rubros (%2$d de %3$d seleccionados)</string>
+    <string name="rubros_limite_alcanzado">Ya elegiste el máximo de 2 rubros.</string>
+    <string name="selector_bloqueado_ayuda">Primero debes seleccionar la región.</string>
+    <string name="selector_seleccionar">Selecciona una opción</string>
+    <string name="vacio_mensaje_default">Aún no se ha registrado información en esta sección.</string>
+    <string name="vacio_titulo_default">No hay elementos todavía</string>
+    <style name="Theme.TextilCircular" parent="android:Theme.Material.Light.NoActionBar"/>
+</resources>
