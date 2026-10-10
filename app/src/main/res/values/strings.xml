@@ -126,6 +126,55 @@
     <string name="vista_previa_nota_boton_deshabilitado">Este botón estará activo para los clientes cuando visiten el directorio en la web.</string>
     <string name="vista_previa_sin_productos">Esta emprendedora aún no ha publicado productos en su catálogo.</string>
 
+    <!-- Pantalla 10: Mensajes (RF-19, RF-22) -->
+    <string name="mensajes_titulo">Mensajes de clientes</string>
+    <string name="mensajes_bajada">Conversaciones directas y seguras sin salir de la plataforma.</string>
+    <string name="mensajes_vacio_titulo">No tienes mensajes todavía</string>
+    <string name="mensajes_vacio_mensaje">Cuando un cliente interesado consulte por tus productos en el directorio web, sus mensajes aparecerán aquí.</string>
+    <string name="mensajes_no_leidos_badge">%1$d no leído</string>
+
+    <!-- Pantalla 11: Conversación Interna (RF-20, RF-21, RF-22) -->
+    <string name="chat_titulo">Conversación</string>
+    <string name="chat_producto_consultado_etiqueta">Consulta sobre:</string>
+    <string name="chat_campo_placeholder">Escribe tu respuesta…</string>
+    <string name="chat_boton_enviar">Enviar mensaje</string>
+    <string name="chat_aviso_seguridad">La conversación queda protegida dentro de la aplicación para mayor seguridad (RF-20).</string>
+
+    <!-- Pantalla 12: Mi Perfil -->
+    <string name="perfil_titulo">Mi perfil</string>
+    <string name="perfil_seccion_datos">Tus datos en el directorio</string>
+    <string name="perfil_opcion_editar">Editar mi perfil</string>
+    <string name="perfil_opcion_vista_previa">Ver cómo me ven los clientes</string>
+    <string name="perfil_opcion_sincronizacion">Estado de sincronización</string>
+    <string name="perfil_opcion_baja">Darme de baja del directorio</string>
+    <string name="perfil_seccion_demo_titulo">Opciones de demostración (evaluación)</string>
+    <string name="perfil_demo_offline">Simular modo sin conexión</string>
+    <string name="perfil_demo_listas_vacias">Simular listas vacías en catálogo</string>
+    <string name="perfil_demo_errores">Mostrar errores de ejemplo</string>
+
+    <!-- Pantalla 13: Editar Perfil (RF-09) -->
+    <string name="editar_perfil_titulo">Editar perfil</string>
+    <string name="editar_perfil_exito">Datos actualizados correctamente.</string>
+
+    <!-- Pantalla 14: Sincronización (RF-35) -->
+    <string name="sync_titulo">Sincronización</string>
+    <string name="sync_ultima_fecha">Última sincronización: Hoy a las 09:30 h</string>
+    <string name="sync_pendientes_titulo">Elementos pendientes de subir (%1$d)</string>
+    <string name="sync_sin_pendientes">No tienes cambios pendientes. Todo está respaldado en la nube.</string>
+    <string name="sync_boton_sincronizar">Sincronizar ahora</string>
+    <string name="sync_estado_completado">¡Sincronización completada con éxito!</string>
+
+    <!-- Pantallas 15 y 15b: Darme de Baja (RF-11, RF-12) -->
+    <string name="baja_titulo">Darme de baja</string>
+    <string name="baja_explicacion_titulo">¿Deseas retirar tu perfil del directorio?</string>
+    <string name="baja_explicacion_cuerpo">Si confirmas la baja, tu ficha y catálogo dejarán de ser visibles para los clientes en el sitio web de la Fundación Textil Circular. Puedes volver a unirte cuando lo desees.</string>
+    <string name="baja_boton_confirmar">Sí, darme de baja</string>
+    <string name="baja_boton_cancelar">Mejor no, mantener mi perfil</string>
+
+    <string name="baja_exitosa_titulo">Tu perfil ya no está disponible</string>
+    <string name="baja_exitosa_cuerpo">Hemos desactivado tu ficha del directorio web. Agradecemos enormemente tu aporte a la economía circular textil de Chile.</string>
+    <string name="baja_exitosa_boton_inicio">Volver al inicio</string>
+
     <!-- Acciones generales -->
     <string name="accion_guardar">Guardar</string>
     <string name="accion_cancelar">Cancelar</string>

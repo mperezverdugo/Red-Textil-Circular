@@ -32,6 +32,15 @@ import com.example.textilcircular.ui.screens.catalog.ProductoDetalleScreen
 import com.example.textilcircular.ui.screens.catalog.ProductoFormScreen
 import com.example.textilcircular.ui.screens.catalog.VistaPreviaPublicaScreen
 import com.example.textilcircular.ui.screens.home.InicioScreen
+import com.example.textilcircular.ui.screens.chat.ConversacionScreen
+import com.example.textilcircular.ui.screens.chat.MensajesScreen
+import com.example.textilcircular.ui.screens.profile.BajaCuentaScreen
+import com.example.textilcircular.ui.screens.profile.BajaExitosaScreen
+import com.example.textilcircular.ui.screens.profile.EditarPerfilScreen
+import com.example.textilcircular.ui.screens.profile.PerfilScreen
+import com.example.textilcircular.ui.screens.profile.SincronizacionScreen
+import com.example.textilcircular.model.Mensaje
+import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.preview.DatosDemo
 
 /**
@@ -52,6 +61,12 @@ fun NavHostApp(
     // Lista interactiva de productos para la demostración de la Capa 1 (RNF-11)
     val productosDemoEstado = remember {
         mutableStateListOf<Producto>().apply { addAll(DatosDemo.ProductosDemo) }
+    }
+
+    var emprendedoraEstado by remember { mutableStateOf(DatosDemo.EmprendedoraDemo) }
+    var simularListasVacias by remember { mutableStateOf(false) }
+    val mensajesChatEstado = remember {
+        mutableStateListOf<Mensaje>().apply { addAll(DatosDemo.MensajesConversacionDemo) }
     }
 
     // Detección de rol y pestañas activas
@@ -173,7 +188,7 @@ fun NavHostApp(
                     // ==========================================
                     composable(Ruta.Inicio.ruta) {
                         InicioScreen(
-                            emprendedora = DatosDemo.EmprendedoraDemo,
+                            emprendedora = emprendedoraEstado,
                             onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) },
                             onVerMensajesClick = { navController.navigate(Ruta.Mensajes.ruta) }
                         )
@@ -181,7 +196,7 @@ fun NavHostApp(
 
                     composable(Ruta.Catalogo.ruta) {
                         CatalogoScreen(
-                            productos = productosDemoEstado,
+                            productos = if (simularListasVacias) emptyList() else productosDemoEstado,
                             onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
                             onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) }
                         )
@@ -239,40 +254,57 @@ fun NavHostApp(
 
                     composable(Ruta.VistaPreviaPublica.ruta) {
                         VistaPreviaPublicaScreen(
-                            emprendedora = DatosDemo.EmprendedoraDemo,
-                            productos = productosDemoEstado,
+                            emprendedora = emprendedoraEstado,
+                            productos = if (simularListasVacias) emptyList() else productosDemoEstado,
                             onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
                             onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.Mensajes.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "10. Bandeja de Mensajes (RF-19, RF-22)",
-                            descripcion = "Conversaciones con clientes interesados de la web.",
-                            textoAccion = "Abrir conversación de ejemplo",
-                            onAccion = { navController.navigate(Ruta.Conversacion.crearRuta(201)) }
+                        MensajesScreen(
+                            conversaciones = if (simularListasVacias) emptyList() else DatosDemo.ConversacionesDemo,
+                            onConversacionClick = { id -> navController.navigate(Ruta.Conversacion.crearRuta(id)) }
                         )
                     }
 
                     composable(
                         route = Ruta.Conversacion.ruta,
                         arguments = listOf(navArgument("conversacionId") { type = NavType.IntType })
-                    ) {
-                        PantallaProvisoria(
-                            nombrePantalla = "11. Conversación Interna (RF-20 a RF-22)",
-                            descripcion = "Chat en tiempo real dentro de la plataforma.",
-                            textoAccion = "Volver a mensajes",
-                            onAccion = { navController.popBackStack() }
+                    ) { backStackEntry ->
+                        val conversacionId = backStackEntry.arguments?.getInt("conversacionId") ?: 201
+                        val conversacion = DatosDemo.ConversacionesDemo.find { it.id == conversacionId } ?: DatosDemo.ConversacionesDemo.first()
+
+                        ConversacionScreen(
+                            conversacion = conversacion,
+                            mensajes = mensajesChatEstado,
+                            onEnviarMensaje = { nuevoTexto ->
+                                mensajesChatEstado.add(
+                                    Mensaje(
+                                        id = mensajesChatEstado.size + 1,
+                                        conversacionId = conversacionId,
+                                        emisor = TipoEmisor.EMPRENDEDORA,
+                                        contenido = nuevoTexto,
+                                        fechaHora = "Ahora"
+                                    )
+                                )
+                            },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.Perfil.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "12. Mi Perfil",
-                            descripcion = "Datos de contacto, opciones de demostración y ajustes.",
-                            textoAccion = "Cerrar sesión",
-                            onAccion = {
+                        PerfilScreen(
+                            emprendedora = emprendedoraEstado,
+                            modoSinConexion = modoSinConexionDemo,
+                            onModoSinConexionCambiado = { modoSinConexionDemo = it },
+                            simularListasVacias = simularListasVacias,
+                            onSimularListasVaciasCambiado = { simularListasVacias = it },
+                            onEditarPerfilClick = { navController.navigate(Ruta.EditarPerfil.ruta) },
+                            onVistaPreviaClick = { navController.navigate(Ruta.VistaPreviaPublica.ruta) },
+                            onSincronizacionClick = { navController.navigate(Ruta.Sincronizacion.ruta) },
+                            onBajaClick = { navController.navigate(Ruta.BajaCuenta.ruta) },
+                            onCerrarSesionClick = {
                                 navController.navigate(Ruta.Bienvenida.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
@@ -281,42 +313,37 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.EditarPerfil.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "13. Editar Perfil (RF-09)",
-                            descripcion = "Actualización de datos y comuna.",
-                            textoAccion = "Guardar",
-                            onAccion = { navController.popBackStack() }
+                        EditarPerfilScreen(
+                            emprendedora = emprendedoraEstado,
+                            onGuardarCambios = { nueva ->
+                                emprendedoraEstado = nueva
+                                navController.popBackStack()
+                            },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.Sincronizacion.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "14. Estado de Sincronización (RF-35)",
-                            descripcion = "Control de cambios pendientes de subir.",
-                            textoAccion = "Volver",
-                            onAccion = { navController.popBackStack() }
+                        SincronizacionScreen(
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.BajaCuenta.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "15. Darme de Baja (RF-11)",
-                            descripcion = "Confirmación informada de retiro del directorio.",
-                            textoAccion = "Confirmar baja",
-                            onAccion = {
+                        BajaCuentaScreen(
+                            onConfirmarBaja = {
+                                emprendedoraEstado = emprendedoraEstado.copy(activa = false)
                                 navController.navigate(Ruta.BajaExitosa.ruta) {
                                     popUpTo(Ruta.Inicio.ruta) { inclusive = true }
                                 }
-                            }
+                            },
+                            onCancelarBaja = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.BajaExitosa.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "15b. Perfil Dado de Baja (RF-12)",
-                            descripcion = "Tu perfil ya no está disponible en el directorio.",
-                            textoAccion = "Ir a bienvenida",
-                            onAccion = {
+                        BajaExitosaScreen(
+                            onVolverInicioClick = {
                                 navController.navigate(Ruta.Bienvenida.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
