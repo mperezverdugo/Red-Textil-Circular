@@ -4,6 +4,18 @@
     <string name="fundacion_nombre">Fundación Textil Circular</string>
     <string name="hola_mundo">Hola</string>
 
+    <!-- Pestañas Emprendedora -->
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_catalogo">Catálogo</string>
+    <string name="nav_mensajes">Mensajes</string>
+    <string name="nav_perfil">Mi perfil</string>
+
+    <!-- Pestañas Administradora -->
+    <string name="nav_admin_panel">Panel</string>
+    <string name="nav_admin_emprendimientos">Emprendimientos</string>
+    <string name="nav_admin_automatizaciones">Automatizaciones</string>
+    <string name="nav_admin_cuenta">Cuenta</string>
+
     <!-- Acciones generales -->
     <string name="accion_guardar">Guardar</string>
     <string name="accion_cancelar">Cancelar</string>

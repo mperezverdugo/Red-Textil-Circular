@@ -43,6 +43,14 @@
     <string name="ficha_estado_por_revisar">Por revisar</string>
     <string name="fundacion_nombre">Fundación Textil Circular</string>
     <string name="hola_mundo">Hola</string>
+    <string name="nav_admin_automatizaciones">Automatizaciones</string>
+    <string name="nav_admin_cuenta">Cuenta</string>
+    <string name="nav_admin_emprendimientos">Emprendimientos</string>
+    <string name="nav_admin_panel">Panel</string>
+    <string name="nav_catalogo">Catálogo</string>
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_mensajes">Mensajes</string>
+    <string name="nav_perfil">Mi perfil</string>
     <string name="paso_indicador">Paso %1$d de %2$d</string>
     <string name="producto_fotos_contador">%1$d de %2$d fotos</string>
     <string name="producto_placeholder_foto">Foto del trabajo</string>

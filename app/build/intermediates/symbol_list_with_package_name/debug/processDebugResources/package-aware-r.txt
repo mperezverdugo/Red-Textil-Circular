@@ -303,6 +303,14 @@ string m3c_time_picker_period_toggle_description
 string m3c_time_picker_pm
 string m3c_tooltip_long_press_label
 string m3c_tooltip_pane_description
+string nav_admin_automatizaciones
+string nav_admin_cuenta
+string nav_admin_emprendimientos
+string nav_admin_panel
+string nav_catalogo
+string nav_inicio
+string nav_mensajes
+string nav_perfil
 string navigation_menu
 string not_selected
 string off

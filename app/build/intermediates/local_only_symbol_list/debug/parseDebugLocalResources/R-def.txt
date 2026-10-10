@@ -47,6 +47,14 @@ string ficha_estado_oculta
 string ficha_estado_por_revisar
 string fundacion_nombre
 string hola_mundo
+string nav_admin_automatizaciones
+string nav_admin_cuenta
+string nav_admin_emprendimientos
+string nav_admin_panel
+string nav_catalogo
+string nav_inicio
+string nav_mensajes
+string nav_perfil
 string paso_indicador
 string producto_fotos_contador
 string producto_placeholder_foto
