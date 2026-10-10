@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.textilcircular.model.Producto
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,6 +23,16 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.textilcircular.ui.components.BannerSinConexion
 import com.example.textilcircular.ui.screens.PantallaProvisoria
+import com.example.textilcircular.ui.screens.auth.BienvenidaScreen
+import com.example.textilcircular.ui.screens.auth.LoginScreen
+import com.example.textilcircular.ui.screens.auth.RegistroExitosoScreen
+import com.example.textilcircular.ui.screens.auth.RegistroGuiadoScreen
+import com.example.textilcircular.ui.screens.catalog.CatalogoScreen
+import com.example.textilcircular.ui.screens.catalog.ProductoDetalleScreen
+import com.example.textilcircular.ui.screens.catalog.ProductoFormScreen
+import com.example.textilcircular.ui.screens.catalog.VistaPreviaPublicaScreen
+import com.example.textilcircular.ui.screens.home.InicioScreen
+import com.example.textilcircular.ui.preview.DatosDemo
 
 /**
  * Componente principal de navegación y andamiaje (Scaffold) de Textil Circular.
@@ -36,6 +48,11 @@ fun NavHostApp(
 
     // Estado de simulación offline para demostración (Capa 1)
     var modoSinConexionDemo by remember { mutableStateOf(false) }
+
+    // Lista interactiva de productos para la demostración de la Capa 1 (RNF-11)
+    val productosDemoEstado = remember {
+        mutableStateListOf<Producto>().apply { addAll(DatosDemo.ProductosDemo) }
+    }
 
     // Detección de rol y pestañas activas
     val esPestanaEmprendedora = rutaActual in listOf(
@@ -104,21 +121,28 @@ fun NavHostApp(
                     // 1. GRAFO DE AUTENTICACIÓN Y ACCESO
                     // ==========================================
                     composable(Ruta.Bienvenida.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "1. Bienvenida",
-                            descripcion = "Identidad de la Fundación Textil Circular.",
-                            textoAccion = "Comenzar (Ir a Login)",
-                            onAccion = { navController.navigate(Ruta.Login.ruta) }
+                        BienvenidaScreen(
+                            onCrearCuentaClick = { navController.navigate(Ruta.Registro.ruta) },
+                            onIniciarSesionClick = { navController.navigate(Ruta.Login.ruta) }
                         )
                     }
 
                     composable(Ruta.Login.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "2. Iniciar Sesión (RF-08)",
-                            descripcion = "Ingreso con correo y contraseña. Acceso rápido a demostración.",
-                            textoAccion = "Entrar como Emprendedora (Demo)",
-                            onAccion = {
+                        LoginScreen(
+                            onNavegarAtras = { navController.popBackStack() },
+                            onIngresarClick = { _, _ ->
+                                // TODO(Capa 2): Autenticación con ViewModel y obtención de token de sesión
                                 navController.navigate(Ruta.Inicio.ruta) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onDemoEmprendedoraClick = {
+                                navController.navigate(Ruta.Inicio.ruta) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onDemoAdminClick = {
+                                navController.navigate(Ruta.PanelAdmin.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
                             }
@@ -126,20 +150,17 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.Registro.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "3. Registro Guiado de 4 Pasos (RF-01 a RF-06)",
-                            descripcion = "Paso a paso con datos personales, emprendimiento y comuna.",
-                            textoAccion = "Confirmar registro",
-                            onAccion = { navController.navigate(Ruta.RegistroExitoso.ruta) }
+                        RegistroGuiadoScreen(
+                            onNavegarAtras = { navController.popBackStack() },
+                            onRegistroCompletado = {
+                                navController.navigate(Ruta.RegistroExitoso.ruta)
+                            }
                         )
                     }
 
                     composable(Ruta.RegistroExitoso.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "4. Registro Exitoso (RF-07)",
-                            descripcion = "Confirmación y aviso de correo de bienvenida enviado.",
-                            textoAccion = "Ir a mi cuenta",
-                            onAccion = {
+                        RegistroExitosoScreen(
+                            onIrACuentaClick = {
                                 navController.navigate(Ruta.Inicio.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
@@ -151,20 +172,18 @@ fun NavHostApp(
                     // 2. GRAFO DE LA EMPRENDEDORA
                     // ==========================================
                     composable(Ruta.Inicio.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "5. Inicio Emprendedora",
-                            descripcion = "Resumen del perfil, avance y accesos directos.",
-                            textoAccion = "Ver mi catálogo",
-                            onAccion = { navController.navigate(Ruta.Catalogo.ruta) }
+                        InicioScreen(
+                            emprendedora = DatosDemo.EmprendedoraDemo,
+                            onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) },
+                            onVerMensajesClick = { navController.navigate(Ruta.Mensajes.ruta) }
                         )
                     }
 
                     composable(Ruta.Catalogo.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "6. Catálogo de Creaciones (RF-13, RF-18)",
-                            descripcion = "Cuadrícula de productos y servicios con estados.",
-                            textoAccion = "Agregar nuevo producto",
-                            onAccion = { navController.navigate(Ruta.ProductoForm.crearRuta()) }
+                        CatalogoScreen(
+                            productos = productosDemoEstado,
+                            onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
+                            onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) }
                         )
                     }
 
@@ -175,33 +194,55 @@ fun NavHostApp(
                             nullable = true
                             defaultValue = null
                         })
-                    ) {
-                        PantallaProvisoria(
-                            nombrePantalla = "7. Crear / Editar Producto (RF-13 a RF-17)",
-                            descripcion = "Carga de fotos, descripción y explicación del proceso.",
-                            textoAccion = "Volver al catálogo",
-                            onAccion = { navController.popBackStack() }
+                    ) { backStackEntry ->
+                        val prodIdStr = backStackEntry.arguments?.getString("productoId")
+                        val prodId = prodIdStr?.toIntOrNull()
+                        val productoExistente = if (prodId != null) productosDemoEstado.find { it.id == prodId } else null
+
+                        ProductoFormScreen(
+                            productoExistente = productoExistente,
+                            onGuardarClick = { productoGuardado ->
+                                if (prodId != null) {
+                                    val idx = productosDemoEstado.indexOfFirst { it.id == prodId }
+                                    if (idx >= 0) productosDemoEstado[idx] = productoGuardado
+                                } else {
+                                    val nuevoId = (productosDemoEstado.maxOfOrNull { it.id } ?: 100) + 1
+                                    productosDemoEstado.add(productoGuardado.copy(id = nuevoId))
+                                }
+                                navController.popBackStack()
+                            },
+                            onEliminarClick = { idAEliminar ->
+                                productosDemoEstado.removeAll { it.id == idAEliminar }
+                                navController.popBackStack()
+                            },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(
                         route = Ruta.ProductoDetalle.ruta,
                         arguments = listOf(navArgument("productoId") { type = NavType.IntType })
-                    ) {
-                        PantallaProvisoria(
-                            nombrePantalla = "8. Detalle del Producto",
-                            descripcion = "Carrusel de fotos y ficha completa.",
-                            textoAccion = "Volver",
-                            onAccion = { navController.popBackStack() }
+                    ) { backStackEntry ->
+                        val prodId = backStackEntry.arguments?.getInt("productoId") ?: 0
+                        val producto = productosDemoEstado.find { it.id == prodId } ?: DatosDemo.ProductosDemo.first()
+
+                        ProductoDetalleScreen(
+                            producto = producto,
+                            onEditarClick = { id -> navController.navigate(Ruta.ProductoForm.crearRuta(id)) },
+                            onEliminarClick = { idAEliminar ->
+                                productosDemoEstado.removeAll { it.id == idAEliminar }
+                                navController.popBackStack()
+                            },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.VistaPreviaPublica.ruta) {
-                        PantallaProvisoria(
-                            nombrePantalla = "9. Vista Previa Pública (RF-18)",
-                            descripcion = "Así verán tus clientes tu perfil en el Directorio Web.",
-                            textoAccion = "Volver a mi perfil",
-                            onAccion = { navController.popBackStack() }
+                        VistaPreviaPublicaScreen(
+                            emprendedora = DatosDemo.EmprendedoraDemo,
+                            productos = productosDemoEstado,
+                            onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
