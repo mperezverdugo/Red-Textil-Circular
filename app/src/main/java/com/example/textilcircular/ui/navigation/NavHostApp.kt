@@ -150,18 +150,12 @@ fun NavHostApp(
                     composable(Ruta.Login.ruta) {
                         LoginScreen(
                             onNavegarAtras = { navController.popBackStack() },
-                            onIngresarClick = { _, _ ->
-                                // TODO: cuando haya servidor, validar credenciales reales y guardar la sesión
+                            onLoginExitosoEmprendedora = {
                                 navController.navigate(Ruta.Inicio.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
                             },
-                            onDemoEmprendedoraClick = {
-                                navController.navigate(Ruta.Inicio.ruta) {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            },
-                            onDemoAdminClick = {
+                            onLoginExitosoAdmin = {
                                 navController.navigate(Ruta.PanelAdmin.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }

@@ -10,41 +10,73 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
-// Pantalla de inicio de sesión para emprendedora y administradora.
+// Pantalla de inicio de sesión para emprendedora y administradora conectada a LoginViewModel.
 @Composable
 fun LoginScreen(
     onNavegarAtras: () -> Unit,
-    onIngresarClick: (correo: String, password: String) -> Unit,
+    onLoginExitosoEmprendedora: () -> Unit,
+    onLoginExitosoAdmin: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LoginContent(
+        uiState = uiState,
+        onCorreoCambiado = viewModel::onCorreoCambiado,
+        onPasswordCambiado = viewModel::onPasswordCambiado,
+        onIngresarClick = {
+            viewModel.iniciarSesion(
+                onExitoEmprendedora = onLoginExitosoEmprendedora,
+                onExitoAdmin = onLoginExitosoAdmin
+            )
+        },
+        onDemoEmprendedoraClick = {
+            viewModel.iniciarSesionDemoEmprendedora(onExito = onLoginExitosoEmprendedora)
+        },
+        onDemoAdminClick = {
+            viewModel.iniciarSesionDemoAdmin(onExito = onLoginExitosoAdmin)
+        },
+        onNavegarAtras = onNavegarAtras,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun LoginContent(
+    uiState: LoginUiState,
+    onCorreoCambiado: (String) -> Unit,
+    onPasswordCambiado: (String) -> Unit,
+    onIngresarClick: () -> Unit,
     onDemoEmprendedoraClick: () -> Unit,
     onDemoAdminClick: () -> Unit,
+    onNavegarAtras: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var correo by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
     Scaffold(
         topBar = {
             BarraSuperior(
@@ -70,26 +102,41 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
+            if (uiState.errorGeneral != null) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = uiState.errorGeneral,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+
             CampoTexto(
-                valor = correo,
-                onValorCambiado = { correo = it },
+                valor = uiState.correo,
+                onValorCambiado = onCorreoCambiado,
                 etiqueta = stringResource(id = R.string.login_campo_correo),
+                mensajeError = uiState.errorCorreo,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
             CampoTexto(
-                valor = password,
-                onValorCambiado = { password = it },
+                valor = uiState.password,
+                onValorCambiado = onPasswordCambiado,
                 etiqueta = stringResource(id = R.string.login_campo_password),
+                mensajeError = uiState.errorPassword,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
-            // TODO: conectar con el ViewModel y validar con el servidor
             BotonPrincipal(
                 texto = stringResource(id = R.string.login_boton_ingresar),
-                onClick = { onIngresarClick(correo, password) },
-                habilitado = correo.isNotBlank() && password.isNotBlank()
+                onClick = onIngresarClick,
+                habilitado = !uiState.estaCargando && uiState.correo.isNotBlank() && uiState.password.isNotBlank()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,15 +150,16 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // TODO: el rol vendrá de la autenticación con el servidor
             BotonSecundario(
                 texto = stringResource(id = R.string.login_boton_demo_emprendedora),
-                onClick = onDemoEmprendedoraClick
+                onClick = onDemoEmprendedoraClick,
+                habilitado = !uiState.estaCargando
             )
 
             BotonSecundario(
                 texto = stringResource(id = R.string.login_boton_demo_admin),
-                onClick = onDemoAdminClick
+                onClick = onDemoAdminClick,
+                habilitado = !uiState.estaCargando
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -123,11 +171,14 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     TextilCircularTheme {
-        LoginScreen(
-            onNavegarAtras = {},
-            onIngresarClick = { _, _ -> },
+        LoginContent(
+            uiState = LoginUiState(),
+            onCorreoCambiado = {},
+            onPasswordCambiado = {},
+            onIngresarClick = {},
             onDemoEmprendedoraClick = {},
-            onDemoAdminClick = {}
+            onDemoAdminClick = {},
+            onNavegarAtras = {}
         )
     }
 }
