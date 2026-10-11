@@ -33,11 +33,15 @@ import com.example.textilcircular.ui.screens.catalog.VistaPreviaPublicaScreen
 import com.example.textilcircular.ui.screens.home.InicioScreen
 import com.example.textilcircular.ui.screens.chat.ConversacionScreen
 import com.example.textilcircular.ui.screens.chat.MensajesScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.ui.screens.profile.BajaCuentaScreen
 import com.example.textilcircular.ui.screens.profile.BajaExitosaScreen
 import com.example.textilcircular.ui.screens.profile.EditarPerfilScreen
 import com.example.textilcircular.ui.screens.profile.PerfilScreen
+import com.example.textilcircular.ui.screens.profile.PerfilViewModel
 import com.example.textilcircular.ui.screens.profile.SincronizacionScreen
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 import com.example.textilcircular.ui.screens.admin.AutomatizacionesAdminScreen
 import com.example.textilcircular.ui.screens.admin.CuentaAdminScreen
 import com.example.textilcircular.ui.screens.admin.DetalleEmprendimientoAdminScreen
@@ -59,15 +63,13 @@ fun NavHostApp(
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
-    // Estado de simulación para probar el modo sin conexión
-    var modoSinConexionDemo by remember { mutableStateOf(false) }
+    val perfilViewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val perfilUiState by perfilViewModel.uiState.collectAsStateWithLifecycle()
 
-    // Lista de productos para la navegación inicial
     val productosDemoEstado = remember {
         mutableStateListOf<Producto>().apply { addAll(DatosDemo.ProductosDemo) }
     }
 
-    var emprendedoraEstado by remember { mutableStateOf(DatosDemo.EmprendedoraDemo) }
     var simularListasVacias by remember { mutableStateOf(false) }
     val mensajesChatEstado = remember {
         mutableStateListOf<Mensaje>().apply { addAll(DatosDemo.MensajesConversacionDemo) }
@@ -132,7 +134,7 @@ fun NavHostApp(
                 .padding(paddingValores)
         ) {
             // Aviso visual cuando no hay conexión a internet
-            BannerSinConexion(visible = modoSinConexionDemo)
+            BannerSinConexion(visible = perfilUiState.modoSinConexion)
 
             Box(modifier = Modifier.weight(1f)) {
                 NavHost(
@@ -185,7 +187,7 @@ fun NavHostApp(
                     // Rutas de la emprendedora
                     composable(Ruta.Inicio.ruta) {
                         InicioScreen(
-                            emprendedora = emprendedoraEstado,
+                            emprendedora = perfilUiState.emprendedora,
                             onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) },
                             onVerMensajesClick = { navController.navigate(Ruta.Mensajes.ruta) }
                         )
@@ -251,7 +253,7 @@ fun NavHostApp(
 
                     composable(Ruta.VistaPreviaPublica.ruta) {
                         VistaPreviaPublicaScreen(
-                            emprendedora = emprendedoraEstado,
+                            emprendedora = perfilUiState.emprendedora,
                             productos = if (simularListasVacias) emptyList() else productosDemoEstado,
                             onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
                             onNavegarAtras = { navController.popBackStack() }
@@ -292,11 +294,6 @@ fun NavHostApp(
 
                     composable(Ruta.Perfil.ruta) {
                         PerfilScreen(
-                            emprendedora = emprendedoraEstado,
-                            modoSinConexion = modoSinConexionDemo,
-                            onModoSinConexionCambiado = { modoSinConexionDemo = it },
-                            simularListasVacias = simularListasVacias,
-                            onSimularListasVaciasCambiado = { simularListasVacias = it },
                             onEditarPerfilClick = { navController.navigate(Ruta.EditarPerfil.ruta) },
                             onVistaPreviaClick = { navController.navigate(Ruta.VistaPreviaPublica.ruta) },
                             onSincronizacionClick = { navController.navigate(Ruta.Sincronizacion.ruta) },
@@ -305,36 +302,35 @@ fun NavHostApp(
                                 navController.navigate(Ruta.Bienvenida.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
-                            }
+                            },
+                            viewModel = perfilViewModel
                         )
                     }
 
                     composable(Ruta.EditarPerfil.ruta) {
                         EditarPerfilScreen(
-                            emprendedora = emprendedoraEstado,
-                            onGuardarCambios = { nueva ->
-                                emprendedoraEstado = nueva
-                                navController.popBackStack()
-                            },
-                            onNavegarAtras = { navController.popBackStack() }
+                            onGuardarExitoso = { navController.popBackStack() },
+                            onNavegarAtras = { navController.popBackStack() },
+                            viewModel = perfilViewModel
                         )
                     }
 
                     composable(Ruta.Sincronizacion.ruta) {
                         SincronizacionScreen(
-                            onNavegarAtras = { navController.popBackStack() }
+                            onNavegarAtras = { navController.popBackStack() },
+                            viewModel = perfilViewModel
                         )
                     }
 
                     composable(Ruta.BajaCuenta.ruta) {
                         BajaCuentaScreen(
                             onConfirmarBaja = {
-                                emprendedoraEstado = emprendedoraEstado.copy(activa = false)
                                 navController.navigate(Ruta.BajaExitosa.ruta) {
                                     popUpTo(Ruta.Inicio.ruta) { inclusive = true }
                                 }
                             },
-                            onCancelarBaja = { navController.popBackStack() }
+                            onCancelarBaja = { navController.popBackStack() },
+                            viewModel = perfilViewModel
                         )
                     }
 

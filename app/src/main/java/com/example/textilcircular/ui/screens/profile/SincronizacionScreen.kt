@@ -27,17 +27,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
 import com.example.textilcircular.model.EstadoSincronizacion
 import com.example.textilcircular.model.ItemSincronizacion
@@ -49,24 +46,34 @@ import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.ui.theme.VerdeExitoFondo
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
 // Pantalla de sincronización: muestra los datos pendientes de respaldo y permite enviarlos.
 @Composable
 fun SincronizacionScreen(
     onNavegarAtras: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    SincronizacionContent(
+        itemsPendientes = uiState.itemsPendientes,
+        estadoSync = uiState.estadoSincronizacion,
+        onForzarSincronizacion = { viewModel.forzarSincronizacion() },
+        onNavegarAtras = onNavegarAtras,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun SincronizacionContent(
+    itemsPendientes: List<ItemSincronizacion>,
+    estadoSync: EstadoSincronizacion,
+    onForzarSincronizacion: () -> Unit,
+    onNavegarAtras: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val itemsPendientes = remember {
-        mutableStateListOf<ItemSincronizacion>().apply {
-            addAll(DatosDemo.ElementosPendientesSyncDemo)
-        }
-    }
-
-    var estadoSync by remember { mutableStateOf(EstadoSincronizacion.PENDIENTE) }
-    val coroutineScope = rememberCoroutineScope()
-
     Scaffold(
         topBar = {
             BarraSuperior(
@@ -81,17 +88,9 @@ fun SincronizacionScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
-                // TODO: conectar con SQLite y sincronizar con el servidor en segundo plano
                 BotonPrincipal(
                     texto = stringResource(id = R.string.sync_boton_sincronizar),
-                    onClick = {
-                        estadoSync = EstadoSincronizacion.SINCRONIZANDO
-                        coroutineScope.launch {
-                            delay(1800)
-                            itemsPendientes.clear()
-                            estadoSync = EstadoSincronizacion.SINCRONIZADO
-                        }
-                    },
+                    onClick = onForzarSincronizacion,
                     habilitado = estadoSync != EstadoSincronizacion.SINCRONIZANDO && itemsPendientes.isNotEmpty()
                 )
             }
@@ -246,6 +245,11 @@ fun SincronizacionScreen(
 @Composable
 fun SincronizacionScreenPreview() {
     TextilCircularTheme {
-        SincronizacionScreen(onNavegarAtras = {})
+        SincronizacionContent(
+            itemsPendientes = DatosDemo.ElementosPendientesSyncDemo,
+            estadoSync = EstadoSincronizacion.PENDIENTE,
+            onForzarSincronizacion = {},
+            onNavegarAtras = {}
+        )
     }
 }

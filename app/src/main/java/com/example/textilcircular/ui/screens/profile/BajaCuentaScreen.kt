@@ -30,14 +30,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
-// Pantalla para solicitar la baja voluntaria de la cuenta.
+// Pantalla para solicitar la baja voluntaria de la cuenta conectada a PerfilViewModel.
 @Composable
 fun BajaCuentaScreen(
+    onConfirmarBaja: () -> Unit,
+    onCancelarBaja: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    BajaCuentaContent(
+        onConfirmarBaja = {
+            viewModel.solicitarBajaVoluntaria(onExito = onConfirmarBaja)
+        },
+        onCancelarBaja = onCancelarBaja,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun BajaCuentaContent(
     onConfirmarBaja: () -> Unit,
     onCancelarBaja: () -> Unit,
     modifier: Modifier = Modifier
@@ -57,7 +75,6 @@ fun BajaCuentaScreen(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // TODO: conectar con el ViewModel y notificar la baja al servidor
                 Button(
                     onClick = onConfirmarBaja,
                     modifier = Modifier
@@ -138,7 +155,7 @@ fun BajaCuentaScreen(
 @Composable
 fun BajaCuentaScreenPreview() {
     TextilCircularTheme {
-        BajaCuentaScreen(
+        BajaCuentaContent(
             onConfirmarBaja = {},
             onCancelarBaja = {}
         )

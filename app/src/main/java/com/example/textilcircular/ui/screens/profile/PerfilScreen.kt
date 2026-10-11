@@ -46,9 +46,46 @@ import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-// Pantalla de perfil con los datos de la cuenta y accesos de configuración.
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
+
+// Pantalla de perfil con los datos de la cuenta y accesos de configuración conectada a PerfilViewModel.
 @Composable
 fun PerfilScreen(
+    onEditarPerfilClick: () -> Unit,
+    onVistaPreviaClick: () -> Unit,
+    onSincronizacionClick: () -> Unit,
+    onBajaClick: () -> Unit,
+    onCerrarSesionClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    PerfilContent(
+        emprendedora = uiState.emprendedora,
+        modoSinConexion = uiState.modoSinConexion,
+        onModoSinConexionCambiado = viewModel::onModoSinConexionCambiado,
+        simularListasVacias = uiState.simularListasVacias,
+        onSimularListasVaciasCambiado = viewModel::onSimularListasVaciasCambiado,
+        onEditarPerfilClick = {
+            viewModel.prepararEdicion()
+            onEditarPerfilClick()
+        },
+        onVistaPreviaClick = onVistaPreviaClick,
+        onSincronizacionClick = onSincronizacionClick,
+        onBajaClick = onBajaClick,
+        onCerrarSesionClick = {
+            viewModel.cerrarSesion(onExito = onCerrarSesionClick)
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun PerfilContent(
     emprendedora: Emprendedora,
     modoSinConexion: Boolean,
     onModoSinConexionCambiado: (Boolean) -> Unit,
@@ -286,7 +323,7 @@ private fun FilaOpcionMenu(
 @Composable
 fun PerfilScreenPreview() {
     TextilCircularTheme {
-        PerfilScreen(
+        PerfilContent(
             emprendedora = DatosDemo.EmprendedoraDemo,
             modoSinConexion = false,
             onModoSinConexionCambiado = {},

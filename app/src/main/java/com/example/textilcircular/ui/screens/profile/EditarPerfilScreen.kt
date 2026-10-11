@@ -15,16 +15,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
-import com.example.textilcircular.model.Emprendedora
 import com.example.textilcircular.model.Rubro
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonPrincipal
@@ -33,28 +31,50 @@ import com.example.textilcircular.ui.components.ChipsRubros
 import com.example.textilcircular.ui.components.SelectorDesplegable
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
-// Pantalla para modificar los datos personales y de contacto de la emprendedora.
+// Pantalla para modificar los datos personales y de contacto conectada a PerfilViewModel.
 @Composable
 fun EditarPerfilScreen(
-    emprendedora: Emprendedora,
-    onGuardarCambios: (Emprendedora) -> Unit,
+    onGuardarExitoso: () -> Unit,
+    onNavegarAtras: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    EditarPerfilContent(
+        uiState = uiState,
+        onNombreCambiado = viewModel::onEditNombreCambiado,
+        onNombreComercialCambiado = viewModel::onEditNombreComercialCambiado,
+        onRegionSeleccionada = viewModel::onEditRegionSeleccionada,
+        onComunaSeleccionada = viewModel::onEditComunaSeleccionada,
+        onRubroToggled = viewModel::onEditRubroToggled,
+        onInstagramCambiado = viewModel::onEditInstagramCambiado,
+        onGuardarCambios = {
+            viewModel.guardarCambiosPerfil(onExito = onGuardarExitoso)
+        },
+        onNavegarAtras = onNavegarAtras,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun EditarPerfilContent(
+    uiState: PerfilUiState,
+    onNombreCambiado: (String) -> Unit,
+    onNombreComercialCambiado: (String) -> Unit,
+    onRegionSeleccionada: (String) -> Unit,
+    onComunaSeleccionada: (String) -> Unit,
+    onRubroToggled: (Rubro) -> Unit,
+    onInstagramCambiado: (String) -> Unit,
+    onGuardarCambios: () -> Unit,
     onNavegarAtras: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var nombre by remember { mutableStateOf(emprendedora.nombre) }
-    var nombreComercial by remember { mutableStateOf(emprendedora.nombreComercial) }
-    var regionSeleccionada by remember { mutableStateOf(emprendedora.region) }
-    var comunaSeleccionada by remember { mutableStateOf(emprendedora.comuna) }
-    var instagram by remember { mutableStateOf(emprendedora.instagram ?: "") }
-
-    val rubrosSeleccionados = remember {
-        mutableStateListOf<Rubro>().apply { addAll(emprendedora.rubros) }
-    }
-
-    val comunasDisponibles = remember(regionSeleccionada) {
-        if (regionSeleccionada.isNotBlank()) {
-            DatosDemo.RegionesConComunas[regionSeleccionada] ?: emptyList()
+    val comunasDisponibles = remember(uiState.editRegion) {
+        if (uiState.editRegion.isNotBlank()) {
+            DatosDemo.RegionesConComunas[uiState.editRegion] ?: emptyList()
         } else {
             emptyList()
         }
@@ -74,21 +94,13 @@ fun EditarPerfilScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
-                // TODO: guardar los cambios en SQLite y cuando haya servidor, enviarlos a la API
                 BotonPrincipal(
                     texto = stringResource(id = R.string.accion_guardar),
-                    onClick = {
-                        val emprendedoraActualizada = emprendedora.copy(
-                            nombre = nombre,
-                            nombreComercial = nombreComercial,
-                            region = regionSeleccionada,
-                            comuna = comunaSeleccionada,
-                            rubros = rubrosSeleccionados.toList(),
-                            instagram = instagram.ifBlank { null }
-                        )
-                        onGuardarCambios(emprendedoraActualizada)
-                    },
-                    habilitado = nombre.isNotBlank() && nombreComercial.isNotBlank() && regionSeleccionada.isNotBlank() && comunaSeleccionada.isNotBlank()
+                    onClick = onGuardarCambios,
+                    habilitado = uiState.editNombre.isNotBlank() &&
+                            uiState.editNombreComercial.isNotBlank() &&
+                            uiState.editRegion.isNotBlank() &&
+                            uiState.editComuna.isNotBlank()
                 )
             }
         },
@@ -105,36 +117,51 @@ fun EditarPerfilScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             CampoTexto(
-                valor = nombre,
-                onValorCambiado = { nombre = it },
+                valor = uiState.editNombre,
+                onValorCambiado = onNombreCambiado,
                 etiqueta = stringResource(id = R.string.registro_campo_nombre),
-                textoAyuda = stringResource(id = R.string.registro_campo_nombre_ayuda)
+                textoAyuda = stringResource(id = R.string.registro_campo_nombre_ayuda),
+                mensajeError = uiState.errorNombre
             )
 
             CampoTexto(
-                valor = nombreComercial,
-                onValorCambiado = { nombreComercial = it },
+                valor = uiState.editNombreComercial,
+                onValorCambiado = onNombreComercialCambiado,
                 etiqueta = stringResource(id = R.string.registro_campo_nombre_comercial),
-                textoAyuda = stringResource(id = R.string.registro_campo_nombre_comercial_ayuda)
+                textoAyuda = stringResource(id = R.string.registro_campo_nombre_comercial_ayuda),
+                mensajeError = uiState.errorNombreComercial
             )
 
             SelectorDesplegable(
                 opciones = DatosDemo.ListaRegiones,
-                seleccionado = regionSeleccionada,
-                onOpcionSeleccionada = { nuevaRegion ->
-                    regionSeleccionada = nuevaRegion
-                    comunaSeleccionada = ""
-                },
+                seleccionado = uiState.editRegion,
+                onOpcionSeleccionada = onRegionSeleccionada,
                 etiqueta = stringResource(id = R.string.registro_campo_region)
             )
 
+            if (uiState.errorRegion != null) {
+                Text(
+                    text = uiState.errorRegion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             SelectorDesplegable(
                 opciones = comunasDisponibles,
-                seleccionado = comunaSeleccionada,
-                onOpcionSeleccionada = { comunaSeleccionada = it },
+                seleccionado = uiState.editComuna,
+                onOpcionSeleccionada = onComunaSeleccionada,
                 etiqueta = stringResource(id = R.string.registro_campo_comuna),
-                habilitado = regionSeleccionada.isNotBlank()
+                habilitado = uiState.editRegion.isNotBlank()
             )
+
+            if (uiState.errorComuna != null) {
+                Text(
+                    text = uiState.errorComuna,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
 
             Text(
                 text = stringResource(id = R.string.registro_rubros_explicacion),
@@ -143,21 +170,24 @@ fun EditarPerfilScreen(
             )
 
             ChipsRubros(
-                rubrosSeleccionados = rubrosSeleccionados,
-                onRubroToggled = { rubro ->
-                    if (rubrosSeleccionados.contains(rubro)) {
-                        rubrosSeleccionados.remove(rubro)
-                    } else {
-                        rubrosSeleccionados.add(rubro)
-                    }
-                }
+                rubrosSeleccionados = uiState.editRubros,
+                onRubroToggled = onRubroToggled
             )
 
+            if (uiState.errorRubros != null) {
+                Text(
+                    text = uiState.errorRubros,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             CampoTexto(
-                valor = instagram,
-                onValorCambiado = { instagram = it },
+                valor = uiState.editInstagram,
+                onValorCambiado = onInstagramCambiado,
                 etiqueta = stringResource(id = R.string.registro_campo_instagram),
-                textoAyuda = stringResource(id = R.string.registro_campo_instagram_ayuda)
+                textoAyuda = stringResource(id = R.string.registro_campo_instagram_ayuda),
+                mensajeError = uiState.errorInstagram
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -169,8 +199,14 @@ fun EditarPerfilScreen(
 @Composable
 fun EditarPerfilScreenPreview() {
     TextilCircularTheme {
-        EditarPerfilScreen(
-            emprendedora = DatosDemo.EmprendedoraDemo,
+        EditarPerfilContent(
+            uiState = PerfilUiState(),
+            onNombreCambiado = {},
+            onNombreComercialCambiado = {},
+            onRegionSeleccionada = {},
+            onComunaSeleccionada = {},
+            onRubroToggled = {},
+            onInstagramCambiado = {},
             onGuardarCambios = {},
             onNavegarAtras = {}
         )
