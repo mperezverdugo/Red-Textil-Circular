@@ -1,6 +1,8 @@
 package com.example.textilcircular.ui.screens.catalog
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,6 +51,7 @@ import com.example.textilcircular.ui.components.DialogoConfirmacion
 import com.example.textilcircular.ui.components.InsigniaPendiente
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import java.io.File
 
 // Vista en detalle de un producto con sus fotos y descripción completa.
 @OptIn(ExperimentalFoundationApi::class)
@@ -108,27 +113,46 @@ fun ProductoDetalleScreen(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { pagina ->
+                    val rutaFoto = producto.fotos.getOrNull(pagina)
+                    val bitmap = remember(rutaFoto) {
+                        if (!rutaFoto.isNullOrBlank()) {
+                            val archivo = File(rutaFoto)
+                            if (archivo.exists()) {
+                                BitmapFactory.decodeFile(archivo.absolutePath)
+                            } else null
+                        } else null
+                    }
+
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = stringResource(id = R.string.cd_icono_foto),
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(64.dp)
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = producto.nombre,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = if (producto.fotos.isNotEmpty()) {
-                                    stringResource(id = R.string.producto_fotos_contador, pagina + 1, totalPaginas)
-                                } else {
-                                    stringResource(id = R.string.producto_sin_foto)
-                                },
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                        } else {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = stringResource(id = R.string.cd_icono_foto),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = if (producto.fotos.isNotEmpty()) {
+                                        stringResource(id = R.string.producto_fotos_contador, pagina + 1, totalPaginas)
+                                    } else {
+                                        stringResource(id = R.string.producto_sin_foto)
+                                    },
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }

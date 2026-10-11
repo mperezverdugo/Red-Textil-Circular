@@ -1,5 +1,17 @@
 package com.example.textilcircular.ui.screens.catalog
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,9 +36,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,20 +46,29 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
 import com.example.textilcircular.model.Producto
 import com.example.textilcircular.ui.components.BarraSuperior
@@ -59,11 +79,54 @@ import com.example.textilcircular.ui.components.DialogoConfirmacion
 import com.example.textilcircular.ui.components.IndicadorCargando
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 import com.example.textilcircular.util.Constantes
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.io.File
 
-// Formulario para crear un nuevo producto o editar uno existente del catálogo.
+// Formulario conectado a ProductoFormViewModel para crear o editar productos con cámara, galería y compresión real.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductoFormScreen(
+    productoId: Int?,
+    onNavegarAtras: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ProductoFormViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(productoId) {
+        if (productoId != null && productoId > 0) {
+            viewModel.cargarProducto(productoId)
+        }
+    }
+
+    ProductoFormContenido(
+        esModoEdicion = (productoId != null && productoId > 0),
+        nombre = uiState.nombre,
+        descripcionCorta = uiState.descripcionCorta,
+        explicacionProceso = uiState.explicacionProceso,
+        fotos = uiState.fotos,
+        estaProcesandoFoto = uiState.estaProcesandoFoto,
+        mensajeEstadoFoto = uiState.mensajeEstadoFoto,
+        errorNombre = uiState.errorNombre,
+        errorDescripcion = uiState.errorDescripcion,
+        errorProceso = uiState.errorProceso,
+        errorFotos = uiState.errorFotos,
+        errorGeneral = uiState.errorGeneral,
+        onNombreCambiado = viewModel::onNombreCambiado,
+        onDescripcionCambiado = viewModel::onDescripcionCambiado,
+        onExplicacionProcesoCambiado = viewModel::onExplicacionProcesoCambiado,
+        onEliminarFoto = viewModel::eliminarFoto,
+        onProcesarFoto = { uri, esTemp -> viewModel.procesarFoto(context, uri, esTemp) },
+        onGuardarClick = { viewModel.guardarProducto(onExito = onNavegarAtras) },
+        onEliminarClick = { viewModel.eliminarProducto(onExito = onNavegarAtras) },
+        onNavegarAtras = onNavegarAtras,
+        modifier = modifier
+    )
+}
+
+// Sobrecarga de compatibilidad para previsualizaciones o integración directa.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoFormScreen(
@@ -74,6 +137,7 @@ fun ProductoFormScreen(
     modifier: Modifier = Modifier
 ) {
     val esModoEdicion = productoExistente != null
+    val context = LocalContext.current
 
     var nombre by remember { mutableStateOf(productoExistente?.nombre ?: "") }
     var descripcionCorta by remember { mutableStateOf(productoExistente?.descripcionCorta ?: "") }
@@ -87,12 +151,169 @@ fun ProductoFormScreen(
         }
     }
 
-    var mostrarHojaOrigenFoto by remember { mutableStateOf(false) }
-    var simulandoCompresionFoto by remember { mutableStateOf(false) }
-    var mostrarDialogoEliminar by remember { mutableStateOf(false) }
+    var estaProcesandoFoto by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
+    ProductoFormContenido(
+        esModoEdicion = esModoEdicion,
+        nombre = nombre,
+        descripcionCorta = descripcionCorta,
+        explicacionProceso = explicacionProceso,
+        fotos = fotos,
+        estaProcesandoFoto = estaProcesandoFoto,
+        mensajeEstadoFoto = null,
+        errorNombre = null,
+        errorDescripcion = null,
+        errorProceso = null,
+        errorFotos = null,
+        errorGeneral = null,
+        onNombreCambiado = { nombre = it },
+        onDescripcionCambiado = { descripcionCorta = it },
+        onExplicacionProcesoCambiado = { explicacionProceso = it },
+        onEliminarFoto = { indice -> if (indice in fotos.indices) fotos.removeAt(indice) },
+        onProcesarFoto = { _, _ -> },
+        onGuardarClick = {
+            val producto = Producto(
+                id = productoExistente?.id ?: 0,
+                nombre = nombre,
+                descripcionCorta = descripcionCorta,
+                explicacionProceso = explicacionProceso.ifBlank { null },
+                fotos = fotos.toList(),
+                pendienteSincronizar = true
+            )
+            onGuardarClick(producto)
+        },
+        onEliminarClick = {
+            if (productoExistente != null) {
+                onEliminarClick(productoExistente.id)
+            }
+        },
+        onNavegarAtras = onNavegarAtras,
+        modifier = modifier
+    )
+}
+
+// Componente visual unificado para el formulario de creaciones textiles circulares.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProductoFormContenido(
+    esModoEdicion: Boolean,
+    nombre: String,
+    descripcionCorta: String,
+    explicacionProceso: String,
+    fotos: List<String>,
+    estaProcesandoFoto: Boolean,
+    mensajeEstadoFoto: String?,
+    errorNombre: String?,
+    errorDescripcion: String?,
+    errorProceso: String?,
+    errorFotos: String?,
+    errorGeneral: String?,
+    onNombreCambiado: (String) -> Unit,
+    onDescripcionCambiado: (String) -> Unit,
+    onExplicacionProcesoCambiado: (String) -> Unit,
+    onEliminarFoto: (Int) -> Unit,
+    onProcesarFoto: (Uri, Boolean) -> Unit,
+    onGuardarClick: () -> Unit,
+    onEliminarClick: () -> Unit,
+    onNavegarAtras: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var mostrarHojaOrigenFoto by remember { mutableStateOf(false) }
+    var mostrarDialogoEliminar by remember { mutableStateOf(false) }
+    var mostrarDialogoExplicacionPermiso by remember { mutableStateOf(false) }
+    var mostrarDialogoIrAAjustes by remember { mutableStateOf(false) }
+
+    // Uri temporal para la captura con cámara mediante FileProvider
+    var uriCapturaPendiente by remember { mutableStateOf<Uri?>(null) }
+    var archivoTempPendiente by remember { mutableStateOf<File?>(null) }
+
     val sheetState = rememberModalBottomSheetState()
+
+    // Lanzador para captura fotográfica con la cámara del dispositivo
+    val camaraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { capturaExitosa ->
+        val uri = uriCapturaPendiente
+        if (capturaExitosa && uri != null) {
+            onProcesarFoto(uri, true)
+        } else {
+            archivoTempPendiente?.delete()
+        }
+        uriCapturaPendiente = null
+        archivoTempPendiente = null
+    }
+
+    // Función auxiliar para iniciar la toma de fotografía mediante FileProvider
+    val iniciarCapturaCamara = {
+        try {
+            val carpetaTemp = File(context.cacheDir, "fotos_temp").apply { mkdirs() }
+            val archivoTemp = File.createTempFile("captura_", ".jpg", carpetaTemp)
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                archivoTemp
+            )
+            archivoTempPendiente = archivoTemp
+            uriCapturaPendiente = uri
+            camaraLauncher.launch(uri)
+        } catch (e: Exception) {
+            // Manejo de error al crear el archivo temporal
+        }
+    }
+
+    // Lanzador para solicitar permiso de cámara en tiempo de ejecución
+    val permisoCamaraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (concedido) {
+            iniciarCapturaCamara()
+        } else {
+            val actividad = context as? Activity
+            val debeMostrarExplicacion = actividad?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
+            } ?: false
+
+            if (!debeMostrarExplicacion) {
+                mostrarDialogoIrAAjustes = true
+            } else {
+                mostrarDialogoExplicacionPermiso = true
+            }
+        }
+    }
+
+    // Lanzador para selección desde galería del dispositivo
+    val galeriaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uriSeleccionada: Uri? ->
+        if (uriSeleccionada != null) {
+            onProcesarFoto(uriSeleccionada, false)
+        }
+    }
+
+    // Función que evalúa permisos antes de abrir la cámara
+    val solicitarTomaFoto = {
+        mostrarHojaOrigenFoto = false
+        val tienePermiso = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (tienePermiso) {
+            iniciarCapturaCamara()
+        } else {
+            val actividad = context as? Activity
+            val debeMostrarExplicacion = actividad?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
+            } ?: false
+
+            if (debeMostrarExplicacion) {
+                mostrarDialogoExplicacionPermiso = true
+            } else {
+                permisoCamaraLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -112,20 +333,19 @@ fun ProductoFormScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
+                if (errorGeneral != null) {
+                    Text(
+                        text = errorGeneral,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
                 BotonPrincipal(
                     texto = stringResource(id = R.string.accion_guardar),
-                    onClick = {
-                        val productoAguardar = Producto(
-                            id = productoExistente?.id ?: 0,
-                            nombre = nombre,
-                            descripcionCorta = descripcionCorta,
-                            explicacionProceso = explicacionProceso.ifBlank { null },
-                            fotos = fotos.toList(),
-                            pendienteSincronizar = true
-                        )
-                        onGuardarClick(productoAguardar)
-                    },
-                    habilitado = nombre.isNotBlank() && descripcionCorta.isNotBlank()
+                    onClick = onGuardarClick,
+                    habilitado = nombre.isNotBlank() && descripcionCorta.isNotBlank() && !estaProcesandoFoto
                 )
             }
         },
@@ -168,10 +388,10 @@ fun ProductoFormScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // Aviso de espera mientras se procesa la foto
-            if (simulandoCompresionFoto) {
+            // Indicador de procesamiento y compresión real en segundo plano
+            if (estaProcesandoFoto) {
                 IndicadorCargando(
-                    mensaje = stringResource(id = R.string.estado_preparando_foto),
+                    mensaje = mensajeEstadoFoto ?: stringResource(id = R.string.estado_preparando_foto),
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
             } else {
@@ -179,7 +399,7 @@ fun ProductoFormScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Botón para agregar nueva foto si no se superó el límite
+                    // Botón para agregar nueva foto respetando auditoría de límites (máx 5 fotos)
                     if (fotos.size < Constantes.MAX_FOTOS_POR_PRODUCTO) {
                         item {
                             Box(
@@ -210,8 +430,15 @@ fun ProductoFormScreen(
                         }
                     }
 
-                    // Fotos cargadas (Placeholders)
-                    itemsIndexed(fotos) { index, _ ->
+                    // Renderizado de fotos procesadas o imágenes locales existentes
+                    itemsIndexed(fotos) { index, rutaFoto ->
+                        val bitmap = remember(rutaFoto) {
+                            val archivo = File(rutaFoto)
+                            if (archivo.exists()) {
+                                BitmapFactory.decodeFile(archivo.absolutePath)
+                            } else null
+                        }
+
                         Box(
                             modifier = Modifier
                                 .size(100.dp)
@@ -219,14 +446,24 @@ fun ProductoFormScreen(
                                 .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(36.dp)
-                            )
+                            if (bitmap != null) {
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+
                             IconButton(
-                                onClick = { fotos.removeAt(index) },
+                                onClick = { onEliminarFoto(index) },
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .size(28.dp)
@@ -243,31 +480,42 @@ fun ProductoFormScreen(
                 }
             }
 
+            if (errorFotos != null) {
+                Text(
+                    text = errorFotos,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Campo Nombre
+            // Campo Nombre con auditoría de límites
             CampoTexto(
                 valor = nombre,
-                onValorCambiado = { nombre = it },
+                onValorCambiado = onNombreCambiado,
                 etiqueta = stringResource(id = R.string.producto_form_campo_nombre),
-                textoAyuda = stringResource(id = R.string.producto_form_campo_nombre_ayuda)
+                textoAyuda = errorNombre ?: stringResource(id = R.string.producto_form_campo_nombre_ayuda),
+                esError = errorNombre != null
             )
 
-            // Campo Descripción corta
+            // Campo Descripción corta con auditoría de límites
             CampoTexto(
                 valor = descripcionCorta,
-                onValorCambiado = { descripcionCorta = it },
+                onValorCambiado = onDescripcionCambiado,
                 etiqueta = stringResource(id = R.string.producto_form_campo_descripcion),
-                textoAyuda = stringResource(id = R.string.producto_form_campo_descripcion_ayuda),
+                textoAyuda = errorDescripcion ?: stringResource(id = R.string.producto_form_campo_descripcion_ayuda),
+                esError = errorDescripcion != null,
                 lineasMaximas = 3
             )
 
             // Campo opcional para explicar la técnica textil utilizada
             CampoTexto(
                 valor = explicacionProceso,
-                onValorCambiado = { explicacionProceso = it },
+                onValorCambiado = onExplicacionProcesoCambiado,
                 etiqueta = stringResource(id = R.string.producto_form_campo_proceso),
-                textoAyuda = stringResource(id = R.string.producto_form_campo_proceso_ayuda),
+                textoAyuda = errorProceso ?: stringResource(id = R.string.producto_form_campo_proceso_ayuda),
+                esError = errorProceso != null,
                 lineasMaximas = 4
             )
 
@@ -296,7 +544,7 @@ fun ProductoFormScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Menú inferior para elegir si tomar foto o abrir la galería
+        // Hoja inferior para seleccionar origen de la fotografía (cámara o galería)
         if (mostrarHojaOrigenFoto) {
             ModalBottomSheet(
                 onDismissRequest = { mostrarHojaOrigenFoto = false },
@@ -313,31 +561,18 @@ fun ProductoFormScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
 
-                    // TODO: tomar la foto con la cámara del dispositivo
                     BotonPrincipal(
                         texto = stringResource(id = R.string.accion_tomar_foto),
-                        onClick = {
-                            mostrarHojaOrigenFoto = false
-                            simulandoCompresionFoto = true
-                            coroutineScope.launch {
-                                delay(1200)
-                                fotos.add("foto_${fotos.size + 1}")
-                                simulandoCompresionFoto = false
-                            }
-                        }
+                        onClick = { solicitarTomaFoto() }
                     )
 
-                    // TODO: seleccionar la imagen desde la galería del dispositivo
                     BotonSecundario(
                         texto = stringResource(id = R.string.accion_elegir_galeria),
                         onClick = {
                             mostrarHojaOrigenFoto = false
-                            simulandoCompresionFoto = true
-                            coroutineScope.launch {
-                                delay(1200)
-                                fotos.add("foto_${fotos.size + 1}")
-                                simulandoCompresionFoto = false
-                            }
+                            galeriaLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
                         }
                     )
 
@@ -346,8 +581,60 @@ fun ProductoFormScreen(
             }
         }
 
+        // Diálogo explicativo previo a solicitar permiso de cámara
+        if (mostrarDialogoExplicacionPermiso) {
+            AlertDialog(
+                onDismissRequest = { mostrarDialogoExplicacionPermiso = false },
+                title = { Text(stringResource(id = R.string.permiso_camara_titulo)) },
+                text = { Text(stringResource(id = R.string.permiso_camara_mensaje)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            mostrarDialogoExplicacionPermiso = false
+                            permisoCamaraLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.permiso_camara_boton_permitir))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { mostrarDialogoExplicacionPermiso = false }) {
+                        Text(stringResource(id = R.string.accion_cancelar))
+                    }
+                }
+            )
+        }
+
+        // Diálogo con botón para ir a Ajustes del sistema si se denegó permanentemente
+        if (mostrarDialogoIrAAjustes) {
+            AlertDialog(
+                onDismissRequest = { mostrarDialogoIrAAjustes = false },
+                title = { Text(stringResource(id = R.string.permiso_camara_denegado_titulo)) },
+                text = { Text(stringResource(id = R.string.permiso_camara_denegado_mensaje)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            mostrarDialogoIrAAjustes = false
+                            val intent = Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", context.packageName, null)
+                            )
+                            context.startActivity(intent)
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.permiso_camara_boton_ajustes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { mostrarDialogoIrAAjustes = false }) {
+                        Text(stringResource(id = R.string.accion_cancelar))
+                    }
+                }
+            )
+        }
+
         // Diálogo de confirmación para eliminar
-        if (mostrarDialogoEliminar && productoExistente != null) {
+        if (mostrarDialogoEliminar) {
             DialogoConfirmacion(
                 titulo = stringResource(id = R.string.producto_form_eliminar_titulo),
                 mensaje = stringResource(id = R.string.producto_form_eliminar_mensaje),
@@ -355,7 +642,7 @@ fun ProductoFormScreen(
                 esAccionPeligrosa = true,
                 onConfirmar = {
                     mostrarDialogoEliminar = false
-                    onEliminarClick(productoExistente.id)
+                    onEliminarClick()
                 },
                 onCancelar = { mostrarDialogoEliminar = false }
             )

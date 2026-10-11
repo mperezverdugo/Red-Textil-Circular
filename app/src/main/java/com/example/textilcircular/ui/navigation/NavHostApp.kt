@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.textilcircular.model.Producto
+import kotlinx.coroutines.launch
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -195,7 +196,6 @@ fun NavHostApp(
 
                     composable(Ruta.Catalogo.ruta) {
                         CatalogoScreen(
-                            productos = if (simularListasVacias) emptyList() else productosDemoEstado,
                             onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
                             onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) }
                         )
@@ -211,24 +211,9 @@ fun NavHostApp(
                     ) { backStackEntry ->
                         val prodIdStr = backStackEntry.arguments?.getString("productoId")
                         val prodId = prodIdStr?.toIntOrNull()
-                        val productoExistente = if (prodId != null) productosDemoEstado.find { it.id == prodId } else null
 
                         ProductoFormScreen(
-                            productoExistente = productoExistente,
-                            onGuardarClick = { productoGuardado ->
-                                if (prodId != null) {
-                                    val idx = productosDemoEstado.indexOfFirst { it.id == prodId }
-                                    if (idx >= 0) productosDemoEstado[idx] = productoGuardado
-                                } else {
-                                    val nuevoId = (productosDemoEstado.maxOfOrNull { it.id } ?: 100) + 1
-                                    productosDemoEstado.add(productoGuardado.copy(id = nuevoId))
-                                }
-                                navController.popBackStack()
-                            },
-                            onEliminarClick = { idAEliminar ->
-                                productosDemoEstado.removeAll { it.id == idAEliminar }
-                                navController.popBackStack()
-                            },
+                            productoId = prodId,
                             onNavegarAtras = { navController.popBackStack() }
                         )
                     }
@@ -238,23 +223,42 @@ fun NavHostApp(
                         arguments = listOf(navArgument("productoId") { type = NavType.IntType })
                     ) { backStackEntry ->
                         val prodId = backStackEntry.arguments?.getInt("productoId") ?: 0
-                        val producto = productosDemoEstado.find { it.id == prodId } ?: DatosDemo.ProductosDemo.first()
+                        val contexto = androidx.compose.ui.platform.LocalContext.current
+                        val appContainer = (contexto.applicationContext as com.example.textilcircular.TextilCircularApp).contenedor
+                        val productoPorId by androidx.compose.runtime.produceState<Producto?>(initialValue = null, prodId) {
+                            appContainer.productoRepository.obtenerPorId(prodId).collect {
+                                value = it
+                            }
+                        }
+                        val productoFinal = productoPorId ?: DatosDemo.ProductosDemo.first()
+                        val scope = androidx.compose.runtime.rememberCoroutineScope()
 
                         ProductoDetalleScreen(
-                            producto = producto,
+                            producto = productoFinal,
                             onEditarClick = { id -> navController.navigate(Ruta.ProductoForm.crearRuta(id)) },
                             onEliminarClick = { idAEliminar ->
-                                productosDemoEstado.removeAll { it.id == idAEliminar }
-                                navController.popBackStack()
+                                scope.launch {
+                                    appContainer.productoRepository.eliminar(idAEliminar)
+                                    navController.popBackStack()
+                                }
                             },
                             onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
                     composable(Ruta.VistaPreviaPublica.ruta) {
+                        val contexto = androidx.compose.ui.platform.LocalContext.current
+                        val appContainer = (contexto.applicationContext as com.example.textilcircular.TextilCircularApp).contenedor
+                        val empId = perfilUiState.emprendedora?.id ?: 1
+                        val productosEmprendedora by androidx.compose.runtime.produceState<List<Producto>>(initialValue = emptyList(), empId) {
+                            appContainer.productoRepository.obtenerPorEmprendedora(empId).collect {
+                                value = it
+                            }
+                        }
+
                         VistaPreviaPublicaScreen(
                             emprendedora = perfilUiState.emprendedora,
-                            productos = if (simularListasVacias) emptyList() else productosDemoEstado,
+                            productos = if (simularListasVacias) emptyList() else productosEmprendedora,
                             onProductoClick = { id -> navController.navigate(Ruta.ProductoDetalle.crearRuta(id)) },
                             onNavegarAtras = { navController.popBackStack() }
                         )

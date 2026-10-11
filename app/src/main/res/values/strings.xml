@@ -292,6 +292,13 @@
     <string name="cd_icono_exito">Acción completada</string>
     <string name="cd_icono_foto">Imagen del producto</string>
     <string name="cd_icono_menu">Menú de navegación</string>
+    <!-- Permisos de cámara -->
+    <string name="permiso_camara_titulo">Permiso de cámara requerido</string>
+    <string name="permiso_camara_mensaje">La aplicación necesita acceder a la cámara para capturar fotografías de tus creaciones textiles circulares y agregarlas directamente a tu catálogo.</string>
+    <string name="permiso_camara_boton_permitir">Solicitar permiso</string>
+    <string name="permiso_camara_denegado_titulo">Permiso de cámara denegado</string>
+    <string name="permiso_camara_denegado_mensaje">El permiso de cámara está desactivado. Para poder tomar fotografías de tus productos textiles desde la app, debes habilitarlo en los ajustes del sistema.</string>
+    <string name="permiso_camara_boton_ajustes">Ir a ajustes</string>
     <string name="cd_icono_buscar">Buscar</string>
     <string name="cd_icono_borrar">Eliminar</string>
 </resources>
