@@ -27,10 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Campo de texto reutilizable con etiqueta, texto de ayuda y aviso de error accesible.
- * Cumple con RNF-05 (accesibilidad y señalización doble: color + ícono).
- */
+// Campo de texto con etiquetas, ayudas y aviso de error con ícono y texto.
 @Composable
 fun CampoTexto(
     valor: String,

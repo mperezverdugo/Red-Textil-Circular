@@ -14,10 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Botón secundario para acciones opcionales o navegación de retroceso.
- * Área táctil mínima de 48dp y borde contrastado.
- */
+// Botón secundario para acciones alternativas o para volver atrás.
 @Composable
 fun BotonSecundario(
     texto: String,

@@ -23,10 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Componente para representar estados vacíos con mensaje amigable y acción directa.
- * Cumple con RNF-04 (lenguaje sencillo y motivador).
- */
+// Vista que se muestra cuando una lista todavía no tiene elementos cargados.
 @Composable
 fun EstadoVacio(
     titulo: String,

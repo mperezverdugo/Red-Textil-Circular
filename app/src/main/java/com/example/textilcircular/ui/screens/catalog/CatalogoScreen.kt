@@ -31,10 +31,7 @@ import com.example.textilcircular.ui.components.TarjetaProducto
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 6: Catálogo de Creaciones (RF-13, RF-18)
- * Despliega los productos en cuadrícula de 2 columnas con estado vacío alternativo y FAB de carga.
- */
+// Pantalla del catálogo que muestra los productos en cuadrícula.
 @Composable
 fun CatalogoScreen(
     productos: List<Producto>,

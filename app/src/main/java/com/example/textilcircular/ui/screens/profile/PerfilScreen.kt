@@ -46,10 +46,7 @@ import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 12: Mi Perfil
- * Muestra la información personal, accesos a gestión de cuenta y panel de demostración para evaluación.
- */
+// Pantalla de perfil con los datos de la cuenta y accesos de configuración.
 @Composable
 fun PerfilScreen(
     emprendedora: Emprendedora,
@@ -194,7 +191,7 @@ fun PerfilScreen(
                 }
             }
 
-            // TODO: Eliminar sección de opciones de demostración al terminar el proyecto final
+            // TODO: quitar estas opciones de prueba antes de la entrega final
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),

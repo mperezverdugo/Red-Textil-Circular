@@ -51,10 +51,7 @@ import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.util.Constantes
 
-/**
- * Pantalla 3: Registro Guiado de 4 Pasos (RF-01 a RF-07)
- * Diseñada para máxima simplicidad, accesibilidad y acompañamiento a la usuaria.
- */
+// Formulario de registro guiado en 4 pasos para nuevas emprendedoras.
 @Composable
 fun RegistroGuiadoScreen(
     onNavegarAtras: () -> Unit,
@@ -81,7 +78,7 @@ fun RegistroGuiadoScreen(
     // Paso 4: Confirmación y Ley de Datos
     var aceptaLeyDatos by remember { mutableStateOf(false) }
 
-    // Control de demostración para visualización de errores visuales (RNF-04, RF-05, RF-06)
+    // Interruptor de prueba para simular errores en los campos
     var simularErroresDemo by remember { mutableStateOf(false) }
 
     val comunasDisponibles = remember(regionSeleccionada) {
@@ -119,7 +116,7 @@ fun RegistroGuiadoScreen(
                         onClick = { pasoActual++ }
                     )
                 } else {
-                    // TODO(Capa 2): Conectar con AuthViewModel para invocar registro en el backend
+                    // TODO: registrar la cuenta en el repositorio y cuando haya servidor, enviarla por la API
                     BotonPrincipal(
                         texto = stringResource(id = R.string.registro_boton_finalizar),
                         onClick = onRegistroCompletado,
@@ -188,9 +185,7 @@ fun RegistroGuiadoScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             when (pasoActual) {
-                // ==========================================
-                // PASO 1: DATOS PERSONALES
-                // ==========================================
+                // Paso 1: Datos personales
                 1 -> {
                     CampoTexto(
                         valor = nombreCompleto,
@@ -232,9 +227,7 @@ fun RegistroGuiadoScreen(
                     )
                 }
 
-                // ==========================================
-                // PASO 2: EMPRENDIMIENTO Y RUBROS
-                // ==========================================
+                // Paso 2: Emprendimiento y rubros
                 2 -> {
                     CampoTexto(
                         valor = nombreComercial,
@@ -265,17 +258,15 @@ fun RegistroGuiadoScreen(
                     )
                 }
 
-                // ==========================================
-                // PASO 3: UBICACIÓN Y CONTACTO
-                // ==========================================
+                // Paso 3: Ubicación y contacto
                 3 -> {
-                    // TODO(Capa 3): La lista completa de comunas vendrá del dataset oficial de la Fundación
+                    // TODO: en SQLite cargar la lista completa de comunas
                     SelectorDesplegable(
                         opciones = DatosDemo.ListaRegiones,
                         seleccionado = regionSeleccionada,
                         onOpcionSeleccionada = { nuevaRegion ->
                             regionSeleccionada = nuevaRegion
-                            // RF-03: Al cambiar de región se limpia la comuna anterior
+                            // Si cambia la región borramos la comuna, porque ya no corresponde
                             comunaSeleccionada = ""
                         },
                         etiqueta = stringResource(id = R.string.registro_campo_region)
@@ -316,9 +307,7 @@ fun RegistroGuiadoScreen(
                     }
                 }
 
-                // ==========================================
-                // PASO 4: CONFIRMACIÓN Y LEY DE DATOS
-                // ==========================================
+                // Paso 4: Confirmación y condiciones
                 4 -> {
                     Text(
                         text = stringResource(id = R.string.registro_resumen_explicacion),

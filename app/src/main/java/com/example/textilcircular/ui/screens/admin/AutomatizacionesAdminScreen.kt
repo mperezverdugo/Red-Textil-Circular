@@ -49,10 +49,7 @@ import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.ui.theme.VerdeExitoFondo
 
-/**
- * Pantalla A5: Supervisión de Automatizaciones (RF-30)
- * Monitoreo de correos de bienvenida automáticos y reintento en caso de fallos.
- */
+// Supervisión del envío automático de correos y reintento ante fallos.
 @Composable
 fun AutomatizacionesAdminScreen(
     modifier: Modifier = Modifier
@@ -155,7 +152,7 @@ fun AutomatizacionesAdminScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
-                            // Botón de reintento para correos fallidos (RF-30)
+                            // Botón de reintento para correos fallidos
                             if (registro.estado == EstadoCorreo.FALLIDO) {
                                 Spacer(modifier = Modifier.height(10.dp))
                                 OutlinedButton(

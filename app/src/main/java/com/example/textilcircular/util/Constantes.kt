@@ -1,22 +1,14 @@
 package com.example.textilcircular.util
 
-/**
- * Constantes y reglas de negocio del sistema Textil Circular.
- */
+// Valores fijos que se usan en varias partes de la aplicación.
 object Constantes {
-    /**
-     * Límite máximo de rubros permitidos por emprendedora (Requisito RF-04).
-     */
+    // Máximo de rubros que puede elegir una emprendedora.
     const val MAX_RUBROS = 2
 
-    /**
-     * Límite provisorio de fotografías permitidas por producto (Requisito RF-15).
-     * TODO(confirmar con la Fundación): Definir el límite máximo final de fotos por producto.
-     */
+    // Cantidad máxima de fotos por producto.
+    // TODO: consultar con la Fundación el límite definitivo de fotos por producto.
     const val MAX_FOTOS_POR_PRODUCTO = 5
 
-    /**
-     * Cantidad de pasos en el formulario de registro guiado (RF-01).
-     */
+    // Total de pasos del registro inicial.
     const val TOTAL_PASOS_REGISTRO = 4
 }

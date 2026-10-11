@@ -6,15 +6,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-/**
- * Tipografía del sistema de diseño de la Fundación Textil Circular.
- *
- * Requisitos:
- * - RNF-05: Accesibilidad y legibilidad (Cuerpo mínimo 16sp, Títulos mínimo 22sp).
- * - TODO(confirmar con la Fundación): La tipografía oficial "Monument" está pendiente de entrega técnica.
- *   Se utiliza FontFamily.Default centralizada para poder reemplazarla en este único archivo.
- */
-
+// Tamaños de texto de la app con letras grandes para que personas de cualquier edad puedan leer bien.
+// TODO: consultar con la Fundación la tipografía oficial para integrarla cuando la entreguen.
 private val FuenteBase = FontFamily.Default
 
 val Typography = Typography(
@@ -33,7 +26,7 @@ val Typography = Typography(
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
-    // Títulos de secciones y barras superiores (mínimo 22sp según pauta)
+    // Títulos de secciones y barras superiores
     titleLarge = TextStyle(
         fontFamily = FuenteBase,
         fontWeight = FontWeight.SemiBold,
@@ -48,7 +41,7 @@ val Typography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp
     ),
-    // Texto de cuerpo principal (mínimo 16sp según pauta)
+    // Texto de cuerpo principal
     bodyLarge = TextStyle(
         fontFamily = FuenteBase,
         fontWeight = FontWeight.Normal,
@@ -63,7 +56,7 @@ val Typography = Typography(
         lineHeight = 22.sp,
         letterSpacing = 0.25.sp
     ),
-    // Etiquetas de botones e insignias (claras y legibles)
+    // Etiquetas de botones e insignias
     labelLarge = TextStyle(
         fontFamily = FuenteBase,
         fontWeight = FontWeight.Bold,

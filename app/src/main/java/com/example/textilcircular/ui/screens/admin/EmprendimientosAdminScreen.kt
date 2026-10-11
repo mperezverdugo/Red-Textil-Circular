@@ -46,10 +46,7 @@ import com.example.textilcircular.ui.components.InsigniaEstado
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla A2: Directorio de Emprendimientos (RF-27)
- * Permite buscar, filtrar por estado y supervisar el listado completo de emprendedoras.
- */
+// Directorio administrativo para buscar y supervisar emprendimientos.
 @Composable
 fun EmprendimientosAdminScreen(
     fichas: List<FichaAdminEmprendimiento>,
@@ -97,7 +94,7 @@ fun EmprendimientosAdminScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Buscador de texto (RF-27)
+            // Buscador de texto
             OutlinedTextField(
                 value = textoBusqueda,
                 onValueChange = { textoBusqueda = it },
@@ -166,7 +163,7 @@ fun EmprendimientosAdminScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Lista de Fichas
+            // Lista de fichas
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxSize()

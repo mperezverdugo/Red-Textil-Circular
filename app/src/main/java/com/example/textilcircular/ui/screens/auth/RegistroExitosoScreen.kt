@@ -32,10 +32,7 @@ import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.ui.theme.VerdeExitoFondo
 
-/**
- * Pantalla 4: Registro Exitoso (RF-07)
- * Notifica la creación de la cuenta y el envío del correo automático de bienvenida.
- */
+// Pantalla que confirma la creación de la cuenta y el aviso de bienvenida.
 @Composable
 fun RegistroExitosoScreen(
     onIrACuentaClick: () -> Unit,

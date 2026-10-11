@@ -29,11 +29,7 @@ import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 1: Bienvenida
- * Punto de entrada visual con la identidad de la Fundación Textil Circular.
- * Diseñada bajo RNF-07 (estilo minimalista con mucho espacio en blanco).
- */
+// Pantalla de bienvenida con acceso a inicio de sesión o registro.
 @Composable
 fun BienvenidaScreen(
     onCrearCuentaClick: () -> Unit,

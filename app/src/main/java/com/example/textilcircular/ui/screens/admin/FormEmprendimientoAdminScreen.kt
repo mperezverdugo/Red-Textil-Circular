@@ -36,10 +36,7 @@ import com.example.textilcircular.ui.components.SelectorDesplegable
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla A4: Agregar / Editar Emprendimiento para Administradora (RF-28)
- * Formulario manual de alta y corrección de fichas.
- */
+// Formulario administrativo para crear o editar un emprendimiento.
 @Composable
 fun FormEmprendimientoAdminScreen(
     emprendedoraExistente: Emprendedora?,

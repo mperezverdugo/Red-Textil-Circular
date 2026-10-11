@@ -19,9 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Indicador de carga accesible con texto descriptivo (RNF-03, RNF-04).
- */
+// Indicador circular de espera acompañado de un texto descriptivo.
 @Composable
 fun IndicadorCargando(
     mensaje: String = stringResource(id = R.string.estado_cargando),

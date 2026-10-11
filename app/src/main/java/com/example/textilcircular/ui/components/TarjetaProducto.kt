@@ -31,10 +31,7 @@ import com.example.textilcircular.R
 import com.example.textilcircular.model.Producto
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Tarjeta de visualización para productos en cuadrícula de catálogo (RF-14, RF-18).
- * Representa las fotos con placeholders visuales limpios sin dependencias externas.
- */
+// Tarjeta que muestra la foto, nombre y descripción corta de un producto en el catálogo.
 @Composable
 fun TarjetaProducto(
     producto: Producto,

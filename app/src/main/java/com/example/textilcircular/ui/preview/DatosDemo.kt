@@ -13,16 +13,11 @@ import com.example.textilcircular.model.RegistroAutomatizacionCorreo
 import com.example.textilcircular.model.Rubro
 import com.example.textilcircular.model.TipoEmisor
 
-/**
- * Datos ficticios centralizados para demostración y previsualización (RNF-11).
- * Cumple con la Ley N.º 21.719 y la Ley N.º 19.628 de protección de datos personales.
- */
+// Datos de prueba para previsualizar pantallas y vistas previas.
 object DatosDemo {
 
-    /**
-     * Mapa con las 16 regiones oficiales de Chile y comunas de ejemplo.
-     * TODO(Capa 3): La lista completa de las 346 comunas vendrá del dataset oficial de la Fundación.
-     */
+    // Regiones y comunas de ejemplo para los selectores desplegables.
+    // TODO: en SQLite cargar la lista completa de comunas.
     val RegionesConComunas: Map<String, List<String>> = mapOf(
         "Arica y Parinacota" to listOf("Arica", "Camarones", "Putre", "General Lagos"),
         "Tarapacá" to listOf("Iquique", "Alto Hospicio", "Pozo Almonte", "Pica", "Huara"),
@@ -60,9 +55,7 @@ object DatosDemo {
         activa = true
     )
 
-    /**
-     * Lista de productos demo para el catálogo de la emprendedora (RF-13, RF-14, RF-18).
-     */
+    // Productos de ejemplo para mostrar en el catálogo.
     val ProductosDemo: List<Producto> = listOf(
         Producto(
             id = 101,
@@ -93,9 +86,7 @@ object DatosDemo {
         )
     )
 
-    /**
-     * Conversaciones demo para la bandeja de mensajes (RF-19, RF-21, RF-22).
-     */
+    // Conversaciones de ejemplo para la lista de mensajes.
     val ConversacionesDemo: List<Conversacion> = listOf(
         Conversacion(
             id = 201,
@@ -117,9 +108,7 @@ object DatosDemo {
         )
     )
 
-    /**
-     * Historial de mensajes de la conversación 201 (RF-20, RF-21, RF-22).
-     */
+    // Mensajes de ejemplo de una conversación.
     val MensajesConversacionDemo: List<Mensaje> = listOf(
         Mensaje(
             id = 1,
@@ -145,9 +134,7 @@ object DatosDemo {
         )
     )
 
-    /**
-     * Elementos locales pendientes de sincronización (RF-35).
-     */
+    // Elementos de ejemplo que simulan estar pendientes de sincronización.
     val ElementosPendientesSyncDemo: List<ItemSincronizacion> = listOf(
         ItemSincronizacion(
             id = 1,
@@ -163,9 +150,7 @@ object DatosDemo {
         )
     )
 
-    /**
-     * Lista de emprendimientos para el módulo de administración (RF-27, RF-29).
-     */
+    // Emprendimientos de ejemplo para el panel de administración.
     val EmprendimientosAdminDemo: List<FichaAdminEmprendimiento> = listOf(
         FichaAdminEmprendimiento(
             emprendedora = EmprendedoraDemo,
@@ -187,7 +172,7 @@ object DatosDemo {
             ),
             estadoFicha = EstadoFichaEmprendimiento.POR_REVISAR,
             problemasDetectados = listOf(
-                "Enlace de Instagram contiene caracteres no válidos (RF-05).",
+                "Enlace de Instagram contiene caracteres no válidos.",
                 "Falta agregar un segundo rubro o confirmar actividad."
             )
         ),
@@ -224,14 +209,12 @@ object DatosDemo {
             ),
             estadoFicha = EstadoFichaEmprendimiento.DADA_DE_BAJA,
             problemasDetectados = listOf(
-                "Emprendedora solicitó baja voluntaria del directorio (RF-11, RF-12)."
+                "Emprendedora solicitó baja voluntaria del directorio."
             )
         )
     )
 
-    /**
-     * Auditoría de correos automáticos para el módulo de administración (RF-30).
-     */
+    // Registro de correos de bienvenida de ejemplo.
     val AutomatizacionesCorreosDemo: List<RegistroAutomatizacionCorreo> = listOf(
         RegistroAutomatizacionCorreo(
             id = 1,
@@ -263,9 +246,7 @@ object DatosDemo {
         )
     )
 
-    /**
-     * Métricas agregadas para el panel de administración (RF-31, RF-32).
-     */
+    // Métricas de ejemplo para el panel de control.
     val TotalBusquedasMes: Int = 1420
     val TotalConsultasEnviadas: Int = 385
     val TotalClicsContacto: Int = 890

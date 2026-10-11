@@ -2,11 +2,8 @@ package com.example.textilcircular.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-/**
- * Paleta de colores institucional provisoria para la Fundación Textil Circular.
- * Cumple con RNF-06 (colores institucionales) y RNF-05 (accesibilidad y contraste >= 4.5:1).
- * TODO(confirmar con la Fundación): Confirmar códigos de color oficiales definitivos de la marca.
- */
+// Colores de la aplicación pensados para que tengan buen contraste y sean fáciles de leer.
+// TODO: consultar con la Fundación los códigos de color oficiales definitivos.
 
 // Colores institucionales principales
 val TurquesaFundacion = Color(0xFF0B7A7A)

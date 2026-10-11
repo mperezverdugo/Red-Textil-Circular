@@ -1,9 +1,6 @@
 package com.example.textilcircular.model
 
-/**
- * Modelos de datos adicionales para el soporte de interfaz (UI),
- * Catálogo, Mensajería, Sincronización y Panel Administrativo.
- */
+// Modelos de datos para productos, mensajes, sincronización y administración.
 
 data class Producto(
     val id: Int = 0,

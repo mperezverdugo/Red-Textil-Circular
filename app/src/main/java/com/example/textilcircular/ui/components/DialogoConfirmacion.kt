@@ -11,9 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Diálogo de confirmación accesible para acciones sensibles o destructivas (RF-11, RF-13, RF-28).
- */
+// Ventana emergente que pide confirmación antes de borrar o realizar cambios importantes.
 @Composable
 fun DialogoConfirmacion(
     titulo: String,

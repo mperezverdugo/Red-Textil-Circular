@@ -42,9 +42,7 @@ val ItemsAdministradora = listOf(
     ItemNavegacion(Ruta.CuentaAdmin.ruta, R.string.nav_admin_cuenta, Icons.Default.Person)
 )
 
-/**
- * Barra inferior para la Emprendedora textil (4 pestañas).
- */
+// Barra de navegación inferior para las pantallas de la emprendedora.
 @Composable
 fun BarraNavegacionEmprendedora(
     rutaActual: String?,
@@ -85,9 +83,7 @@ fun BarraNavegacionEmprendedora(
     }
 }
 
-/**
- * Barra inferior para la Administradora del Directorio (4 pestañas).
- */
+// Barra de navegación inferior para las pantallas de la administradora.
 @Composable
 fun BarraNavegacionAdmin(
     rutaActual: String?,

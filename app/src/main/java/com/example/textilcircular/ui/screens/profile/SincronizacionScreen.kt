@@ -52,10 +52,7 @@ import com.example.textilcircular.ui.theme.VerdeExitoFondo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Pantalla 14: Estado de Sincronización (RF-35)
- * Permite a la emprendedora ver qué información está pendiente de respaldo y forzar la sincronización.
- */
+// Pantalla de sincronización: muestra los datos pendientes de respaldo y permite enviarlos.
 @Composable
 fun SincronizacionScreen(
     onNavegarAtras: () -> Unit,
@@ -84,7 +81,7 @@ fun SincronizacionScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
-                // TODO(Capa 3): Conectar con WorkManager y SyncRepository para sincronización en segundo plano
+                // TODO: conectar con SQLite y sincronizar con el servidor en segundo plano
                 BotonPrincipal(
                     texto = stringResource(id = R.string.sync_boton_sincronizar),
                     onClick = {
@@ -109,7 +106,7 @@ fun SincronizacionScreen(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Tarjeta de Última Sincronización
+            // Tarjeta de última sincronización
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
@@ -183,7 +180,7 @@ fun SincronizacionScreen(
                 else -> {}
             }
 
-            // Lista de Elementos Pendientes
+            // Lista de elementos pendientes
             Text(
                 text = stringResource(id = R.string.sync_pendientes_titulo, itemsPendientes.size),
                 style = MaterialTheme.typography.titleMedium,

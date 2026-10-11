@@ -24,10 +24,7 @@ import com.example.textilcircular.ui.theme.NaranjaAdvertencia
 import com.example.textilcircular.ui.theme.NaranjaAdvertenciaFondo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Insignia visual para elementos creados o editados offline pendientes de sincronización (RF-35).
- * Combina ícono y texto para cumplir con la regla de accesibilidad (RNF-05).
- */
+// Etiqueta que avisa cuando un cambio aún no se ha respaldado en internet.
 @Composable
 fun InsigniaPendiente(
     modifier: Modifier = Modifier

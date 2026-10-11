@@ -41,10 +41,7 @@ import com.example.textilcircular.ui.components.EstadoVacio
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 10: Bandeja de Mensajes (RF-19, RF-22)
- * Centraliza las consultas de clientes originadas en el Directorio Web.
- */
+// Bandeja de mensajes con la lista de conversaciones de clientes.
 @Composable
 fun MensajesScreen(
     conversaciones: List<Conversacion>,

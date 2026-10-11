@@ -26,10 +26,7 @@ import com.example.textilcircular.ui.theme.NaranjaAdvertencia
 import com.example.textilcircular.ui.theme.NaranjaAdvertenciaFondo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Banner informativo para el modo sin conexión (RNF-02, RF-35).
- * Notifica a la usuaria de forma tranquila y transparente que puede seguir trabajando.
- */
+// Barra de aviso cuando el teléfono se queda sin conexión a internet.
 @Composable
 fun BannerSinConexion(
     visible: Boolean,

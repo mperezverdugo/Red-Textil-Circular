@@ -37,10 +37,7 @@ import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla A6: Cuenta de Administradora (RF-26)
- * Presenta el perfil del actor administrador y el alcance de permisos diferenciados.
- */
+// Perfil administrativo y visualización de permisos.
 @Composable
 fun CuentaAdminScreen(
     onCerrarSesionClick: () -> Unit,
@@ -62,7 +59,7 @@ fun CuentaAdminScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Cabecera de Administradora
+            // Cabecera de administradora
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -111,7 +108,7 @@ fun CuentaAdminScreen(
                 }
             }
 
-            // Permisos del perfil administrativo (RF-26)
+            // Permisos del perfil administrativo
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),

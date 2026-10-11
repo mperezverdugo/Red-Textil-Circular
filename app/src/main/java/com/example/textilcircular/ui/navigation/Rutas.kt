@@ -1,24 +1,21 @@
 package com.example.textilcircular.ui.navigation
 
-/**
- * Definición centralizada de todas las rutas de navegación de la aplicación mediante Sealed Class con Strings.
- * Organizada en 3 grafos: Autenticación, Emprendedora y Administradora.
- */
+// Rutas de navegación de la aplicación organizadas por flujo.
 sealed class Ruta(val ruta: String) {
 
-    // --- Grafo de Autenticación y Registro ---
+    // Pantallas de acceso y registro
     data object Bienvenida : Ruta("auth_bienvenida")
     data object Login : Ruta("auth_login")
     data object Registro : Ruta("auth_registro")
     data object RegistroExitoso : Ruta("auth_registro_exitoso")
 
-    // --- Grafo de la Emprendedora (Pestañas principales con barra inferior) ---
+    // Pestañas principales de la emprendedora
     data object Inicio : Ruta("emp_inicio")
     data object Catalogo : Ruta("emp_catalogo")
     data object Mensajes : Ruta("emp_mensajes")
     data object Perfil : Ruta("emp_perfil")
 
-    // --- Rutas secundarias de Emprendedora (sin barra inferior) ---
+    // Pantallas secundarias de la emprendedora
     data object ProductoForm : Ruta("emp_producto_form?productoId={productoId}") {
         fun crearRuta(productoId: Int? = null): String {
             return if (productoId != null) "emp_producto_form?productoId=$productoId" else "emp_producto_form"
@@ -36,13 +33,13 @@ sealed class Ruta(val ruta: String) {
     data object BajaCuenta : Ruta("emp_baja_cuenta")
     data object BajaExitosa : Ruta("emp_baja_exitosa")
 
-    // --- Grafo de la Administradora (Pestañas principales con barra inferior) ---
+    // Pestañas principales de la administración
     data object PanelAdmin : Ruta("admin_panel")
     data object EmprendimientosAdmin : Ruta("admin_emprendimientos")
     data object AutomatizacionesAdmin : Ruta("admin_automatizaciones")
     data object CuentaAdmin : Ruta("admin_cuenta")
 
-    // --- Rutas secundarias de Administradora ---
+    // Pantallas secundarias de la administración
     data object DetalleEmprendimientoAdmin : Ruta("admin_detalle_emp/{emprendimientoId}") {
         fun crearRuta(id: Int): String = "admin_detalle_emp/$id"
     }

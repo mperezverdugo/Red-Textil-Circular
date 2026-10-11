@@ -50,10 +50,7 @@ import com.example.textilcircular.model.Mensaje
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.preview.DatosDemo
 
-/**
- * Componente principal de navegación y andamiaje (Scaffold) de Textil Circular.
- * Controla la visualización condicional de las barras inferiores y la navegación entre grafos.
- */
+// Navegación principal de la app y estructura con barras inferiores.
 @Composable
 fun NavHostApp(
     modifier: Modifier = Modifier,
@@ -62,10 +59,10 @@ fun NavHostApp(
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
-    // Estado de simulación offline para demostración (Capa 1)
+    // Estado de simulación para probar el modo sin conexión
     var modoSinConexionDemo by remember { mutableStateOf(false) }
 
-    // Lista interactiva de productos para la demostración de la Capa 1 (RNF-11)
+    // Lista de productos para la navegación inicial
     val productosDemoEstado = remember {
         mutableStateListOf<Producto>().apply { addAll(DatosDemo.ProductosDemo) }
     }
@@ -134,7 +131,7 @@ fun NavHostApp(
                 .fillMaxSize()
                 .padding(paddingValores)
         ) {
-            // Banner de advertencia de conectividad transversal (RNF-02)
+            // Aviso visual cuando no hay conexión a internet
             BannerSinConexion(visible = modoSinConexionDemo)
 
             Box(modifier = Modifier.weight(1f)) {
@@ -142,9 +139,7 @@ fun NavHostApp(
                     navController = navController,
                     startDestination = Ruta.Bienvenida.ruta
                 ) {
-                    // ==========================================
-                    // 1. GRAFO DE AUTENTICACIÓN Y ACCESO
-                    // ==========================================
+                    // Rutas de inicio y registro
                     composable(Ruta.Bienvenida.ruta) {
                         BienvenidaScreen(
                             onCrearCuentaClick = { navController.navigate(Ruta.Registro.ruta) },
@@ -156,7 +151,7 @@ fun NavHostApp(
                         LoginScreen(
                             onNavegarAtras = { navController.popBackStack() },
                             onIngresarClick = { _, _ ->
-                                // TODO(Capa 2): Autenticación con ViewModel y obtención de token de sesión
+                                // TODO: cuando haya servidor, validar credenciales reales y guardar la sesión
                                 navController.navigate(Ruta.Inicio.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
@@ -193,9 +188,7 @@ fun NavHostApp(
                         )
                     }
 
-                    // ==========================================
-                    // 2. GRAFO DE LA EMPRENDEDORA
-                    // ==========================================
+                    // Rutas de la emprendedora
                     composable(Ruta.Inicio.ruta) {
                         InicioScreen(
                             emprendedora = emprendedoraEstado,
@@ -361,9 +354,7 @@ fun NavHostApp(
                         )
                     }
 
-                    // ==========================================
-                    // 3. GRAFO DE LA ADMINISTRADORA
-                    // ==========================================
+                    // Rutas de la administración
                     composable(Ruta.PanelAdmin.ruta) {
                         PanelAdminScreen(
                             onVerFichasPorRevisarClick = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) }

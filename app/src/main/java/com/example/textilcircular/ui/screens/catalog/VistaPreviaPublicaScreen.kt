@@ -41,10 +41,7 @@ import com.example.textilcircular.ui.components.TarjetaProducto
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 9: Vista Previa Pública (RF-18)
- * Permite a la emprendedora ver exactamente cómo verán los clientes su ficha en el Directorio Web.
- */
+// Muestra cómo ven los clientes la ficha de la emprendedora en la web.
 @Composable
 fun VistaPreviaPublicaScreen(
     emprendedora: Emprendedora,
@@ -123,7 +120,7 @@ fun VistaPreviaPublicaScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón "Escribirle" deshabilitado con nota explicativa (RF-18)
+                    // Botón inactivo que simula el acceso del cliente en la web
                     Button(
                         onClick = {},
                         enabled = false,

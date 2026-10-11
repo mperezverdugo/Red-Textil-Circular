@@ -35,10 +35,7 @@ import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 15: Darme de Baja (RF-11)
- * Permite a la emprendedora solicitar su retiro voluntario con la misma facilidad con que se registró.
- */
+// Pantalla para solicitar la baja voluntaria de la cuenta.
 @Composable
 fun BajaCuentaScreen(
     onConfirmarBaja: () -> Unit,
@@ -60,7 +57,7 @@ fun BajaCuentaScreen(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // TODO(Capa 2): Conectar con PerfilViewModel para invocar la baja en la API REST
+                // TODO: conectar con el ViewModel y notificar la baja al servidor
                 Button(
                     onClick = onConfirmarBaja,
                     modifier = Modifier

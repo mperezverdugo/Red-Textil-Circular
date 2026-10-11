@@ -63,10 +63,7 @@ import com.example.textilcircular.util.Constantes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Pantalla 7: Crear y Editar Producto (RF-13 a RF-17)
- * Permite gestionar fotografías con hoja modal, compresión visual simulada y proceso circular opcional.
- */
+// Formulario para crear un nuevo producto o editar uno existente del catálogo.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoFormScreen(
@@ -144,7 +141,7 @@ fun ProductoFormScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Sección de Fotos (RF-14, RF-15, RF-17)
+            // Sección de fotografías del producto
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -171,7 +168,7 @@ fun ProductoFormScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // Estado de compresión visual (RNF-03)
+            // Aviso de espera mientras se procesa la foto
             if (simulandoCompresionFoto) {
                 IndicadorCargando(
                     mensaje = stringResource(id = R.string.estado_preparando_foto),
@@ -265,7 +262,7 @@ fun ProductoFormScreen(
                 lineasMaximas = 3
             )
 
-            // Campo Opcional de Proceso (RF-16)
+            // Campo opcional para explicar la técnica textil utilizada
             CampoTexto(
                 valor = explicacionProceso,
                 onValorCambiado = { explicacionProceso = it },
@@ -299,7 +296,7 @@ fun ProductoFormScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Hoja Inferior para elegir origen de foto (RF-17)
+        // Menú inferior para elegir si tomar foto o abrir la galería
         if (mostrarHojaOrigenFoto) {
             ModalBottomSheet(
                 onDismissRequest = { mostrarHojaOrigenFoto = false },
@@ -316,7 +313,7 @@ fun ProductoFormScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
 
-                    // TODO(Capa 2): Integrar ActivityResultContracts.TakePicture para cámara nativa
+                    // TODO: tomar la foto con la cámara del dispositivo
                     BotonPrincipal(
                         texto = stringResource(id = R.string.accion_tomar_foto),
                         onClick = {
@@ -330,7 +327,7 @@ fun ProductoFormScreen(
                         }
                     )
 
-                    // TODO(Capa 2): Integrar PickVisualMedia para galería nativa
+                    // TODO: seleccionar la imagen desde la galería del dispositivo
                     BotonSecundario(
                         texto = stringResource(id = R.string.accion_elegir_galeria),
                         onClick = {

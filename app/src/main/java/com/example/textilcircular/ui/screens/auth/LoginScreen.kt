@@ -33,10 +33,7 @@ import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 2: Iniciar Sesión (RF-08)
- * Permite acceder a la cuenta de la emprendedora o al rol administrador.
- */
+// Pantalla de inicio de sesión para emprendedora y administradora.
 @Composable
 fun LoginScreen(
     onNavegarAtras: () -> Unit,
@@ -88,7 +85,7 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
-            // TODO(Capa 2): La validación de credenciales reales y tokens se conectará con el ViewModel y AuthRepository.
+            // TODO: conectar con el ViewModel y validar con el servidor
             BotonPrincipal(
                 texto = stringResource(id = R.string.login_boton_ingresar),
                 onClick = { onIngresarClick(correo, password) },
@@ -99,14 +96,14 @@ fun LoginScreen(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Sección de demostración para evaluación docente y pruebas (DSY1105)
+            // Accesos directos para demostración
             Text(
                 text = stringResource(id = R.string.login_seccion_demo),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // TODO(Capa 2): El rol vendrá de la autenticación en el servidor.
+            // TODO: el rol vendrá de la autenticación con el servidor
             BotonSecundario(
                 texto = stringResource(id = R.string.login_boton_demo_emprendedora),
                 onClick = onDemoEmprendedoraClick

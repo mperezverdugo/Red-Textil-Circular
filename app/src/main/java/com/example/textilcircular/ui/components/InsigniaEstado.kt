@@ -34,10 +34,7 @@ import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.ui.theme.VerdeExitoFondo
 
-/**
- * Insignia de estado para fichas de emprendimientos (RF-27, RF-29).
- * Incluye ícono y texto para cumplir con la regla de accesibilidad (RNF-05).
- */
+// Etiqueta visual con color e ícono que muestra el estado de una ficha.
 @Composable
 fun InsigniaEstado(
     estado: EstadoFichaEmprendimiento,

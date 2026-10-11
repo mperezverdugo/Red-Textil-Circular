@@ -39,10 +39,7 @@ import com.example.textilcircular.ui.theme.AzulRevision
 import com.example.textilcircular.ui.theme.AzulRevisionFondo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla A1: Panel Administrativo (RF-31, RF-32)
- * Provee visibilidad del impacto de la plataforma, contactos por región y rubro mediante barras Box nativas.
- */
+// Panel administrativo: métricas de impacto, contactos por región y rubro.
 @Composable
 fun PanelAdminScreen(
     onVerFichasPorRevisarClick: () -> Unit,
@@ -70,7 +67,7 @@ fun PanelAdminScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // Tarjetas de Métricas de Uso y Trazabilidad (RF-31)
+            // Tarjetas de métricas de uso
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -92,7 +89,7 @@ fun PanelAdminScreen(
                 )
             }
 
-            // Alerta de Fichas con Advertencias o por Revisar (RF-29)
+            // Alerta de fichas pendientes de revisión
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,7 +134,7 @@ fun PanelAdminScreen(
                 }
             }
 
-            // Gráfico de Barras Horizontales: Contactos por Región (RF-32)
+            // Gráfico de contactos por región
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -167,7 +164,7 @@ fun PanelAdminScreen(
                 }
             }
 
-            // Gráfico de Barras Horizontales: Contactos por Rubro (RF-32)
+            // Gráfico de contactos por rubro
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -257,7 +254,7 @@ private fun FilaBarraGrafico(
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        // Barra hecha con Box nativo sin dependencias externas
+        // Barra de progreso visual
         Box(
             modifier = Modifier
                 .fillMaxWidth()

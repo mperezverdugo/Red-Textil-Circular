@@ -48,11 +48,7 @@ import com.example.textilcircular.ui.components.InsigniaPendiente
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 8: Detalle de Producto
- * Vista ampliada de la prenda o servicio con carrusel de fotografías (HorizontalPager)
- * y detalles del proceso de economía circular textil (RF-16, RF-18).
- */
+// Vista en detalle de un producto con sus fotos y descripción completa.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductoDetalleScreen(
@@ -186,7 +182,7 @@ fun ProductoDetalleScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                // Sección opcional de Proceso de Fabricación Circular (RF-16)
+                // Proceso de fabricación circular opcional
                 if (!producto.explicacionProceso.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Card(

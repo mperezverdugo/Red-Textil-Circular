@@ -48,10 +48,7 @@ import com.example.textilcircular.ui.components.BurbujaMensaje
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 11: Conversación Interna (RF-20 a RF-22)
- * Chat seguro integrado en la plataforma que reemplaza el contacto por WhatsApp o Instagram.
- */
+// Pantalla de chat entre la emprendedora y un cliente interesado.
 @Composable
 fun ConversacionScreen(
     conversacion: Conversacion,
@@ -70,7 +67,7 @@ fun ConversacionScreen(
             )
         },
         bottomBar = {
-            // Caja inferior de respuesta rápida (RF-22)
+            // Barra de entrada y envío de mensajes
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -131,7 +128,7 @@ fun ConversacionScreen(
                 .fillMaxSize()
                 .padding(paddingValores)
         ) {
-            // Tarjeta superior del producto consultado (RF-21)
+            // Producto consultado en esta conversación
             conversacion.productoAsociado?.let { producto ->
                 Card(
                     modifier = Modifier
@@ -177,7 +174,7 @@ fun ConversacionScreen(
                 }
             }
 
-            // Franja de seguridad de la plataforma (RF-20)
+            // Recordatorio de seguridad de la plataforma
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

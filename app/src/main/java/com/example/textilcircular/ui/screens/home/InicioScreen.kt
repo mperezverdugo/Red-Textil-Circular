@@ -41,10 +41,7 @@ import com.example.textilcircular.ui.components.InsigniaEstado
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 5: Inicio de la Emprendedora
- * Panel central con estado de visibilidad, progreso del perfil (RF-34), consultas y accesos rápidos.
- */
+// Pantalla de inicio con resumen del perfil, consultas pendientes y accesos directos.
 @Composable
 fun InicioScreen(
     emprendedora: Emprendedora,
@@ -111,7 +108,7 @@ fun InicioScreen(
             }
         }
 
-        // 2. Tarjeta: "Completa tu perfil" (RF-34)
+        // 2. Tarjeta para completar el perfil
         val avancePerfil = 75
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -221,7 +218,7 @@ fun InicioScreen(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // 4. Acción principal destacada: "Agregar un producto" (máximo 3 toques según RNF-08)
+        // 4. Botón para agregar un producto al catálogo
         BotonPrincipal(
             texto = stringResource(id = R.string.inicio_boton_agregar_producto),
             onClick = onAgregarProductoClick

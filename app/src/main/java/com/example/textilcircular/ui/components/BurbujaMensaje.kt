@@ -20,10 +20,7 @@ import com.example.textilcircular.model.Mensaje
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Burbuja de chat para la mensajería interna (RF-20, RF-22).
- * Diferencia con claridad entre las consultas de clientes y las respuestas de la emprendedora.
- */
+// Burbuja de chat que cambia de lado y color según quién escribió el mensaje.
 @Composable
 fun BurbujaMensaje(
     mensaje: Mensaje,

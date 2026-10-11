@@ -17,10 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Barra de progreso accesible para formularios guiados ("Paso X de Y").
- * Cumple con RNF-04 y RNF-08 para orientar a personas con baja alfabetización digital.
- */
+// Indicador que muestra en qué paso del formulario va la persona.
 @Composable
 fun BarraProgresoPasos(
     pasoActual: Int,

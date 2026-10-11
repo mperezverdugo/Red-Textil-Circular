@@ -26,10 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Selector desplegable accesible que no permite escribir a mano (RF-02).
- * Evita errores tipográficos y fichas invisibles.
- */
+// Menú desplegable para elegir de una lista cerrada sin escribir a mano.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectorDesplegable(

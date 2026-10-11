@@ -18,10 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Barra superior estandarizada para toda la aplicación.
- * Garantiza consistencia visual, títulos legibles (>= 22sp) y navegación accesible.
- */
+// Barra superior con título y botón opcional para volver atrás.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarraSuperior(

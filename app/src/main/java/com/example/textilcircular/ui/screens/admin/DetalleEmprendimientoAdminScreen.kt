@@ -50,10 +50,7 @@ import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.ui.theme.VerdeExitoFondo
 
-/**
- * Pantalla A3: Detalle de Emprendimiento para Administradora (RF-28, RF-29)
- * Presenta el análisis de inconsistencias y herramientas de moderación manual.
- */
+// Detalle de un emprendimiento desde el perfil administrador, con opciones de moderación.
 @Composable
 fun DetalleEmprendimientoAdminScreen(
     ficha: FichaAdminEmprendimiento,
@@ -172,7 +169,7 @@ fun DetalleEmprendimientoAdminScreen(
                 }
             }
 
-            // Panel de Inconsistencias Detectadas (RF-29)
+            // Panel de inconsistencias detectadas
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),

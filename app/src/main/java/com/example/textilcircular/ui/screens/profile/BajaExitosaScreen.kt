@@ -28,10 +28,7 @@ import com.example.textilcircular.R
 import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 15b: Baja Exitosa (RF-12)
- * Notifica que la ficha ya no está disponible en el directorio y permite salir al inicio.
- */
+// Pantalla de confirmación tras dar de baja la cuenta.
 @Composable
 fun BajaExitosaScreen(
     onVolverInicioClick: () -> Unit,

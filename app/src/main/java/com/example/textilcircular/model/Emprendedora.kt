@@ -1,11 +1,6 @@
 package com.example.textilcircular.model
 
-/**
- * Modelo de datos de una Emprendedora registrada en el Directorio Textil Circular.
- *
- * Requisitos asociados: RF-01 a RF-06 (Registro), RF-09 (Ficha y Perfil), RF-27 (Administración).
- * Cumple con Ley N.º 21.719 y Ley N.º 19.628 para la protección de datos personales.
- */
+// Datos de una emprendedora registrada en el directorio.
 data class Emprendedora(
     val id: Int = 0,
     val rut: String,

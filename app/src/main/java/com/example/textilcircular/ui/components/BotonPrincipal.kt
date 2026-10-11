@@ -13,10 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Botón principal de acción primaria (Turquesa institucional).
- * Área táctil mínima de 48dp y texto accesible en 16sp negrita.
- */
+// Botón principal de la aplicación para las acciones destacadas.
 @Composable
 fun BotonPrincipal(
     texto: String,

@@ -9,10 +9,7 @@ import androidx.compose.ui.Modifier
 import com.example.textilcircular.ui.navigation.NavHostApp
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Actividad principal de Textil Circular.
- * Aloja exclusivamente el NavHost principal envuelto en el tema institucional de la Fundación.
- */
+// Pantalla principal que carga el tema y el navegador de la aplicación.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

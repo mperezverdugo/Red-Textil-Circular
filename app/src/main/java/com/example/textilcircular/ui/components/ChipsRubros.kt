@@ -24,11 +24,7 @@ import com.example.textilcircular.model.Rubro
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.util.Constantes
 
-/**
- * Componente para selección de rubros mediante Chips (RF-04).
- * Itera dinámicamente sobre Rubro.entries para soportar automáticamente
- * la inclusión de los 2 rubros pendientes de la Fundación.
- */
+// Botones de selección de rubros que permiten marcar hasta el máximo permitido.
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChipsRubros(

@@ -34,10 +34,7 @@ import com.example.textilcircular.ui.components.SelectorDesplegable
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-/**
- * Pantalla 13: Editar Perfil (RF-09)
- * Permite actualizar nombre comercial, ubicación dependiente región->comuna, rubros e Instagram.
- */
+// Pantalla para modificar los datos personales y de contacto de la emprendedora.
 @Composable
 fun EditarPerfilScreen(
     emprendedora: Emprendedora,
@@ -77,7 +74,7 @@ fun EditarPerfilScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
-                // TODO(Capa 2): Conectar con PerfilViewModel para actualizar en Room y API REST
+                // TODO: guardar los cambios en SQLite y cuando haya servidor, enviarlos a la API
                 BotonPrincipal(
                     texto = stringResource(id = R.string.accion_guardar),
                     onClick = {

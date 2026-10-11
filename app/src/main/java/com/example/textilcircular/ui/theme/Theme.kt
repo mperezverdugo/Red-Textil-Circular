@@ -9,10 +9,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-/**
- * Esquema de colores exclusivo claro para la Fundación Textil Circular.
- * Diseñado con alto contraste para asegurar legibilidad según RNF-05 y RNF-06.
- */
+// Esquema de colores en modo claro con buen contraste para que sea legible.
 private val LightColorScheme = lightColorScheme(
     primary = TurquesaFundacion,
     onPrimary = Blanco,
@@ -44,10 +41,7 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = GrisBorde
 )
 
-/**
- * Tema principal de la aplicación.
- * Solo tema claro con alto contraste y sin color dinámico para consistencia de marca.
- */
+// Tema principal de la app que aplica los colores y tipografías a todas las pantallas.
 @Composable
 fun TextilCircularTheme(
     content: @Composable () -> Unit
