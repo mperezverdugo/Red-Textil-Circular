@@ -35,8 +35,11 @@ import com.example.textilcircular.ui.components.ChipsRubros
 import com.example.textilcircular.ui.components.SelectorDesplegable
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.util.validacion.ValidadorContacto
+import com.example.textilcircular.util.validacion.ValidadorRut
+import com.example.textilcircular.util.validacion.ValidadorTexto
 
-// Formulario administrativo para crear o editar un emprendimiento.
+// Formulario administrativo para crear o editar un emprendimiento con validaciones centralizadas.
 @Composable
 fun FormEmprendimientoAdminScreen(
     emprendedoraExistente: Emprendedora?,
@@ -53,6 +56,16 @@ fun FormEmprendimientoAdminScreen(
     var regionSeleccionada by remember { mutableStateOf(emprendedoraExistente?.region ?: "") }
     var comunaSeleccionada by remember { mutableStateOf(emprendedoraExistente?.comuna ?: "") }
     var instagram by remember { mutableStateOf(emprendedoraExistente?.instagram ?: "") }
+
+    // Mensajes de error por campo
+    var errorNombre by remember { mutableStateOf<String?>(null) }
+    var errorRut by remember { mutableStateOf<String?>(null) }
+    var errorEmail by remember { mutableStateOf<String?>(null) }
+    var errorNombreComercial by remember { mutableStateOf<String?>(null) }
+    var errorRegion by remember { mutableStateOf<String?>(null) }
+    var errorComuna by remember { mutableStateOf<String?>(null) }
+    var errorRubros by remember { mutableStateOf<String?>(null) }
+    var errorInstagram by remember { mutableStateOf<String?>(null) }
 
     val rubrosSeleccionados = remember {
         mutableStateListOf<Rubro>().apply {
@@ -91,16 +104,41 @@ fun FormEmprendimientoAdminScreen(
                 BotonPrincipal(
                     texto = stringResource(id = R.string.accion_guardar),
                     onClick = {
+                        val resNombre = ValidadorTexto.validarNombreTitular(nombre)
+                        val resRut = ValidadorRut.validar(rut)
+                        val resEmail = ValidadorContacto.validarEmail(email)
+                        val resNombreComercial = ValidadorTexto.validarLongitud(nombreComercial, 3, 80, "El nombre comercial")
+                        val resRegion = ValidadorTexto.validarNoVacio(regionSeleccionada, "La región")
+                        val resComuna = ValidadorTexto.validarNoVacio(comunaSeleccionada, "La comuna")
+                        val rubrosValidos = rubrosSeleccionados.isNotEmpty()
+                        val resIg = ValidadorContacto.validarInstagram(instagram)
+
+                        val hayErrores = !resNombre.esValido || !resRut.esValido || !resEmail.esValido ||
+                                !resNombreComercial.esValido || !resRegion.esValido || !resComuna.esValido ||
+                                !rubrosValidos || !resIg.esValido
+
+                        if (hayErrores) {
+                            errorNombre = resNombre.mensajeError
+                            errorRut = resRut.mensajeError
+                            errorEmail = resEmail.mensajeError
+                            errorNombreComercial = resNombreComercial.mensajeError
+                            errorRegion = resRegion.mensajeError
+                            errorComuna = resComuna.mensajeError
+                            errorRubros = if (!rubrosValidos) "Debes seleccionar al menos un rubro" else null
+                            errorInstagram = resIg.mensajeError
+                            return@BotonPrincipal
+                        }
+
                         val emp = Emprendedora(
                             id = emprendedoraExistente?.id ?: 0,
-                            rut = rut,
-                            nombre = nombre,
-                            nombreComercial = nombreComercial,
+                            rut = ValidadorRut.formatear(rut),
+                            nombre = nombre.trim(),
+                            nombreComercial = nombreComercial.trim(),
                             region = regionSeleccionada,
                             comuna = comunaSeleccionada,
                             rubros = rubrosSeleccionados.toList(),
-                            email = email,
-                            instagram = instagram.ifBlank { null },
+                            email = email.trim(),
+                            instagram = instagram.trim().ifBlank { null },
                             activa = emprendedoraExistente?.activa ?: true
                         )
                         onGuardarClick(emp)
@@ -124,29 +162,47 @@ fun FormEmprendimientoAdminScreen(
 
             CampoTexto(
                 valor = nombre,
-                onValorCambiado = { nombre = it },
+                onValorCambiado = {
+                    nombre = it
+                    errorNombre = null
+                },
                 etiqueta = stringResource(id = R.string.registro_campo_nombre),
-                textoAyuda = stringResource(id = R.string.registro_campo_nombre_ayuda)
+                textoAyuda = errorNombre ?: stringResource(id = R.string.registro_campo_nombre_ayuda),
+                esError = errorNombre != null
             )
 
             CampoTexto(
                 valor = rut,
-                onValorCambiado = { rut = it },
+                onValorCambiado = {
+                    rut = it
+                    errorRut = null
+                },
                 etiqueta = stringResource(id = R.string.registro_campo_rut),
-                textoAyuda = stringResource(id = R.string.registro_campo_rut_ayuda)
+                textoAyuda = errorRut ?: stringResource(id = R.string.registro_campo_rut_ayuda),
+                esError = errorRut != null
             )
 
             CampoTexto(
                 valor = email,
-                onValorCambiado = { email = it },
+                onValorCambiado = {
+                    email = it
+                    errorEmail = null
+                },
                 etiqueta = stringResource(id = R.string.registro_campo_correo),
+                textoAyuda = errorEmail,
+                esError = errorEmail != null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
             CampoTexto(
                 valor = nombreComercial,
-                onValorCambiado = { nombreComercial = it },
-                etiqueta = stringResource(id = R.string.registro_campo_nombre_comercial)
+                onValorCambiado = {
+                    nombreComercial = it
+                    errorNombreComercial = null
+                },
+                etiqueta = stringResource(id = R.string.registro_campo_nombre_comercial),
+                textoAyuda = errorNombreComercial,
+                esError = errorNombreComercial != null
             )
 
             SelectorDesplegable(
@@ -155,17 +211,38 @@ fun FormEmprendimientoAdminScreen(
                 onOpcionSeleccionada = { nuevaRegion ->
                     regionSeleccionada = nuevaRegion
                     comunaSeleccionada = ""
+                    errorRegion = null
+                    errorComuna = null
                 },
                 etiqueta = stringResource(id = R.string.registro_campo_region)
             )
 
+            if (errorRegion != null) {
+                Text(
+                    text = errorRegion!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             SelectorDesplegable(
                 opciones = comunasDisponibles,
                 seleccionado = comunaSeleccionada,
-                onOpcionSeleccionada = { comunaSeleccionada = it },
+                onOpcionSeleccionada = {
+                    comunaSeleccionada = it
+                    errorComuna = null
+                },
                 etiqueta = stringResource(id = R.string.registro_campo_comuna),
                 habilitado = regionSeleccionada.isNotBlank()
             )
+
+            if (errorComuna != null) {
+                Text(
+                    text = errorComuna!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
 
             Text(
                 text = stringResource(id = R.string.registro_rubros_explicacion),
@@ -181,14 +258,27 @@ fun FormEmprendimientoAdminScreen(
                     } else {
                         rubrosSeleccionados.add(rubro)
                     }
+                    errorRubros = null
                 }
             )
 
+            if (errorRubros != null) {
+                Text(
+                    text = errorRubros!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             CampoTexto(
                 valor = instagram,
-                onValorCambiado = { instagram = it },
+                onValorCambiado = {
+                    instagram = it
+                    errorInstagram = null
+                },
                 etiqueta = stringResource(id = R.string.registro_campo_instagram),
-                textoAyuda = stringResource(id = R.string.registro_campo_instagram_ayuda)
+                textoAyuda = errorInstagram ?: stringResource(id = R.string.registro_campo_instagram_ayuda),
+                esError = errorInstagram != null
             )
 
             Spacer(modifier = Modifier.height(24.dp))

@@ -375,8 +375,10 @@ fun NavHostApp(
 
                     // Rutas de la administración
                     composable(Ruta.PanelAdmin.ruta) {
+                        val totalPorRevisar = fichasAdminEstado.count { it.estadoFicha == EstadoFichaEmprendimiento.POR_REVISAR }
                         PanelAdminScreen(
-                            onVerFichasPorRevisarClick = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) }
+                            onVerFichasPorRevisarClick = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) },
+                            fichasPorRevisar = totalPorRevisar
                         )
                     }
 
@@ -433,18 +435,29 @@ fun NavHostApp(
                         FormEmprendimientoAdminScreen(
                             emprendedoraExistente = empExistente,
                             onGuardarClick = { empGuardada ->
+                                val problemas = com.example.textilcircular.util.validacion.AuditorFichas.auditar(empGuardada)
+                                val nuevoEstado = if (problemas.isNotEmpty()) {
+                                    EstadoFichaEmprendimiento.POR_REVISAR
+                                } else {
+                                    EstadoFichaEmprendimiento.ACTIVA
+                                }
+
                                 if (empId != null) {
                                     val idx = fichasAdminEstado.indexOfFirst { it.emprendedora.id == empId }
                                     if (idx >= 0) {
-                                        fichasAdminEstado[idx] = fichasAdminEstado[idx].copy(emprendedora = empGuardada)
+                                        fichasAdminEstado[idx] = fichasAdminEstado[idx].copy(
+                                            emprendedora = empGuardada,
+                                            estadoFicha = nuevoEstado,
+                                            problemasDetectados = problemas
+                                        )
                                     }
                                 } else {
                                     val nuevoId = (fichasAdminEstado.maxOfOrNull { it.emprendedora.id } ?: 10) + 1
                                     fichasAdminEstado.add(
                                         FichaAdminEmprendimiento(
                                             emprendedora = empGuardada.copy(id = nuevoId),
-                                            estadoFicha = EstadoFichaEmprendimiento.ACTIVA,
-                                            problemasDetectados = emptyList()
+                                            estadoFicha = nuevoEstado,
+                                            problemasDetectados = problemas
                                         )
                                     )
                                 }

@@ -31,4 +31,23 @@ object ValidadorTexto {
             else -> ResultadoValidacion.ok()
         }
     }
+
+    fun validarNombreTitular(nombre: String): ResultadoValidacion {
+        val limpio = limpiar(nombre)
+        if (limpio.isBlank()) {
+            return ResultadoValidacion.error("El nombre del titular no puede estar vacío")
+        }
+        if (limpio.length < 3) {
+            return ResultadoValidacion.error("El nombre del titular debe tener al menos 3 caracteres")
+        }
+        val palabras = limpio.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        if (palabras.size < 2) {
+            return ResultadoValidacion.error("El titular debe incluir al menos nombre y apellido")
+        }
+        val soloLetras = limpio.all { it.isLetter() || it.isWhitespace() }
+        if (!soloLetras) {
+            return ResultadoValidacion.error("El nombre del titular solo puede contener letras")
+        }
+        return ResultadoValidacion.ok()
+    }
 }

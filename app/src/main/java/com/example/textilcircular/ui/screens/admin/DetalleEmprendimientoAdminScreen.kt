@@ -154,10 +154,15 @@ fun DetalleEmprendimientoAdminScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    val rubrosTexto = if (ficha.emprendedora.rubros.isEmpty()) {
+                        "Sin rubros"
+                    } else {
+                        ficha.emprendedora.rubros.joinToString { it.nombre }
+                    }
                     Text(
-                        text = "Rubros: " + ficha.emprendedora.rubros.joinToString { it.nombre },
+                        text = "Rubros: $rubrosTexto",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (ficha.emprendedora.rubros.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
                     )
                     if (!ficha.emprendedora.instagram.isNullOrBlank()) {
                         Text(
@@ -169,40 +174,45 @@ fun DetalleEmprendimientoAdminScreen(
                 }
             }
 
+            val problemasAuditoria = remember(ficha) {
+                val auditados = com.example.textilcircular.util.validacion.AuditorFichas.auditar(ficha.emprendedora)
+                if (auditados.isNotEmpty()) auditados else ficha.problemasDetectados
+            }
+
             // Panel de inconsistencias detectadas
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = if (ficha.problemasDetectados.isNotEmpty()) AzulRevisionFondo else VerdeExitoFondo
+                    containerColor = if (problemasAuditoria.isNotEmpty()) AzulRevisionFondo else VerdeExitoFondo
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = if (ficha.problemasDetectados.isNotEmpty()) Icons.Default.Warning else Icons.Default.Check,
+                            imageVector = if (problemasAuditoria.isNotEmpty()) Icons.Default.Warning else Icons.Default.Check,
                             contentDescription = null,
-                            tint = if (ficha.problemasDetectados.isNotEmpty()) AzulRevision else VerdeExito,
+                            tint = if (problemasAuditoria.isNotEmpty()) AzulRevision else VerdeExito,
                             modifier = Modifier.size(22.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = stringResource(id = R.string.admin_detalle_problemas_titulo),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (ficha.problemasDetectados.isNotEmpty()) AzulRevision else VerdeExito
+                            color = if (problemasAuditoria.isNotEmpty()) AzulRevision else VerdeExito
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    if (ficha.problemasDetectados.isEmpty()) {
+                    if (problemasAuditoria.isEmpty()) {
                         Text(
                             text = stringResource(id = R.string.admin_detalle_sin_problemas),
                             style = MaterialTheme.typography.bodyMedium,
                             color = VerdeExito
                         )
                     } else {
-                        ficha.problemasDetectados.forEach { problema ->
+                        problemasAuditoria.forEach { problema ->
                             Text(
                                 text = "• $problema",
                                 style = MaterialTheme.typography.bodyMedium,

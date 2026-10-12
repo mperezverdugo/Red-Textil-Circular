@@ -44,7 +44,7 @@ object DatosDemo {
      */
     val EmprendedoraDemo = Emprendedora(
         id = 1,
-        rut = "15.420.312-8",
+        rut = "15.420.312-5",
         nombre = "Camila Andrea Morales Soto",
         nombreComercial = "Taller Hilos del Sur",
         region = "Valparaíso",

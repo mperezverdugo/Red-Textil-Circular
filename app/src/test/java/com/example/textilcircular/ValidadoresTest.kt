@@ -32,6 +32,15 @@ class ValidadoresTest {
     }
 
     @Test
+    fun validadorTexto_validarNombreTitular() {
+        assertFalse(ValidadorTexto.validarNombreTitular("").esValido)
+        assertFalse(ValidadorTexto.validarNombreTitular("SoloNombre").esValido)
+        assertFalse(ValidadorTexto.validarNombreTitular("Juan 123").esValido)
+        assertTrue(ValidadorTexto.validarNombreTitular("Ana Pérez").esValido)
+        assertTrue(ValidadorTexto.validarNombreTitular("María José Silva").esValido)
+    }
+
+    @Test
     fun validadorRut_validaRutCorrecto() {
         // RUT con puntos y guión
         val res1 = ValidadorRut.validar("12.345.678-5")

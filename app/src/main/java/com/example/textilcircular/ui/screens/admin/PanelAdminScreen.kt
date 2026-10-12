@@ -43,7 +43,8 @@ import com.example.textilcircular.ui.theme.TextilCircularTheme
 @Composable
 fun PanelAdminScreen(
     onVerFichasPorRevisarClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fichasPorRevisar: Int = DatosDemo.FichasPorRevisarContador
 ) {
     Scaffold(
         topBar = {
@@ -126,7 +127,7 @@ fun PanelAdminScreen(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = stringResource(id = R.string.admin_alerta_fichas_desc, DatosDemo.FichasPorRevisarContador),
+                            text = stringResource(id = R.string.admin_alerta_fichas_desc, fichasPorRevisar),
                             style = MaterialTheme.typography.bodyMedium,
                             color = AzulRevision
                         )
