@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,7 +104,7 @@ fun NavHostApp(
                         rutaActual = rutaActual,
                         onNavegar = { rutaDestino ->
                             navController.navigate(rutaDestino) {
-                                popUpTo(navController.graph.findStartDestination().id) {
+                                popUpTo(Ruta.Inicio.ruta) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -117,7 +118,7 @@ fun NavHostApp(
                         rutaActual = rutaActual,
                         onNavegar = { rutaDestino ->
                             navController.navigate(rutaDestino) {
-                                popUpTo(navController.graph.findStartDestination().id) {
+                                popUpTo(Ruta.PanelAdmin.ruta) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -170,12 +171,19 @@ fun NavHostApp(
                         RegistroGuiadoScreen(
                             onNavegarAtras = { navController.popBackStack() },
                             onRegistroCompletado = {
-                                navController.navigate(Ruta.RegistroExitoso.ruta)
+                                navController.navigate(Ruta.RegistroExitoso.ruta) {
+                                    popUpTo(Ruta.Registro.ruta) { inclusive = true }
+                                }
                             }
                         )
                     }
 
                     composable(Ruta.RegistroExitoso.ruta) {
+                        BackHandler {
+                            navController.navigate(Ruta.Inicio.ruta) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
                         RegistroExitosoScreen(
                             onIrACuentaClick = {
                                 navController.navigate(Ruta.Inicio.ruta) {
@@ -278,6 +286,18 @@ fun NavHostApp(
                         val conversacionId = backStackEntry.arguments?.getInt("conversacionId") ?: 201
                         val conversacion = DatosDemo.ConversacionesDemo.find { it.id == conversacionId } ?: DatosDemo.ConversacionesDemo.first()
 
+                        val retrocederConversacion = {
+                            if (!navController.popBackStack()) {
+                                navController.navigate(Ruta.Mensajes.ruta) {
+                                    popUpTo(Ruta.Inicio.ruta)
+                                }
+                            }
+                        }
+
+                        BackHandler {
+                            retrocederConversacion()
+                        }
+
                         ConversacionScreen(
                             conversacion = conversacion,
                             mensajes = mensajesChatEstado,
@@ -292,7 +312,7 @@ fun NavHostApp(
                                     )
                                 )
                             },
-                            onNavegarAtras = { navController.popBackStack() }
+                            onNavegarAtras = { retrocederConversacion() }
                         )
                     }
 
@@ -339,6 +359,11 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.BajaExitosa.ruta) {
+                        BackHandler {
+                            navController.navigate(Ruta.Bienvenida.ruta) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
                         BajaExitosaScreen(
                             onVolverInicioClick = {
                                 navController.navigate(Ruta.Bienvenida.ruta) {

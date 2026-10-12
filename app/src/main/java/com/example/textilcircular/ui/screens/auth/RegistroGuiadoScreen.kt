@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,12 @@ fun RegistroGuiadoScreen(
     viewModel: RegistroGuiadoViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    BackHandler {
+        if (!viewModel.retrocederPaso()) {
+            onNavegarAtras()
+        }
+    }
 
     RegistroGuiadoContent(
         uiState = uiState,
