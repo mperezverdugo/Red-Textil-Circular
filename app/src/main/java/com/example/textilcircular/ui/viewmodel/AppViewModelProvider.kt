@@ -9,6 +9,7 @@ import com.example.textilcircular.ui.screens.auth.RegistroGuiadoViewModel
 import com.example.textilcircular.ui.screens.catalog.CatalogoViewModel
 import com.example.textilcircular.ui.screens.catalog.ProductoFormViewModel
 import com.example.textilcircular.ui.screens.cliente.ExplorarViewModel
+import com.example.textilcircular.ui.screens.cliente.MiPerfilClienteViewModel
 import com.example.textilcircular.ui.screens.cliente.RegistroClienteViewModel
 import com.example.textilcircular.ui.screens.profile.PerfilViewModel
 
@@ -62,6 +63,14 @@ object AppViewModelProvider {
                 emprendedoraRepository = app.contenedor.emprendedoraRepository,
                 productoRepository = app.contenedor.productoRepository,
                 adminRepository = app.contenedor.adminRepository
+            )
+        }
+
+        initializer {
+            val app = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TextilCircularApp)
+            MiPerfilClienteViewModel(
+                sesionRepository = app.contenedor.sesionRepository,
+                clienteRepository = app.contenedor.clienteRepository
             )
         }
     }

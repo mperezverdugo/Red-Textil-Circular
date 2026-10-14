@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.textilcircular.TextilCircularApp
 import com.example.textilcircular.data.repository.EstadoSesion
 import com.example.textilcircular.ui.screens.cliente.ExplorarScreen
+import com.example.textilcircular.ui.screens.cliente.MiPerfilClienteScreen
 import com.example.textilcircular.ui.screens.cliente.RegistroClienteScreen
 
 // Navegación principal de la app y estructura con barras inferiores.
@@ -103,10 +104,21 @@ fun NavHostApp(
         Ruta.CuentaAdmin.ruta
     )
 
+    val esPestanaCliente = rutaActual in listOf(
+        Ruta.Explorar.ruta,
+        Ruta.MensajesCliente.ruta,
+        Ruta.PerfilCliente.ruta
+    )
+
     val contexto = LocalContext.current
     val appContainer = (contexto.applicationContext as TextilCircularApp).contenedor
     val estadoSesion by appContainer.sesionRepository.estadoSesion.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+
+    val clienteId = (estadoSesion as? EstadoSesion.AutenticadoCliente)?.cliente?.id ?: 1
+    val convsClienteFlow = remember(clienteId) { appContainer.mensajeRepository.obtenerConversacionesCliente(clienteId) }
+    val convsCliente by convsClienteFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+    val totalNoLeidosCliente = convsCliente.sumOf { it.noLeidosCliente }
 
     // Rutas protegidas por rol para evitar accesos cruzados
     val rutasAdmin = listOf(
@@ -203,6 +215,21 @@ fun NavHostApp(
                                 restoreState = true
                             }
                         }
+                    )
+                }
+                esPestanaCliente -> {
+                    BarraNavegacionCliente(
+                        rutaActual = rutaActual,
+                        onNavegar = { rutaDestino ->
+                            navController.navigate(rutaDestino) {
+                                popUpTo(Ruta.Explorar.ruta) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        mensajesNoLeidos = totalNoLeidosCliente
                     )
                 }
             }
@@ -373,6 +400,12 @@ fun NavHostApp(
                         val convsFlow = remember(clienteId) { appContainer.mensajeRepository.obtenerConversacionesCliente(clienteId) }
                         val convs by convsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
+                        BackHandler {
+                            navController.navigate(Ruta.Explorar.ruta) {
+                                popUpTo(Ruta.Explorar.ruta) { inclusive = true }
+                            }
+                        }
+
                         MensajesScreen(
                             conversaciones = convs,
                             onConversacionClick = { id ->
@@ -382,6 +415,21 @@ fun NavHostApp(
                             onExplorarClick = {
                                 navController.navigate(Ruta.Explorar.ruta) {
                                     popUpTo(Ruta.Explorar.ruta) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(Ruta.PerfilCliente.ruta) {
+                        MiPerfilClienteScreen(
+                            onNavegarAtras = {
+                                navController.navigate(Ruta.Explorar.ruta) {
+                                    popUpTo(Ruta.Explorar.ruta) { inclusive = true }
+                                }
+                            },
+                            onCerrarSesionExitoso = {
+                                navController.navigate(Ruta.Bienvenida.ruta) {
+                                    popUpTo(0) { inclusive = true }
                                 }
                             }
                         )

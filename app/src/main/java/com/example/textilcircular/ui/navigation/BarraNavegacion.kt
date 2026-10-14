@@ -8,6 +8,8 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -40,6 +42,12 @@ val ItemsAdministradora = listOf(
     ItemNavegacion(Ruta.EmprendimientosAdmin.ruta, R.string.nav_admin_emprendimientos, Icons.AutoMirrored.Filled.List),
     ItemNavegacion(Ruta.AutomatizacionesAdmin.ruta, R.string.nav_admin_automatizaciones, Icons.Default.Refresh),
     ItemNavegacion(Ruta.CuentaAdmin.ruta, R.string.nav_admin_cuenta, Icons.Default.Person)
+)
+
+val ItemsCliente = listOf(
+    ItemNavegacion(Ruta.Explorar.ruta, R.string.nav_cliente_explorar, Icons.Default.ShoppingCart),
+    ItemNavegacion(Ruta.MensajesCliente.ruta, R.string.nav_cliente_mensajes, Icons.Default.Email),
+    ItemNavegacion(Ruta.PerfilCliente.ruta, R.string.nav_cliente_perfil, Icons.Default.Person)
 )
 
 // Barra de navegación inferior para las pantallas de la emprendedora.
@@ -142,6 +150,75 @@ fun BarraNavegacionAdminPreview() {
         BarraNavegacionAdmin(
             rutaActual = Ruta.PanelAdmin.ruta,
             onNavegar = {}
+        )
+    }
+}
+
+// Barra de navegación inferior para las pantallas del cliente.
+@Composable
+fun BarraNavegacionCliente(
+    rutaActual: String?,
+    onNavegar: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    mensajesNoLeidos: Int = 0
+) {
+    NavigationBar(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface
+    ) {
+        ItemsCliente.forEach { item ->
+            val seleccionado = rutaActual == item.ruta
+            NavigationBarItem(
+                selected = seleccionado,
+                onClick = { onNavegar(item.ruta) },
+                icon = {
+                    if (item.ruta == Ruta.MensajesCliente.ruta && mensajesNoLeidos > 0) {
+                        BadgedBox(
+                            badge = {
+                                Badge {
+                                    Text(text = if (mensajesNoLeidos > 99) "99+" else mensajesNoLeidos.toString())
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = item.icono,
+                                contentDescription = stringResource(id = item.etiquetaResId)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            imageVector = item.icono,
+                            contentDescription = stringResource(id = item.etiquetaResId)
+                        )
+                    }
+                },
+                label = {
+                    Text(
+                        text = stringResource(id = item.etiquetaResId),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BarraNavegacionClientePreview() {
+    TextilCircularTheme {
+        BarraNavegacionCliente(
+            rutaActual = Ruta.Explorar.ruta,
+            onNavegar = {},
+            mensajesNoLeidos = 2
         )
     }
 }

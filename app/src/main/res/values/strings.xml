@@ -347,4 +347,15 @@
     <string name="chat_demo_simular_respuesta">Simular respuesta de la artesana</string>
     <string name="chat_demo_simular_consulta">Simular consulta de cliente</string>
     <string name="perfil_demo_simular_consulta">Simular consulta de cliente</string>
+    <string name="cliente_perfil_titulo">Mi perfil</string>
+    <string name="cliente_perfil_bajada">Información de tu cuenta de cliente en Textil Circular.</string>
+    <string name="cliente_perfil_seccion_datos">Datos personales</string>
+    <string name="cliente_perfil_nombre">Nombre completo</string>
+    <string name="cliente_perfil_correo">Correo electrónico</string>
+    <string name="cliente_perfil_editar_nombre">Editar nombre</string>
+    <string name="cliente_perfil_dialogo_titulo">Modificar tu nombre</string>
+    <string name="cliente_perfil_dialogo_bajada">Este nombre será el que vean las artesanas cuando te comuniques con ellas.</string>
+    <string name="cliente_perfil_boton_guardar">Guardar cambios</string>
+    <string name="cliente_perfil_boton_cancelar">Cancelar</string>
+    <string name="cliente_perfil_exito_guardar">Nombre actualizado correctamente</string>
 </resources>
