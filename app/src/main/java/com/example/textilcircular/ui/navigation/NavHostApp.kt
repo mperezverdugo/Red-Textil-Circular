@@ -55,6 +55,12 @@ import com.example.textilcircular.model.FichaAdminEmprendimiento
 import com.example.textilcircular.model.Mensaje
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.preview.DatosDemo
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.example.textilcircular.TextilCircularApp
+import com.example.textilcircular.data.repository.EstadoSesion
+import com.example.textilcircular.ui.screens.cliente.ExplorarScreen
+import com.example.textilcircular.ui.screens.cliente.RegistroClienteScreen
 
 // Navegación principal de la app y estructura con barras inferiores.
 @Composable
@@ -94,6 +100,74 @@ fun NavHostApp(
         Ruta.AutomatizacionesAdmin.ruta,
         Ruta.CuentaAdmin.ruta
     )
+
+    val contexto = LocalContext.current
+    val appContainer = (contexto.applicationContext as TextilCircularApp).contenedor
+    val estadoSesion by appContainer.sesionRepository.estadoSesion.collectAsStateWithLifecycle()
+
+    // Rutas protegidas por rol para evitar accesos cruzados
+    val rutasAdmin = listOf(
+        Ruta.PanelAdmin.ruta,
+        Ruta.EmprendimientosAdmin.ruta,
+        Ruta.AutomatizacionesAdmin.ruta,
+        Ruta.CuentaAdmin.ruta,
+        "admin_"
+    )
+
+    val rutasEmprendedora = listOf(
+        Ruta.Inicio.ruta,
+        Ruta.Catalogo.ruta,
+        Ruta.Mensajes.ruta,
+        Ruta.Perfil.ruta,
+        "emp_"
+    )
+
+    val rutasCliente = listOf(
+        Ruta.Explorar.ruta,
+        Ruta.MensajesCliente.ruta,
+        Ruta.PerfilCliente.ruta
+    )
+
+    // Protección de rutas: redirige a cada usuario a su inicio correspondiente si intenta acceder a otra área
+    LaunchedEffect(rutaActual, estadoSesion) {
+        val ruta = rutaActual ?: return@LaunchedEffect
+        when (estadoSesion) {
+            is EstadoSesion.AutenticadoCliente -> {
+                val esProhibida = rutasAdmin.any { ruta.startsWith(it) } || rutasEmprendedora.any { ruta.startsWith(it) }
+                if (esProhibida) {
+                    navController.navigate(Ruta.Explorar.ruta) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            is EstadoSesion.AutenticadoEmprendedora -> {
+                val esProhibida = rutasAdmin.any { ruta.startsWith(it) } || rutasCliente.any { ruta.startsWith(it) }
+                if (esProhibida) {
+                    navController.navigate(Ruta.Inicio.ruta) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            is EstadoSesion.AutenticadoAdmin -> {
+                val esProhibida = rutasEmprendedora.any { ruta.startsWith(it) } || rutasCliente.any { ruta.startsWith(it) }
+                if (esProhibida) {
+                    navController.navigate(Ruta.PanelAdmin.ruta) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            is EstadoSesion.NoAutenticado -> {
+                val esProtegida = rutasAdmin.any { ruta.startsWith(it) } ||
+                        rutasEmprendedora.any { ruta.startsWith(it) } ||
+                        (rutasCliente.any { ruta.startsWith(it) } && ruta != Ruta.RegistroCliente.ruta)
+                if (esProtegida) {
+                    navController.navigate(Ruta.Bienvenida.ruta) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -146,7 +220,8 @@ fun NavHostApp(
                     // Rutas de inicio y registro
                     composable(Ruta.Bienvenida.ruta) {
                         BienvenidaScreen(
-                            onCrearCuentaClick = { navController.navigate(Ruta.Registro.ruta) },
+                            onSoyEmprendedoraClick = { navController.navigate(Ruta.Registro.ruta) },
+                            onSoyClienteClick = { navController.navigate(Ruta.RegistroCliente.ruta) },
                             onIniciarSesionClick = { navController.navigate(Ruta.Login.ruta) }
                         )
                     }
@@ -163,7 +238,29 @@ fun NavHostApp(
                                 navController.navigate(Ruta.PanelAdmin.ruta) {
                                     popUpTo(0) { inclusive = true }
                                 }
+                            },
+                            onLoginExitosoCliente = {
+                                navController.navigate(Ruta.Explorar.ruta) {
+                                    popUpTo(0) { inclusive = true }
+                                }
                             }
+                        )
+                    }
+
+                    composable(Ruta.RegistroCliente.ruta) {
+                        RegistroClienteScreen(
+                            onNavegarAtras = { navController.popBackStack() },
+                            onRegistroCompletado = {
+                                navController.navigate(Ruta.Explorar.ruta) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(Ruta.Explorar.ruta) {
+                        ExplorarScreen(
+                            onEmprendedoraClick = {}
                         )
                     }
 

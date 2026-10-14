@@ -29,10 +29,11 @@ import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-// Pantalla de bienvenida con acceso a inicio de sesión o registro.
+// Pantalla de bienvenida con caminos claros para cliente y emprendedora.
 @Composable
 fun BienvenidaScreen(
-    onCrearCuentaClick: () -> Unit,
+    onSoyEmprendedoraClick: () -> Unit,
+    onSoyClienteClick: () -> Unit,
     onIniciarSesionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -90,14 +91,19 @@ fun BienvenidaScreen(
             )
         }
 
-        // Acciones principales
+        // Acciones principales según el tipo de persona
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             BotonPrincipal(
-                texto = stringResource(id = R.string.bienvenida_boton_crear_cuenta),
-                onClick = onCrearCuentaClick
+                texto = stringResource(id = R.string.bienvenida_boton_soy_cliente),
+                onClick = onSoyClienteClick
+            )
+
+            BotonSecundario(
+                texto = stringResource(id = R.string.bienvenida_boton_soy_emprendedora),
+                onClick = onSoyEmprendedoraClick
             )
 
             BotonSecundario(
@@ -113,7 +119,8 @@ fun BienvenidaScreen(
 fun BienvenidaScreenPreview() {
     TextilCircularTheme {
         BienvenidaScreen(
-            onCrearCuentaClick = {},
+            onSoyEmprendedoraClick = {},
+            onSoyClienteClick = {},
             onIniciarSesionClick = {}
         )
     }

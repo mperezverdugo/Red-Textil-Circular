@@ -34,12 +34,13 @@ import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
-// Pantalla de inicio de sesión para emprendedora y administradora conectada a LoginViewModel.
+// Pantalla de inicio de sesión para emprendedora, administradora y cliente.
 @Composable
 fun LoginScreen(
     onNavegarAtras: () -> Unit,
     onLoginExitosoEmprendedora: () -> Unit,
     onLoginExitosoAdmin: () -> Unit,
+    onLoginExitosoCliente: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -52,11 +53,15 @@ fun LoginScreen(
         onIngresarClick = {
             viewModel.iniciarSesion(
                 onExitoEmprendedora = onLoginExitosoEmprendedora,
-                onExitoAdmin = onLoginExitosoAdmin
+                onExitoAdmin = onLoginExitosoAdmin,
+                onExitoCliente = onLoginExitosoCliente
             )
         },
         onDemoEmprendedoraClick = {
             viewModel.iniciarSesionDemoEmprendedora(onExito = onLoginExitosoEmprendedora)
+        },
+        onDemoClienteClick = {
+            viewModel.iniciarSesionDemoCliente(onExito = onLoginExitosoCliente)
         },
         onDemoAdminClick = {
             viewModel.iniciarSesionDemoAdmin(onExito = onLoginExitosoAdmin)
@@ -66,6 +71,7 @@ fun LoginScreen(
     )
 }
 
+// Estructura visual del formulario y accesos de demostración.
 @Composable
 fun LoginContent(
     uiState: LoginUiState,
@@ -73,6 +79,7 @@ fun LoginContent(
     onPasswordCambiado: (String) -> Unit,
     onIngresarClick: () -> Unit,
     onDemoEmprendedoraClick: () -> Unit,
+    onDemoClienteClick: () -> Unit,
     onDemoAdminClick: () -> Unit,
     onNavegarAtras: () -> Unit,
     modifier: Modifier = Modifier
@@ -144,10 +151,17 @@ fun LoginContent(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Accesos directos para demostración
+            // TODO: remover estos accesos demo al terminar el proyecto
             Text(
                 text = stringResource(id = R.string.login_seccion_demo),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
+            )
+
+            BotonSecundario(
+                texto = stringResource(id = R.string.login_boton_demo_cliente),
+                onClick = onDemoClienteClick,
+                habilitado = !uiState.estaCargando
             )
 
             BotonSecundario(
@@ -177,6 +191,7 @@ fun LoginScreenPreview() {
             onPasswordCambiado = {},
             onIngresarClick = {},
             onDemoEmprendedoraClick = {},
+            onDemoClienteClick = {},
             onDemoAdminClick = {},
             onNavegarAtras = {}
         )

@@ -102,6 +102,31 @@ class AuthViewModelsTest {
     }
 
     @Test
+    fun loginViewModel_iniciaSesionClienteConExito() = runTest {
+        val viewModel = LoginViewModel(sesionRepository)
+
+        viewModel.onCorreoCambiado("francisca.tapia@correo.cl")
+        viewModel.onPasswordCambiado("cliente123")
+
+        var exitoCliente = false
+        var exitoEmprendedora = false
+        var exitoAdmin = false
+
+        viewModel.iniciarSesion(
+            onExitoEmprendedora = { exitoEmprendedora = true },
+            onExitoAdmin = { exitoAdmin = true },
+            onExitoCliente = { exitoCliente = true }
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(exitoCliente)
+        assertFalse(exitoEmprendedora)
+        assertFalse(exitoAdmin)
+        assertTrue(sesionRepository.estadoSesion.value is EstadoSesion.AutenticadoCliente)
+    }
+
+    @Test
     fun registroGuiadoViewModel_flujoCompletoDePasos() = runTest {
         val viewModel = RegistroGuiadoViewModel(sesionRepository)
 

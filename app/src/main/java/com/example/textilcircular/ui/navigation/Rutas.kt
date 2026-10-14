@@ -1,6 +1,6 @@
 package com.example.textilcircular.ui.navigation
 
-// Rutas de navegación de la aplicación organizadas por flujo.
+// Rutas de navegación de la aplicación organizadas por flujo y rol.
 sealed class Ruta(val ruta: String) {
 
     // Pantallas de acceso y registro
@@ -8,6 +8,12 @@ sealed class Ruta(val ruta: String) {
     data object Login : Ruta("auth_login")
     data object Registro : Ruta("auth_registro")
     data object RegistroExitoso : Ruta("auth_registro_exitoso")
+    data object RegistroCliente : Ruta("cliente_registro")
+
+    // Pestañas principales del cliente
+    data object Explorar : Ruta("cliente_explorar")
+    data object MensajesCliente : Ruta("cliente_mensajes")
+    data object PerfilCliente : Ruta("cliente_perfil")
 
     // Pestañas principales de la emprendedora
     data object Inicio : Ruta("emp_inicio")

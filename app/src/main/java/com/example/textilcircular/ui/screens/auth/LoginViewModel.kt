@@ -22,7 +22,7 @@ data class LoginUiState(
     val estaCargando: Boolean = false
 )
 
-// ViewModel encargado de procesar las credenciales y el acceso a la sesión.
+// ViewModel encargado de procesar las credenciales y el acceso a la sesión según el rol.
 class LoginViewModel(
     private val sesionRepository: SesionRepository
 ) : ViewModel() {
@@ -52,7 +52,8 @@ class LoginViewModel(
 
     fun iniciarSesion(
         onExitoEmprendedora: () -> Unit,
-        onExitoAdmin: () -> Unit
+        onExitoAdmin: () -> Unit,
+        onExitoCliente: () -> Unit = {}
     ) {
         val estadoActual = _uiState.value
         val resEmail = ValidadorContacto.validarEmail(estadoActual.correo)
@@ -90,17 +91,25 @@ class LoginViewModel(
                     }
                 }
             } else {
-                when (val res = sesionRepository.iniciarSesionEmprendedora(correoLimpio, estadoActual.password)) {
-                    is Resultado.Exito -> {
-                        _uiState.update { it.copy(estaCargando = false) }
-                        onExitoEmprendedora()
-                    }
-                    is Resultado.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                estaCargando = false,
-                                errorGeneral = res.mensaje
-                            )
+                // Primero comprobamos si es cuenta de cliente
+                val resCliente = sesionRepository.iniciarSesionCliente(correoLimpio, estadoActual.password)
+                if (resCliente is Resultado.Exito) {
+                    _uiState.update { it.copy(estaCargando = false) }
+                    onExitoCliente()
+                } else {
+                    // Si no es cliente, intentamos como emprendedora
+                    when (val resEmp = sesionRepository.iniciarSesionEmprendedora(correoLimpio, estadoActual.password)) {
+                        is Resultado.Exito -> {
+                            _uiState.update { it.copy(estaCargando = false) }
+                            onExitoEmprendedora()
+                        }
+                        is Resultado.Error -> {
+                            _uiState.update {
+                                it.copy(
+                                    estaCargando = false,
+                                    errorGeneral = resEmp.mensaje
+                                )
+                            }
                         }
                     }
                 }
@@ -109,6 +118,7 @@ class LoginViewModel(
     }
 
     fun iniciarSesionDemoEmprendedora(onExito: () -> Unit) {
+        // TODO: quitar esta opción de demostración al terminar el proyecto
         viewModelScope.launch {
             _uiState.update { it.copy(estaCargando = true) }
             sesionRepository.iniciarSesionDemoEmprendedora()
@@ -117,7 +127,18 @@ class LoginViewModel(
         }
     }
 
+    fun iniciarSesionDemoCliente(onExito: () -> Unit) {
+        // TODO: quitar esta opción de demostración al terminar el proyecto
+        viewModelScope.launch {
+            _uiState.update { it.copy(estaCargando = true) }
+            sesionRepository.iniciarSesionDemoCliente()
+            _uiState.update { it.copy(estaCargando = false) }
+            onExito()
+        }
+    }
+
     fun iniciarSesionDemoAdmin(onExito: () -> Unit) {
+        // TODO: quitar esta opción de demostración al terminar el proyecto
         viewModelScope.launch {
             _uiState.update { it.copy(estaCargando = true) }
             sesionRepository.iniciarSesionDemoAdmin()

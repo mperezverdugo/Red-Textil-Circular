@@ -301,4 +301,26 @@
     <string name="permiso_camara_boton_ajustes">Ir a ajustes</string>
     <string name="cd_icono_buscar">Buscar</string>
     <string name="cd_icono_borrar">Eliminar</string>
+
+    <!-- Cliente y mercado -->
+    <string name="bienvenida_boton_soy_emprendedora">Soy emprendedora</string>
+    <string name="bienvenida_boton_soy_cliente">Soy cliente</string>
+    <string name="login_boton_demo_cliente">Entrar como cliente (demo)</string>
+    <string name="registro_cliente_titulo">Crea tu cuenta de cliente</string>
+    <string name="registro_cliente_bajada">Explora las creaciones sustentables de nuestras emprendedoras y contáctalas directamente.</string>
+    <string name="registro_cliente_campo_nombre">Nombre completo</string>
+    <string name="registro_cliente_campo_nombre_ayuda">Ejemplo: Francisca Tapia</string>
+    <string name="registro_cliente_campo_correo">Correo electrónico</string>
+    <string name="registro_cliente_campo_correo_ayuda">Lo usarás para iniciar sesión</string>
+    <string name="registro_cliente_campo_password">Contraseña</string>
+    <string name="registro_cliente_campo_password_ayuda">Al menos 6 caracteres</string>
+    <string name="registro_cliente_ley_datos">Acepto el tratamiento de mis datos personales según la Ley N.º 21.719 para contactar emprendedoras del Directorio.</string>
+    <string name="registro_cliente_boton_crear">Crear cuenta y explorar</string>
+    <string name="fortaleza_debil">Débil</string>
+    <string name="fortaleza_media">Media</string>
+    <string name="fortaleza_fuerte">Fuerte</string>
+    <string name="fortaleza_etiqueta">Seguridad: %1$s</string>
+    <string name="nav_cliente_explorar">Explorar</string>
+    <string name="nav_cliente_mensajes">Mensajes</string>
+    <string name="nav_cliente_perfil">Mi perfil</string>
 </resources>

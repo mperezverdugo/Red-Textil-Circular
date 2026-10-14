@@ -8,6 +8,7 @@ import com.example.textilcircular.ui.screens.auth.LoginViewModel
 import com.example.textilcircular.ui.screens.auth.RegistroGuiadoViewModel
 import com.example.textilcircular.ui.screens.catalog.CatalogoViewModel
 import com.example.textilcircular.ui.screens.catalog.ProductoFormViewModel
+import com.example.textilcircular.ui.screens.cliente.RegistroClienteViewModel
 import com.example.textilcircular.ui.screens.profile.PerfilViewModel
 
 // Fábrica proveedora de ViewModels con inyección manual de dependencias desde AppContainer.
@@ -22,6 +23,11 @@ object AppViewModelProvider {
         initializer {
             val app = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TextilCircularApp)
             RegistroGuiadoViewModel(app.contenedor.sesionRepository)
+        }
+
+        initializer {
+            val app = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TextilCircularApp)
+            RegistroClienteViewModel(app.contenedor.sesionRepository)
         }
 
         initializer {
