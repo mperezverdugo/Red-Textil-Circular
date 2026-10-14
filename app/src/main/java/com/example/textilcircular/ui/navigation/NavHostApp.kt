@@ -77,6 +77,11 @@ fun NavHostApp(
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
+    val contexto = LocalContext.current
+    val appContainer = (contexto.applicationContext as TextilCircularApp).contenedor
+    val estadoSesion by appContainer.sesionRepository.estadoSesion.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+
     val perfilViewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val perfilUiState by perfilViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -85,9 +90,10 @@ fun NavHostApp(
     }
 
     var simularListasVacias by remember { mutableStateOf(false) }
-    val fichasAdminEstado = remember {
-        mutableStateListOf<FichaAdminEmprendimiento>().apply { addAll(DatosDemo.EmprendimientosAdminDemo) }
-    }
+
+    // Fichas administrativas leídas de forma reactiva desde SQLite a través del repositorio Room
+    val fichasAdminFlow = remember { appContainer.adminRepository.obtenerFichas() }
+    val fichasAdmin by fichasAdminFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     // Detección de rol y pestañas activas
     val esPestanaEmprendedora = rutaActual in listOf(
@@ -109,11 +115,6 @@ fun NavHostApp(
         Ruta.MensajesCliente.ruta,
         Ruta.PerfilCliente.ruta
     )
-
-    val contexto = LocalContext.current
-    val appContainer = (contexto.applicationContext as TextilCircularApp).contenedor
-    val estadoSesion by appContainer.sesionRepository.estadoSesion.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
 
     val clienteId = (estadoSesion as? EstadoSesion.AutenticadoCliente)?.cliente?.id ?: 1
     val convsClienteFlow = remember(clienteId) { appContainer.mensajeRepository.obtenerConversacionesCliente(clienteId) }
@@ -149,7 +150,10 @@ fun NavHostApp(
         val ruta = rutaActual ?: return@LaunchedEffect
         when (estadoSesion) {
             is EstadoSesion.AutenticadoCliente -> {
-                val esProhibida = rutasAdmin.any { ruta.startsWith(it) } || rutasEmprendedora.any { ruta.startsWith(it) }
+                val esProhibida = rutasAdmin.any { ruta.startsWith(it) } ||
+                        rutasEmprendedora.any { ruta.startsWith(it) } ||
+                        ruta == Ruta.Bienvenida.ruta ||
+                        ruta == Ruta.Login.ruta
                 if (esProhibida) {
                     navController.navigate(Ruta.Explorar.ruta) {
                         popUpTo(0) { inclusive = true }
@@ -157,7 +161,10 @@ fun NavHostApp(
                 }
             }
             is EstadoSesion.AutenticadoEmprendedora -> {
-                val esProhibida = rutasAdmin.any { ruta.startsWith(it) } || rutasCliente.any { ruta.startsWith(it) }
+                val esProhibida = rutasAdmin.any { ruta.startsWith(it) } ||
+                        rutasCliente.any { ruta.startsWith(it) } ||
+                        ruta == Ruta.Bienvenida.ruta ||
+                        ruta == Ruta.Login.ruta
                 if (esProhibida) {
                     navController.navigate(Ruta.Inicio.ruta) {
                         popUpTo(0) { inclusive = true }
@@ -165,7 +172,10 @@ fun NavHostApp(
                 }
             }
             is EstadoSesion.AutenticadoAdmin -> {
-                val esProhibida = rutasEmprendedora.any { ruta.startsWith(it) } || rutasCliente.any { ruta.startsWith(it) }
+                val esProhibida = rutasEmprendedora.any { ruta.startsWith(it) } ||
+                        rutasCliente.any { ruta.startsWith(it) } ||
+                        ruta == Ruta.Bienvenida.ruta ||
+                        ruta == Ruta.Login.ruta
                 if (esProhibida) {
                     navController.navigate(Ruta.PanelAdmin.ruta) {
                         popUpTo(0) { inclusive = true }
@@ -184,6 +194,7 @@ fun NavHostApp(
             }
         }
     }
+
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -803,7 +814,7 @@ fun NavHostApp(
 
                     // Rutas de la administración
                     composable(Ruta.PanelAdmin.ruta) {
-                        val totalPorRevisar = fichasAdminEstado.count { it.estadoFicha == EstadoFichaEmprendimiento.POR_REVISAR }
+                        val totalPorRevisar = fichasAdmin.count { it.estadoFicha == EstadoFichaEmprendimiento.POR_REVISAR }
                         PanelAdminScreen(
                             onVerFichasPorRevisarClick = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) },
                             fichasPorRevisar = totalPorRevisar
@@ -812,7 +823,7 @@ fun NavHostApp(
 
                     composable(Ruta.EmprendimientosAdmin.ruta) {
                         EmprendimientosAdminScreen(
-                            fichas = fichasAdminEstado,
+                            fichas = fichasAdmin,
                             onEmprendimientoClick = { id -> navController.navigate(Ruta.DetalleEmprendimientoAdmin.crearRuta(id)) },
                             onAgregarEmprendimientoClick = { navController.navigate(Ruta.FormEmprendimientoAdmin.crearRuta()) }
                         )
@@ -823,29 +834,31 @@ fun NavHostApp(
                         arguments = listOf(navArgument("emprendimientoId") { type = NavType.IntType })
                     ) { backStackEntry ->
                         val empId = backStackEntry.arguments?.getInt("emprendimientoId") ?: 1
-                        val ficha = fichasAdminEstado.find { it.emprendedora.id == empId } ?: fichasAdminEstado.first()
+                        val ficha = fichasAdmin.find { it.emprendedora.id == empId } ?: fichasAdmin.firstOrNull()
 
-                        DetalleEmprendimientoAdminScreen(
-                            ficha = ficha,
-                            onEditarClick = { id -> navController.navigate(Ruta.FormEmprendimientoAdmin.crearRuta(id)) },
-                            onCambiarVisibilidadClick = { id ->
-                                val idx = fichasAdminEstado.indexOfFirst { it.emprendedora.id == id }
-                                if (idx >= 0) {
-                                    val actual = fichasAdminEstado[idx]
-                                    val nuevoEstado = if (actual.estadoFicha == EstadoFichaEmprendimiento.ACTIVA) {
-                                        EstadoFichaEmprendimiento.OCULTA
-                                    } else {
-                                        EstadoFichaEmprendimiento.ACTIVA
+                        if (ficha != null) {
+                            DetalleEmprendimientoAdminScreen(
+                                ficha = ficha,
+                                onEditarClick = { id -> navController.navigate(Ruta.FormEmprendimientoAdmin.crearRuta(id)) },
+                                onCambiarVisibilidadClick = { id ->
+                                    scope.launch {
+                                        val nuevoEstado = if (ficha.estadoFicha == EstadoFichaEmprendimiento.ACTIVA) {
+                                            EstadoFichaEmprendimiento.OCULTA
+                                        } else {
+                                            EstadoFichaEmprendimiento.ACTIVA
+                                        }
+                                        appContainer.adminRepository.cambiarEstadoFicha(id, nuevoEstado)
                                     }
-                                    fichasAdminEstado[idx] = actual.copy(estadoFicha = nuevoEstado)
-                                }
-                            },
-                            onEliminarClick = { idAEliminar ->
-                                fichasAdminEstado.removeAll { it.emprendedora.id == idAEliminar }
-                                navController.popBackStack()
-                            },
-                            onNavegarAtras = { navController.popBackStack() }
-                        )
+                                },
+                                onEliminarClick = { idAEliminar ->
+                                    scope.launch {
+                                        appContainer.adminRepository.eliminarFicha(idAEliminar)
+                                        navController.popBackStack()
+                                    }
+                                },
+                                onNavegarAtras = { navController.popBackStack() }
+                            )
+                        }
                     }
 
                     composable(
@@ -858,38 +871,28 @@ fun NavHostApp(
                     ) { backStackEntry ->
                         val empIdStr = backStackEntry.arguments?.getString("emprendimientoId")
                         val empId = empIdStr?.toIntOrNull()
-                        val empExistente = if (empId != null) fichasAdminEstado.find { it.emprendedora.id == empId }?.emprendedora else null
+                        val empExistente = if (empId != null) fichasAdmin.find { it.emprendedora.id == empId }?.emprendedora else null
 
                         FormEmprendimientoAdminScreen(
                             emprendedoraExistente = empExistente,
                             onGuardarClick = { empGuardada ->
-                                val problemas = com.example.textilcircular.util.validacion.AuditorFichas.auditar(empGuardada)
-                                val nuevoEstado = if (problemas.isNotEmpty()) {
-                                    EstadoFichaEmprendimiento.POR_REVISAR
-                                } else {
-                                    EstadoFichaEmprendimiento.ACTIVA
-                                }
-
-                                if (empId != null) {
-                                    val idx = fichasAdminEstado.indexOfFirst { it.emprendedora.id == empId }
-                                    if (idx >= 0) {
-                                        fichasAdminEstado[idx] = fichasAdminEstado[idx].copy(
-                                            emprendedora = empGuardada,
-                                            estadoFicha = nuevoEstado,
-                                            problemasDetectados = problemas
-                                        )
+                                scope.launch {
+                                    val problemas = com.example.textilcircular.util.validacion.AuditorFichas.auditar(empGuardada)
+                                    val nuevoEstado = if (problemas.isNotEmpty()) {
+                                        EstadoFichaEmprendimiento.POR_REVISAR
+                                    } else {
+                                        EstadoFichaEmprendimiento.ACTIVA
                                     }
-                                } else {
-                                    val nuevoId = (fichasAdminEstado.maxOfOrNull { it.emprendedora.id } ?: 10) + 1
-                                    fichasAdminEstado.add(
-                                        FichaAdminEmprendimiento(
-                                            emprendedora = empGuardada.copy(id = nuevoId),
-                                            estadoFicha = nuevoEstado,
-                                            problemasDetectados = problemas
-                                        )
+
+                                    val idFinal = empId ?: empGuardada.id
+                                    val fichaGuardar = FichaAdminEmprendimiento(
+                                        emprendedora = empGuardada.copy(id = idFinal),
+                                        estadoFicha = nuevoEstado,
+                                        problemasDetectados = problemas
                                     )
+                                    appContainer.adminRepository.guardarFicha(fichaGuardar)
+                                    navController.popBackStack()
                                 }
-                                navController.popBackStack()
                             },
                             onNavegarAtras = { navController.popBackStack() }
                         )
@@ -902,8 +905,11 @@ fun NavHostApp(
                     composable(Ruta.CuentaAdmin.ruta) {
                         CuentaAdminScreen(
                             onCerrarSesionClick = {
-                                navController.navigate(Ruta.Bienvenida.ruta) {
-                                    popUpTo(0) { inclusive = true }
+                                scope.launch {
+                                    appContainer.sesionRepository.cerrarSesion()
+                                    navController.navigate(Ruta.Bienvenida.ruta) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
                                 }
                             }
                         )
@@ -913,3 +919,4 @@ fun NavHostApp(
         }
     }
 }
+
