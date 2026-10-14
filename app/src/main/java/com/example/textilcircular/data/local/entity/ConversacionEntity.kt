@@ -33,6 +33,7 @@ import com.example.textilcircular.model.Producto
     ],
     indices = [
         Index(value = ["cliente_id", "emprendedora_id"], unique = true),
+        Index(value = ["emprendedora_id"]),
         Index(value = ["producto_id"])
     ]
 )
