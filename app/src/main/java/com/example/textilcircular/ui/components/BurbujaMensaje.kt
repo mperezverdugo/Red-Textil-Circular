@@ -16,6 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Icon
 import com.example.textilcircular.model.Mensaje
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.theme.TextilCircularTheme
@@ -24,18 +30,18 @@ import com.example.textilcircular.ui.theme.TextilCircularTheme
 @Composable
 fun BurbujaMensaje(
     mensaje: Mensaje,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esEmisorPropio: Boolean = mensaje.emisor == TipoEmisor.EMPRENDEDORA
 ) {
-    val esEmprendedora = mensaje.emisor == TipoEmisor.EMPRENDEDORA
-    val alineacion = if (esEmprendedora) Alignment.CenterEnd else Alignment.CenterStart
+    val alineacion = if (esEmisorPropio) Alignment.CenterEnd else Alignment.CenterStart
 
-    val fondoBurbuja = if (esEmprendedora) {
+    val fondoBurbuja = if (esEmisorPropio) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
         MaterialTheme.colorScheme.surface
     }
 
-    val colorTexto = if (esEmprendedora) {
+    val colorTexto = if (esEmisorPropio) {
         MaterialTheme.colorScheme.onPrimaryContainer
     } else {
         MaterialTheme.colorScheme.onSurface
@@ -55,12 +61,30 @@ fun BurbujaMensaje(
                     shape = RoundedCornerShape(
                         topStart = 14.dp,
                         topEnd = 14.dp,
-                        bottomStart = if (esEmprendedora) 14.dp else 2.dp,
-                        bottomEnd = if (esEmprendedora) 2.dp else 14.dp
+                        bottomStart = if (esEmisorPropio) 14.dp else 2.dp,
+                        bottomEnd = if (esEmisorPropio) 2.dp else 14.dp
                     )
                 )
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
+            if (!mensaje.nombreProducto.isNullOrBlank()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = mensaje.nombreProducto,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+
             Text(
                 text = mensaje.contenido,
                 style = MaterialTheme.typography.bodyLarge,

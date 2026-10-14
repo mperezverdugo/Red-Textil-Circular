@@ -338,4 +338,13 @@
     <string name="producto_detalle_boton_preguntar">Preguntar por este producto</string>
     <string name="perfil_boton_escribir">Escribirle</string>
     <string name="cliente_perfil_artesana_titulo">Perfil de la emprendedora</string>
+    <string name="mensajes_cliente_bajada">Conversaciones y consultas con talleres textiles.</string>
+    <string name="mensajes_cliente_vacio_titulo">No tienes mensajes todavía</string>
+    <string name="mensajes_cliente_vacio_mensaje">Explora el mercado de emprendedoras y contáctalas directamente para consultar por sus productos.</string>
+    <string name="mensajes_cliente_vacio_accion">Explorar emprendedoras</string>
+    <string name="chat_mensaje_sugerido_perfil">Hola, me gustaría conocer más de tu trabajo</string>
+    <string name="chat_mensaje_sugerido_producto">Quiero saber más sobre este producto</string>
+    <string name="chat_demo_simular_respuesta">Simular respuesta de la artesana</string>
+    <string name="chat_demo_simular_consulta">Simular consulta de cliente</string>
+    <string name="perfil_demo_simular_consulta">Simular consulta de cliente</string>
 </resources>

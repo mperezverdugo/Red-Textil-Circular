@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.model.Conversacion
 import com.example.textilcircular.model.Mensaje
+import com.example.textilcircular.model.Producto
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BurbujaMensaje
@@ -55,14 +57,21 @@ fun ConversacionScreen(
     mensajes: List<Mensaje>,
     onEnviarMensaje: (String) -> Unit,
     onNavegarAtras: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esCliente: Boolean = false,
+    mensajeSugerido: String? = null,
+    productoConsultado: Producto? = null,
+    onSimularInteraccion: (() -> Unit)? = null,
+    textoSimularInteraccion: String? = null
 ) {
-    var textoRespuesta by remember { mutableStateOf("") }
+    var textoRespuesta by remember(conversacion.id, mensajeSugerido) {
+        mutableStateOf(mensajeSugerido ?: "")
+    }
 
     Scaffold(
         topBar = {
             BarraSuperior(
-                titulo = conversacion.nombreCliente,
+                titulo = if (esCliente) conversacion.nombreEmprendimiento.ifBlank { stringResource(id = R.string.mercado_taller_textil) } else conversacion.nombreCliente,
                 onNavegarAtras = onNavegarAtras
             )
         },
@@ -74,6 +83,32 @@ fun ConversacionScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
+                // TODO: quitar estas opciones de prueba antes de la entrega final
+                if (onSimularInteraccion != null && textoSimularInteraccion != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 6.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        AssistChip(
+                            onClick = onSimularInteraccion,
+                            label = {
+                                Text(
+                                    text = textoSimularInteraccion,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -129,7 +164,8 @@ fun ConversacionScreen(
                 .padding(paddingValores)
         ) {
             // Producto consultado en esta conversación
-            conversacion.productoAsociado?.let { producto ->
+            val productoAMostrar = conversacion.productoAsociado ?: productoConsultado
+            productoAMostrar?.let { producto ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -204,7 +240,10 @@ fun ConversacionScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(mensajes, key = { it.id }) { mensaje ->
-                    BurbujaMensaje(mensaje = mensaje)
+                    BurbujaMensaje(
+                        mensaje = mensaje,
+                        esEmisorPropio = if (esCliente) mensaje.emisor == TipoEmisor.CLIENTE else mensaje.emisor == TipoEmisor.EMPRENDEDORA
+                    )
                 }
             }
         }

@@ -11,9 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.textilcircular.R
 import com.example.textilcircular.model.Producto
+import com.example.textilcircular.util.Resultado
+import com.example.textilcircular.util.notificaciones.NotificacionUtil
 import kotlinx.coroutines.launch
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -79,9 +84,6 @@ fun NavHostApp(
     }
 
     var simularListasVacias by remember { mutableStateOf(false) }
-    val mensajesChatEstado = remember {
-        mutableStateListOf<Mensaje>().apply { addAll(DatosDemo.MensajesConversacionDemo) }
-    }
     val fichasAdminEstado = remember {
         mutableStateListOf<FichaAdminEmprendimiento>().apply { addAll(DatosDemo.EmprendimientosAdminDemo) }
     }
@@ -104,6 +106,7 @@ fun NavHostApp(
     val contexto = LocalContext.current
     val appContainer = (contexto.applicationContext as TextilCircularApp).contenedor
     val estadoSesion by appContainer.sesionRepository.estadoSesion.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
 
     // Rutas protegidas por rol para evitar accesos cruzados
     val rutasAdmin = listOf(
@@ -293,8 +296,27 @@ fun NavHostApp(
                                     region = emprendedoraActual.region,
                                     rubro = emprendedoraActual.rubros.firstOrNull()?.nombre ?: ""
                                 )
-                                // TODO: en el Bloque 5 abrimos la conversación real
-                                navController.navigate(Ruta.MensajesCliente.ruta)
+                                val clienteActual = (estadoSesion as? EstadoSesion.AutenticadoCliente)?.cliente
+                                val clienteId = clienteActual?.id ?: 1
+                                val nombreCliente = clienteActual?.nombre ?: "Francisca Tapia"
+                                scope.launch {
+                                    val res = appContainer.mensajeRepository.iniciarOObtenerConversacion(
+                                        clienteId = clienteId,
+                                        emprendedoraId = emprendedoraActual.id,
+                                        nombreCliente = nombreCliente,
+                                        nombreEmprendimiento = emprendedoraActual.nombreComercial,
+                                        primerMensaje = "",
+                                        emisor = TipoEmisor.CLIENTE
+                                    )
+                                    if (res is Resultado.Exito) {
+                                        navController.navigate(
+                                            Ruta.ConversacionCliente.crearRuta(
+                                                conversacionId = res.datos.id,
+                                                mensajeSugerido = "Hola, me gustaría conocer más de tu trabajo"
+                                            )
+                                        )
+                                    }
+                                }
                             }
                         )
                     }
@@ -313,14 +335,153 @@ fun NavHostApp(
                             onNavegarAtras = { navController.popBackStack() },
                             esCliente = true,
                             onPreguntarClick = {
-                                val emp = DatosDemo.EmprendedorasActivasDemo.find { it.id == productoActual.emprendedoraId }
+                                val emp = DatosDemo.EmprendedorasActivasDemo.find { it.id == productoActual.emprendedoraId } ?: DatosDemo.EmprendedoraDemo
                                 appContainer.adminRepository.registrarClicContacto(
-                                    region = emp?.region ?: "",
-                                    rubro = emp?.rubros?.firstOrNull()?.nombre ?: ""
+                                    region = emp.region,
+                                    rubro = emp.rubros.firstOrNull()?.nombre ?: ""
                                 )
-                                // TODO: en el Bloque 5 abrimos la conversación real con el producto sugerido
-                                navController.navigate(Ruta.MensajesCliente.ruta)
+                                val clienteActual = (estadoSesion as? EstadoSesion.AutenticadoCliente)?.cliente
+                                val clienteId = clienteActual?.id ?: 1
+                                val nombreCliente = clienteActual?.nombre ?: "Francisca Tapia"
+                                scope.launch {
+                                    val res = appContainer.mensajeRepository.iniciarOObtenerConversacion(
+                                        clienteId = clienteId,
+                                        emprendedoraId = emp.id,
+                                        nombreCliente = nombreCliente,
+                                        nombreEmprendimiento = emp.nombreComercial,
+                                        primerMensaje = "",
+                                        emisor = TipoEmisor.CLIENTE,
+                                        productoAsociado = productoActual
+                                    )
+                                    if (res is Resultado.Exito) {
+                                        navController.navigate(
+                                            Ruta.ConversacionCliente.crearRuta(
+                                                conversacionId = res.datos.id,
+                                                mensajeSugerido = "Quiero saber más sobre este producto",
+                                                productoId = productoActual.id
+                                            )
+                                        )
+                                    }
+                                }
                             }
+                        )
+                    }
+
+                    composable(Ruta.MensajesCliente.ruta) {
+                        val clienteActual = (estadoSesion as? EstadoSesion.AutenticadoCliente)?.cliente
+                        val clienteId = clienteActual?.id ?: 1
+                        val convsFlow = remember(clienteId) { appContainer.mensajeRepository.obtenerConversacionesCliente(clienteId) }
+                        val convs by convsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+                        MensajesScreen(
+                            conversaciones = convs,
+                            onConversacionClick = { id ->
+                                navController.navigate(Ruta.ConversacionCliente.crearRuta(id))
+                            },
+                            esCliente = true,
+                            onExplorarClick = {
+                                navController.navigate(Ruta.Explorar.ruta) {
+                                    popUpTo(Ruta.Explorar.ruta) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Ruta.ConversacionCliente.ruta,
+                        arguments = listOf(
+                            navArgument("conversacionId") { type = NavType.IntType },
+                            navArgument("mensajeSugerido") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            },
+                            navArgument("productoId") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            }
+                        )
+                    ) { backStackEntry ->
+                        val conversacionId = backStackEntry.arguments?.getInt("conversacionId") ?: 201
+                        val sugeridoRaw = backStackEntry.arguments?.getString("mensajeSugerido")
+                        val sugerido = sugeridoRaw?.let { java.net.URLDecoder.decode(it, "UTF-8") }
+                        val prodIdStr = backStackEntry.arguments?.getString("productoId")
+                        val prodId = prodIdStr?.toIntOrNull()
+
+                        val convFlow = remember(conversacionId) { appContainer.mensajeRepository.obtenerConversacionPorId(conversacionId) }
+                        val conv by convFlow.collectAsStateWithLifecycle(initialValue = null)
+
+                        val msgsFlow = remember(conversacionId) { appContainer.mensajeRepository.obtenerMensajes(conversacionId) }
+                        val msgs by msgsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+                        val conversacionFinal = conv ?: DatosDemo.ConversacionesDemo.find { it.id == conversacionId } ?: DatosDemo.ConversacionesDemo.first()
+
+                        LaunchedEffect(conversacionId) {
+                            appContainer.mensajeRepository.marcarComoLeidoCliente(conversacionId)
+                        }
+
+                        val prodConsultadoFlow = remember(prodId) {
+                            if (prodId != null) appContainer.productoRepository.obtenerPorId(prodId) else null
+                        }
+                        val prodConsultado by (prodConsultadoFlow?.collectAsStateWithLifecycle(initialValue = null) ?: remember { mutableStateOf(null) })
+
+                        val retrocederConversacion = {
+                            if (!navController.popBackStack()) {
+                                navController.navigate(Ruta.Explorar.ruta) {
+                                    popUpTo(0)
+                                }
+                            }
+                        }
+
+                        BackHandler {
+                            retrocederConversacion()
+                        }
+
+                        ConversacionScreen(
+                            conversacion = conversacionFinal,
+                            mensajes = msgs,
+                            esCliente = true,
+                            mensajeSugerido = sugerido,
+                            productoConsultado = prodConsultado ?: conversacionFinal.productoAsociado,
+                            onEnviarMensaje = { nuevoTexto ->
+                                scope.launch {
+                                    val esPrimerMensaje = msgs.isEmpty()
+                                    val prodActual = prodConsultado ?: conversacionFinal.productoAsociado
+                                    val res = appContainer.mensajeRepository.enviarMensaje(
+                                        conversacionId = conversacionId,
+                                        contenido = nuevoTexto,
+                                        emisor = TipoEmisor.CLIENTE,
+                                        productoId = prodActual?.id,
+                                        nombreProducto = prodActual?.nombre
+                                    )
+                                    if (res is Resultado.Exito && esPrimerMensaje) {
+                                        val emp = DatosDemo.EmprendedorasActivasDemo.find { it.id == conversacionFinal.emprendedoraId }
+                                        appContainer.adminRepository.registrarConsultaEnviada(
+                                            region = emp?.region ?: "",
+                                            rubro = emp?.rubros?.firstOrNull()?.nombre ?: ""
+                                        )
+                                    }
+                                }
+                            },
+                            onSimularInteraccion = {
+                                scope.launch {
+                                    val respuestaArtesana = "¡Hola! Sí, aún tenemos piezas disponibles de este modelo en el taller."
+                                    appContainer.mensajeRepository.enviarMensaje(
+                                        conversacionId = conversacionId,
+                                        contenido = respuestaArtesana,
+                                        emisor = TipoEmisor.EMPRENDEDORA
+                                    )
+                                    NotificacionUtil.mostrarNotificacionMensaje(
+                                        contexto = contexto,
+                                        titulo = conversacionFinal.nombreEmprendimiento.ifBlank { "Taller Textil" },
+                                        contenido = respuestaArtesana,
+                                        conversacionId = conversacionId
+                                    )
+                                }
+                            },
+                            textoSimularInteraccion = stringResource(id = R.string.chat_demo_simular_respuesta),
+                            onNavegarAtras = { retrocederConversacion() }
                         )
                     }
 
@@ -352,10 +513,16 @@ fun NavHostApp(
 
                     // Rutas de la emprendedora
                     composable(Ruta.Inicio.ruta) {
+                        val empId = perfilUiState.emprendedora.id
+                        val convsEmpFlow = remember(empId) { appContainer.mensajeRepository.obtenerConversaciones(empId) }
+                        val convsEmp by convsEmpFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+                        val totalNoLeidos = convsEmp.sumOf { it.noLeidosEmprendedora }
+
                         InicioScreen(
                             emprendedora = perfilUiState.emprendedora,
                             onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) },
-                            onVerMensajesClick = { navController.navigate(Ruta.Mensajes.ruta) }
+                            onVerMensajesClick = { navController.navigate(Ruta.Mensajes.ruta) },
+                            consultasNuevas = totalNoLeidos
                         )
                     }
 
@@ -414,7 +581,7 @@ fun NavHostApp(
                     composable(Ruta.VistaPreviaPublica.ruta) {
                         val contexto = androidx.compose.ui.platform.LocalContext.current
                         val appContainer = (contexto.applicationContext as com.example.textilcircular.TextilCircularApp).contenedor
-                        val empId = perfilUiState.emprendedora?.id ?: 1
+                        val empId = perfilUiState.emprendedora.id
                         val productosEmprendedora by androidx.compose.runtime.produceState<List<Producto>>(initialValue = emptyList(), empId) {
                             appContainer.productoRepository.obtenerPorEmprendedora(empId).collect {
                                 value = it
@@ -430,9 +597,14 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.Mensajes.ruta) {
+                        val empId = perfilUiState.emprendedora.id
+                        val convsEmpFlow = remember(empId) { appContainer.mensajeRepository.obtenerConversaciones(empId) }
+                        val convsEmp by convsEmpFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
                         MensajesScreen(
-                            conversaciones = if (simularListasVacias) emptyList() else DatosDemo.ConversacionesDemo,
-                            onConversacionClick = { id -> navController.navigate(Ruta.Conversacion.crearRuta(id)) }
+                            conversaciones = if (simularListasVacias) emptyList() else convsEmp,
+                            onConversacionClick = { id -> navController.navigate(Ruta.Conversacion.crearRuta(id)) },
+                            esCliente = false
                         )
                     }
 
@@ -441,7 +613,17 @@ fun NavHostApp(
                         arguments = listOf(navArgument("conversacionId") { type = NavType.IntType })
                     ) { backStackEntry ->
                         val conversacionId = backStackEntry.arguments?.getInt("conversacionId") ?: 201
-                        val conversacion = DatosDemo.ConversacionesDemo.find { it.id == conversacionId } ?: DatosDemo.ConversacionesDemo.first()
+                        val convFlow = remember(conversacionId) { appContainer.mensajeRepository.obtenerConversacionPorId(conversacionId) }
+                        val conv by convFlow.collectAsStateWithLifecycle(initialValue = null)
+
+                        val msgsFlow = remember(conversacionId) { appContainer.mensajeRepository.obtenerMensajes(conversacionId) }
+                        val msgs by msgsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+                        val conversacionFinal = conv ?: DatosDemo.ConversacionesDemo.find { it.id == conversacionId } ?: DatosDemo.ConversacionesDemo.first()
+
+                        LaunchedEffect(conversacionId) {
+                            appContainer.mensajeRepository.marcarComoLeidoEmprendedora(conversacionId)
+                        }
 
                         val retrocederConversacion = {
                             if (!navController.popBackStack()) {
@@ -456,19 +638,37 @@ fun NavHostApp(
                         }
 
                         ConversacionScreen(
-                            conversacion = conversacion,
-                            mensajes = mensajesChatEstado,
+                            conversacion = conversacionFinal,
+                            mensajes = msgs,
+                            esCliente = false,
                             onEnviarMensaje = { nuevoTexto ->
-                                mensajesChatEstado.add(
-                                    Mensaje(
-                                        id = mensajesChatEstado.size + 1,
+                                scope.launch {
+                                    appContainer.mensajeRepository.enviarMensaje(
                                         conversacionId = conversacionId,
-                                        emisor = TipoEmisor.EMPRENDEDORA,
                                         contenido = nuevoTexto,
-                                        fechaHora = "Ahora"
+                                        emisor = TipoEmisor.EMPRENDEDORA
                                     )
-                                )
+                                }
                             },
+                            onSimularInteraccion = {
+                                scope.launch {
+                                    val pregunta = "Hola, ¿sigue disponible este modelo en el taller?"
+                                    appContainer.mensajeRepository.enviarMensaje(
+                                        conversacionId = conversacionId,
+                                        contenido = pregunta,
+                                        emisor = TipoEmisor.CLIENTE,
+                                        productoId = conversacionFinal.productoAsociado?.id,
+                                        nombreProducto = conversacionFinal.productoAsociado?.nombre
+                                    )
+                                    NotificacionUtil.mostrarNotificacionMensaje(
+                                        contexto = contexto,
+                                        titulo = conversacionFinal.nombreCliente,
+                                        contenido = pregunta,
+                                        conversacionId = conversacionId
+                                    )
+                                }
+                            },
+                            textoSimularInteraccion = stringResource(id = R.string.chat_demo_simular_consulta),
                             onNavegarAtras = { retrocederConversacion() }
                         )
                     }
@@ -482,6 +682,29 @@ fun NavHostApp(
                             onCerrarSesionClick = {
                                 navController.navigate(Ruta.Bienvenida.ruta) {
                                     popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onSimularConsultaCliente = {
+                                scope.launch {
+                                    val emp = perfilUiState.emprendedora
+                                    val clienteDemo = DatosDemo.ClientesDemo.first()
+                                    val consultaTexto = "Hola, me gustaría saber si hacen despachos a mi región."
+                                    val res = appContainer.mensajeRepository.iniciarOObtenerConversacion(
+                                        clienteId = clienteDemo.id,
+                                        emprendedoraId = emp.id,
+                                        nombreCliente = clienteDemo.nombre,
+                                        nombreEmprendimiento = emp.nombreComercial,
+                                        primerMensaje = consultaTexto,
+                                        emisor = TipoEmisor.CLIENTE
+                                    )
+                                    if (res is Resultado.Exito) {
+                                        NotificacionUtil.mostrarNotificacionMensaje(
+                                            contexto = contexto,
+                                            titulo = clienteDemo.nombre,
+                                            contenido = consultaTexto,
+                                            conversacionId = res.datos.id
+                                        )
+                                    }
                                 }
                             },
                             viewModel = perfilViewModel

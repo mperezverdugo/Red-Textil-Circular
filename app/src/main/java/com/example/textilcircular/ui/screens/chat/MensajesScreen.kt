@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -41,12 +42,14 @@ import com.example.textilcircular.ui.components.EstadoVacio
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-// Bandeja de mensajes con la lista de conversaciones de clientes.
+// Bandeja de mensajes con la lista de conversaciones de clientes o de la emprendedora.
 @Composable
 fun MensajesScreen(
     conversaciones: List<Conversacion>,
     onConversacionClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esCliente: Boolean = false,
+    onExplorarClick: (() -> Unit)? = null
 ) {
     Scaffold(
         topBar = {
@@ -62,15 +65,25 @@ fun MensajesScreen(
                 .padding(paddingValores)
         ) {
             if (conversaciones.isEmpty()) {
-                EstadoVacio(
-                    titulo = stringResource(id = R.string.mensajes_vacio_titulo),
-                    mensaje = stringResource(id = R.string.mensajes_vacio_mensaje),
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (esCliente) {
+                    EstadoVacio(
+                        titulo = stringResource(id = R.string.mensajes_cliente_vacio_titulo),
+                        mensaje = stringResource(id = R.string.mensajes_cliente_vacio_mensaje),
+                        textoAccion = stringResource(id = R.string.mensajes_cliente_vacio_accion),
+                        onAccionClick = onExplorarClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    EstadoVacio(
+                        titulo = stringResource(id = R.string.mensajes_vacio_titulo),
+                        mensaje = stringResource(id = R.string.mensajes_vacio_mensaje),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        text = stringResource(id = R.string.mensajes_bajada),
+                        text = if (esCliente) stringResource(id = R.string.mensajes_cliente_bajada) else stringResource(id = R.string.mensajes_bajada),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -82,7 +95,8 @@ fun MensajesScreen(
                         items(conversaciones, key = { it.id }) { conversacion ->
                             FilaConversacion(
                                 conversacion = conversacion,
-                                onClick = { onConversacionClick(conversacion.id) }
+                                onClick = { onConversacionClick(conversacion.id) },
+                                esCliente = esCliente
                             )
                             HorizontalDivider(
                                 color = MaterialTheme.colorScheme.outlineVariant,
@@ -99,8 +113,12 @@ fun MensajesScreen(
 @Composable
 private fun FilaConversacion(
     conversacion: Conversacion,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    esCliente: Boolean = false
 ) {
+    val nombre = if (esCliente) conversacion.nombreEmprendimiento.ifBlank { stringResource(id = R.string.mercado_taller_textil) } else conversacion.nombreCliente
+    val noLeidos = if (esCliente) conversacion.noLeidosCliente else conversacion.noLeidosEmprendedora
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -116,10 +134,10 @@ private fun FilaConversacion(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                imageVector = if (esCliente) Icons.Default.ShoppingCart else Icons.Default.Person,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(26.dp)
             )
         }
 
@@ -132,7 +150,7 @@ private fun FilaConversacion(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = conversacion.nombreCliente,
+                    text = nombre,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
@@ -150,13 +168,14 @@ private fun FilaConversacion(
             Text(
                 text = conversacion.ultimoMensaje,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (conversacion.mensajesNoLeidos > 0) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (noLeidos > 0) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = if (noLeidos > 0) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
 
-        if (conversacion.mensajesNoLeidos > 0) {
+        if (noLeidos > 0) {
             Spacer(modifier = Modifier.width(8.dp))
             Box(
                 modifier = Modifier
@@ -166,7 +185,7 @@ private fun FilaConversacion(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = conversacion.mensajesNoLeidos.toString(),
+                    text = noLeidos.toString(),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onPrimary
                 )

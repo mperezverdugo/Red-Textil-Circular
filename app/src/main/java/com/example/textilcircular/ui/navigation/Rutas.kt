@@ -22,6 +22,19 @@ sealed class Ruta(val ruta: String) {
     data object ProductoDetalleCliente : Ruta("cliente_producto_detalle/{productoId}") {
         fun crearRuta(id: Int): String = "cliente_producto_detalle/$id"
     }
+    data object ConversacionCliente : Ruta("cliente_conversacion/{conversacionId}?mensajeSugerido={mensajeSugerido}&productoId={productoId}") {
+        fun crearRuta(conversacionId: Int, mensajeSugerido: String? = null, productoId: Int? = null): String {
+            val params = mutableListOf<String>()
+            if (!mensajeSugerido.isNullOrBlank()) {
+                params.add("mensajeSugerido=" + java.net.URLEncoder.encode(mensajeSugerido, "UTF-8"))
+            }
+            if (productoId != null) {
+                params.add("productoId=$productoId")
+            }
+            return if (params.isNotEmpty()) "cliente_conversacion/$conversacionId?" + params.joinToString("&")
+            else "cliente_conversacion/$conversacionId"
+        }
+    }
 
     // Pestañas principales de la emprendedora
     data object Inicio : Ruta("emp_inicio")

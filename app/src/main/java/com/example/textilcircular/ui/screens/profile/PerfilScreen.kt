@@ -28,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -60,6 +61,7 @@ fun PerfilScreen(
     onBajaClick: () -> Unit,
     onCerrarSesionClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onSimularConsultaCliente: () -> Unit = {},
     viewModel: PerfilViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -80,6 +82,7 @@ fun PerfilScreen(
         onCerrarSesionClick = {
             viewModel.cerrarSesion(onExito = onCerrarSesionClick)
         },
+        onSimularConsultaCliente = onSimularConsultaCliente,
         modifier = modifier
     )
 }
@@ -96,6 +99,7 @@ fun PerfilContent(
     onSincronizacionClick: () -> Unit,
     onBajaClick: () -> Unit,
     onCerrarSesionClick: () -> Unit,
+    onSimularConsultaCliente: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -273,6 +277,15 @@ fun PerfilContent(
                             checked = simularListasVacias,
                             onCheckedChange = onSimularListasVaciasCambiado
                         )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedButton(
+                        onClick = onSimularConsultaCliente,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = stringResource(id = R.string.perfil_demo_simular_consulta))
                     }
                 }
             }
