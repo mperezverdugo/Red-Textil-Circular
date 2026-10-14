@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="fotos_temp" path="fotos_temp/" />
+    <files-path name="fotos_productos" path="fotos/" />
+</paths>

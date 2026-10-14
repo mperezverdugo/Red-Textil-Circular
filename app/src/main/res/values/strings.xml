@@ -1,0 +1,304 @@
+<resources>
+    <!-- Nombre de la aplicación -->
+    <string name="app_name">Textil Circular</string>
+    <string name="fundacion_nombre">Fundación Textil Circular</string>
+    <string name="hola_mundo">Hola</string>
+
+    <!-- Pestañas Emprendedora -->
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_catalogo">Catálogo</string>
+    <string name="nav_mensajes">Mensajes</string>
+    <string name="nav_perfil">Mi perfil</string>
+
+    <!-- Pestañas Administradora -->
+    <string name="nav_admin_panel">Panel</string>
+    <string name="nav_admin_emprendimientos">Emprendimientos</string>
+    <string name="nav_admin_automatizaciones">Automatizaciones</string>
+    <string name="nav_admin_cuenta">Cuenta</string>
+
+    <!-- Bienvenida -->
+    <string name="bienvenida_titulo">Directorio Textil Circular</string>
+    <string name="bienvenida_bajada">Conectamos el trabajo de las emprendedoras textiles de Chile con clientes conscientes y sustentables.</string>
+    <string name="bienvenida_boton_crear_cuenta">Crear mi cuenta</string>
+    <string name="bienvenida_boton_iniciar_sesion">Ya tengo una cuenta</string>
+
+    <!-- Iniciar sesión -->
+    <string name="login_titulo">Iniciar sesión</string>
+    <string name="login_bajada">Ingresa a tu cuenta para administrar tus creaciones y responder consultas.</string>
+    <string name="login_campo_correo">Correo electrónico</string>
+    <string name="login_campo_password">Contraseña</string>
+    <string name="login_boton_ingresar">Ingresar</string>
+    <string name="login_seccion_demo">Accesos rápidos de demostración</string>
+    <string name="login_boton_demo_emprendedora">Entrar como emprendedora (demo)</string>
+    <string name="login_boton_demo_admin">Entrar como administradora (demo)</string>
+
+    <!-- Registro guiado -->
+    <string name="registro_titulo">Crea tu cuenta de emprendedora</string>
+    <string name="registro_paso1_titulo">Tus datos personales</string>
+    <string name="registro_campo_nombre">Nombre completo</string>
+    <string name="registro_campo_nombre_ayuda">Ejemplo: Francisca Silva (con mayúsculas iniciales)</string>
+    <string name="registro_campo_rut">RUT</string>
+    <string name="registro_campo_rut_ayuda">Ejemplo: 12.345.678-9</string>
+    <string name="registro_campo_correo">Correo electrónico</string>
+    <string name="registro_campo_correo_ayuda">Te enviaremos un correo de bienvenida y aviso de consultas</string>
+    <string name="registro_campo_password">Contraseña</string>
+    <string name="registro_campo_password_ayuda">Al menos 6 caracteres seguros</string>
+
+    <string name="registro_paso2_titulo">Tu emprendimiento</string>
+    <string name="registro_campo_nombre_comercial">Nombre comercial o de tu taller</string>
+    <string name="registro_campo_nombre_comercial_ayuda">El nombre con el que tus clientes te conocen</string>
+    <string name="registro_rubros_explicacion">Selecciona hasta 2 rubros de economía circular textil en los que trabajas.</string>
+
+    <string name="registro_paso3_titulo">Dónde estás y cómo te contactan</string>
+    <string name="registro_campo_region">Región</string>
+    <string name="registro_campo_comuna">Comuna</string>
+    <string name="registro_campo_instagram">Usuario de Instagram (opcional)</string>
+    <string name="registro_campo_instagram_ayuda">Escribe solo tu usuario, por ejemplo: taller_reciclaje (sin @ ni enlaces)</string>
+    <string name="registro_aviso_chat">Los clientes se contactarán contigo directamente a través del chat de esta aplicación para mayor seguridad.</string>
+
+    <string name="registro_paso4_titulo">Confirma tus datos</string>
+    <string name="registro_resumen_explicacion">Revisa que tus datos estén correctos antes de publicar tu ficha.</string>
+    <string name="registro_ley_datos">Acepto el tratamiento de mis datos personales según la Ley N.º 21.719 para visibilizar mi trabajo en el Directorio Textil Circular.</string>
+    <string name="registro_boton_finalizar">Crear mi cuenta</string>
+
+    <!-- Errores de registro -->
+    <string name="error_campo_obligatorio">Este campo no puede quedar en blanco.</string>
+    <string name="error_formato_nombre">Escribe tu nombre con mayúscula inicial.</string>
+    <string name="error_rut_duplicado">Este RUT ya tiene una cuenta registrada en la Fundación.</string>
+    <string name="error_formato_instagram">El usuario de Instagram no debe incluir enlaces ni caracteres raros.</string>
+    <string name="error_debe_aceptar_ley">Debes aceptar los términos para registrar tu cuenta.</string>
+
+    <!-- Registro exitoso -->
+    <string name="exito_registro_titulo">¡Bienvenida a la Red!</string>
+    <string name="exito_registro_mensaje">Tu cuenta ha sido creada exitosamente. Hemos enviado un correo de bienvenida con tus datos de acceso.</string>
+    <string name="exito_registro_aviso_correo">Revisa tu bandeja de entrada o spam si no lo ves de inmediato.</string>
+    <string name="exito_registro_boton_comenzar">Ir a mi cuenta</string>
+
+    <!-- Inicio -->
+    <string name="inicio_saludo">¡Hola, %1$s!</string>
+    <string name="inicio_saludo_default">¡Hola, Emprendedora!</string>
+    <string name="inicio_bajada">Administra tu presencia en el Directorio Textil Circular.</string>
+    <string name="inicio_tarjeta_estado_titulo">Tu perfil en el directorio</string>
+    <string name="inicio_tarjeta_estado_visible">Tu ficha está visible para clientes en todo Chile.</string>
+    <string name="inicio_tarjeta_estado_oculta">Tu ficha está oculta temporalmente.</string>
+    <string name="inicio_completar_perfil_titulo">Completa tu perfil</string>
+    <string name="inicio_completar_perfil_avance">%1$d%% completado</string>
+    <string name="inicio_pendiente_fotos">Agrega fotos a tus productos para atraer más clientes.</string>
+    <string name="inicio_consultas_titulo">Nuevas consultas</string>
+    <string name="inicio_consultas_aviso">Tienes %1$d consulta nueva esperando respuesta.</string>
+    <string name="inicio_consultas_ver">Ver mensajes</string>
+    <string name="inicio_boton_agregar_producto">Agregar un producto</string>
+
+    <!-- Catálogo -->
+    <string name="catalogo_titulo">Catálogo de creaciones</string>
+    <string name="catalogo_bajada">Muestra tus prendas, arreglos o talleres textiles.</string>
+    <string name="catalogo_vacio_titulo">Aún no tienes productos</string>
+    <string name="catalogo_vacio_mensaje">Publica tu primera creación para que los clientes conozcan tu trabajo y técnicas.</string>
+    <string name="catalogo_fab_agregar">Subir producto</string>
+
+    <!-- Formulario de producto -->
+    <string name="producto_form_titulo_crear">Nuevo producto</string>
+    <string name="producto_form_titulo_editar">Editar producto</string>
+    <string name="producto_form_fotos_seccion">Fotografías del producto</string>
+    <string name="producto_form_fotos_ayuda">Una sola foto autoexplicativa es suficiente. Máximo %1$d fotos.</string>
+    <string name="producto_form_boton_agregar_foto">Agregar foto</string>
+    <string name="producto_form_hoja_titulo">¿Cómo deseas agregar la foto?</string>
+    <string name="producto_form_campo_nombre">Nombre del producto o servicio</string>
+    <string name="producto_form_campo_nombre_ayuda">Ejemplo: Bolso Upcycling Mezclilla</string>
+    <string name="producto_form_campo_descripcion">Descripción corta</string>
+    <string name="producto_form_campo_descripcion_ayuda">Explica qué es, materiales y para qué sirve</string>
+    <string name="producto_form_campo_proceso">Cuéntanos cómo lo hiciste (opcional)</string>
+    <string name="producto_form_campo_proceso_ayuda">Explica si es suprarreciclaje, reparación o rescate de material textil.</string>
+    <string name="producto_form_eliminar_boton">Eliminar este producto</string>
+    <string name="producto_form_eliminar_titulo">¿Eliminar producto del catálogo?</string>
+    <string name="producto_form_eliminar_mensaje">Esta prenda ya no estará visible para los clientes en el directorio web.</string>
+
+    <!-- Detalle del producto -->
+    <string name="producto_detalle_titulo">Detalle del producto</string>
+    <string name="producto_detalle_proceso_titulo">Proceso de elaboración circular</string>
+    <string name="producto_detalle_boton_editar">Editar producto</string>
+    <string name="producto_detalle_boton_eliminar">Eliminar producto</string>
+
+    <!-- Vista previa pública -->
+    <string name="vista_previa_titulo">Así te ven tus clientes</string>
+    <string name="vista_previa_banner_info">Esta es una vista previa de cómo aparece tu ficha en el Directorio Web de la Fundación.</string>
+    <string name="vista_previa_boton_escribir">Escribir a la emprendedora</string>
+    <string name="vista_previa_nota_boton_deshabilitado">Este botón estará activo para los clientes cuando visiten el directorio en la web.</string>
+    <string name="vista_previa_sin_productos">Esta emprendedora aún no ha publicado productos en su catálogo.</string>
+
+    <!-- Mensajes -->
+    <string name="mensajes_titulo">Mensajes de clientes</string>
+    <string name="mensajes_bajada">Conversaciones directas y seguras sin salir de la plataforma.</string>
+    <string name="mensajes_vacio_titulo">No tienes mensajes todavía</string>
+    <string name="mensajes_vacio_mensaje">Cuando un cliente interesado consulte por tus productos en el directorio web, sus mensajes aparecerán aquí.</string>
+    <string name="mensajes_no_leidos_badge">%1$d no leído</string>
+
+    <!-- Conversación -->
+    <string name="chat_titulo">Conversación</string>
+    <string name="chat_producto_consultado_etiqueta">Consulta sobre:</string>
+    <string name="chat_campo_placeholder">Escribe tu respuesta…</string>
+    <string name="chat_boton_enviar">Enviar mensaje</string>
+    <string name="chat_aviso_seguridad">La conversación queda protegida dentro de la aplicación para mayor seguridad.</string>
+
+    <!-- Mi perfil -->
+    <string name="perfil_titulo">Mi perfil</string>
+    <string name="perfil_seccion_datos">Tus datos en el directorio</string>
+    <string name="perfil_opcion_editar">Editar mi perfil</string>
+    <string name="perfil_opcion_vista_previa">Ver cómo me ven los clientes</string>
+    <string name="perfil_opcion_sincronizacion">Estado de sincronización</string>
+    <string name="perfil_opcion_baja">Darme de baja del directorio</string>
+    <string name="perfil_seccion_demo_titulo">Opciones de demostración</string>
+    <string name="perfil_demo_offline">Simular modo sin conexión</string>
+    <string name="perfil_demo_listas_vacias">Simular listas vacías en catálogo</string>
+    <string name="perfil_demo_errores">Mostrar errores de ejemplo</string>
+
+    <!-- Editar perfil -->
+    <string name="editar_perfil_titulo">Editar perfil</string>
+    <string name="editar_perfil_exito">Datos actualizados correctamente.</string>
+
+    <!-- Sincronización -->
+    <string name="sync_titulo">Sincronización</string>
+    <string name="sync_ultima_fecha">Última sincronización: Hoy a las 09:30 h</string>
+    <string name="sync_pendientes_titulo">Elementos pendientes de subir (%1$d)</string>
+    <string name="sync_sin_pendientes">No tienes cambios pendientes. Todo está respaldado en la nube.</string>
+    <string name="sync_boton_sincronizar">Sincronizar ahora</string>
+    <string name="sync_estado_completado">¡Sincronización completada con éxito!</string>
+
+    <!-- Baja de perfil -->
+    <string name="baja_titulo">Darme de baja</string>
+    <string name="baja_explicacion_titulo">¿Deseas retirar tu perfil del directorio?</string>
+    <string name="baja_explicacion_cuerpo">Si confirmas la baja, tu ficha y catálogo dejarán de ser visibles para los clientes en el sitio web de la Fundación Textil Circular. Puedes volver a unirte cuando lo desees.</string>
+    <string name="baja_boton_confirmar">Sí, darme de baja</string>
+    <string name="baja_boton_cancelar">Mejor no, mantener mi perfil</string>
+
+    <string name="baja_exitosa_titulo">Tu perfil ya no está disponible</string>
+    <string name="baja_exitosa_cuerpo">Hemos desactivado tu ficha del directorio web. Agradecemos enormemente tu aporte a la economía circular textil de Chile.</string>
+    <string name="baja_exitosa_boton_inicio">Volver al inicio</string>
+
+    <!-- Panel de administración -->
+    <string name="admin_panel_titulo">Panel de control</string>
+    <string name="admin_panel_bajada">Métricas de impacto y actividad del Directorio Textil Circular.</string>
+    <string name="admin_metrica_busquedas">Búsquedas en la web</string>
+    <string name="admin_metrica_consultas">Consultas enviadas</string>
+    <string name="admin_metrica_clics">Clics en contacto</string>
+    <string name="admin_alerta_fichas_revisar">Fichas por revisar</string>
+    <string name="admin_alerta_fichas_desc">Hay %1$d emprendimientos con advertencias o datos pendientes de confirmación.</string>
+    <string name="admin_grafico_region_titulo">Interacciones por región</string>
+    <string name="admin_grafico_rubro_titulo">Interacciones por rubro textil</string>
+
+    <!-- Directorio de emprendimientos -->
+    <string name="admin_emp_titulo">Emprendimientos</string>
+    <string name="admin_emp_buscar_placeholder">Buscar por nombre o comuna…</string>
+    <string name="admin_emp_boton_agregar">Agregar ficha</string>
+    <string name="admin_emp_filtro_todos">Todos</string>
+    <string name="admin_emp_total">%1$d fichas registradas</string>
+
+    <!-- Detalle del emprendimiento -->
+    <string name="admin_detalle_titulo">Ficha del emprendimiento</string>
+    <string name="admin_detalle_problemas_titulo">Problemas detectados</string>
+    <string name="admin_detalle_sin_problemas">Esta ficha tiene todos sus datos consistentes y validados.</string>
+    <string name="admin_detalle_boton_ocultar">Ocultar del directorio</string>
+    <string name="admin_detalle_boton_mostrar">Hacer visible en directorio</string>
+    <string name="admin_detalle_eliminar_titulo">¿Eliminar este emprendimiento?</string>
+    <string name="admin_detalle_eliminar_mensaje">Esta acción borrará definitivamente la ficha de la base de datos.</string>
+
+    <!-- Formulario de emprendimiento -->
+    <string name="admin_form_titulo_crear">Nueva ficha de emprendimiento</string>
+    <string name="admin_form_titulo_editar">Editar ficha de emprendimiento</string>
+
+    <!-- Automatizaciones -->
+    <string name="admin_auto_titulo">Automatizaciones</string>
+    <string name="admin_auto_bajada">Supervisión y control del envío de correos automáticos de bienvenida.</string>
+    <string name="admin_auto_total_enviados">%1$d Enviados</string>
+    <string name="admin_auto_total_pendientes">%1$d Pendientes</string>
+    <string name="admin_auto_total_fallidos">%1$d Fallidos</string>
+    <string name="admin_auto_correo_bienvenida">Correo de bienvenida</string>
+    <string name="admin_auto_reenviado_exito">El correo ha sido reenviado exitosamente.</string>
+
+    <!-- Pantalla A6: Cuenta Administradora -->
+    <string name="admin_cuenta_titulo">Cuenta de administración</string>
+    <string name="admin_cuenta_nombre_default">Catalina Herrera</string>
+    <string name="admin_cuenta_rol_default">Cofundadora y Administradora</string>
+    <string name="admin_cuenta_permisos_titulo">Permisos del perfil</string>
+    <string name="admin_cuenta_permiso_1">Supervisión integral de las 982 fichas del directorio</string>
+    <string name="admin_cuenta_permiso_2">Moderación, altas y bajas manuales de emprendimientos</string>
+    <string name="admin_cuenta_permiso_3">Auditoría de correos automáticos de bienvenida</string>
+    <string name="admin_cuenta_permiso_4">Visualización de métricas de impacto territorial</string>
+
+    <!-- Acciones generales -->
+    <string name="accion_guardar">Guardar</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="accion_continuar">Continuar</string>
+    <string name="accion_siguiente">Siguiente</string>
+    <string name="accion_atras">Atrás</string>
+    <string name="accion_eliminar">Eliminar</string>
+    <string name="accion_editar">Editar</string>
+    <string name="accion_cerrar">Cerrar</string>
+    <string name="accion_cerrar_sesion">Cerrar sesión</string>
+    <string name="accion_subir_foto">Subir foto</string>
+    <string name="accion_tomar_foto">Tomar foto</string>
+    <string name="accion_elegir_galeria">Elegir de la galería</string>
+    <string name="accion_sincronizar_ahora">Sincronizar ahora</string>
+    <string name="accion_reenviar">Reenviar</string>
+    <string name="accion_buscar">Buscar</string>
+    <string name="accion_filtrar">Filtrar</string>
+    <string name="accion_limpiar_filtros">Limpiar filtros</string>
+
+    <!-- Estados globales y accesibilidad -->
+    <string name="estado_sin_conexion">Sin conexión a internet. Los cambios se guardarán en tu teléfono.</string>
+    <string name="estado_pendiente_subir">Pendiente de subir</string>
+    <string name="estado_cargando">Cargando…</string>
+    <string name="estado_preparando_foto">Preparando foto…</string>
+    <string name="estado_sincronizando">Sincronizando tus datos…</string>
+    <string name="estado_sincronizado_ok">Todo está al día</string>
+    <string name="estado_error_conexion">No pudimos conectar con el servidor.</string>
+
+    <!-- Estados de fichas de emprendimientos -->
+    <string name="ficha_estado_activa">Activa</string>
+    <string name="ficha_estado_oculta">Oculta</string>
+    <string name="ficha_estado_por_revisar">Por revisar</string>
+    <string name="ficha_estado_dada_de_baja">Dada de baja</string>
+
+    <!-- Componente Rubros y Selección -->
+    <string name="rubros_contador">Elige hasta %1$d rubros (%2$d de %3$d seleccionados)</string>
+    <string name="rubros_limite_alcanzado">Ya elegiste el máximo de 2 rubros.</string>
+
+    <!-- Componente Barra de Progreso de Pasos -->
+    <string name="paso_indicador">Paso %1$d de %2$d</string>
+
+    <!-- Componente Selector Desplegable -->
+    <string name="selector_seleccionar">Selecciona una opción</string>
+    <string name="selector_bloqueado_ayuda">Primero debes seleccionar la región.</string>
+
+    <!-- Componente Tarjeta Producto -->
+    <string name="producto_placeholder_foto">Foto del trabajo</string>
+    <string name="producto_sin_foto">Sin foto asignada</string>
+    <string name="producto_fotos_contador">%1$d de %2$d fotos</string>
+
+    <!-- Componente Estado Vacío -->
+    <string name="vacio_titulo_default">No hay elementos todavía</string>
+    <string name="vacio_mensaje_default">Aún no se ha registrado información en esta sección.</string>
+
+    <!-- Diálogos de Confirmación -->
+    <string name="dialogo_titulo_atencion">Atención</string>
+    <string name="dialogo_eliminar_pregunta">¿Estás segura de que deseas eliminar este elemento?</string>
+    <string name="dialogo_eliminar_advertencia">Esta acción no se puede deshacer.</string>
+
+    <!-- Accesibilidad para lectores de pantalla -->
+    <string name="cd_icono_atras">Volver a la pantalla anterior</string>
+    <string name="cd_icono_alerta">Alerta de advertencia</string>
+    <string name="cd_icono_error">Error en el campo</string>
+    <string name="cd_icono_exito">Acción completada</string>
+    <string name="cd_icono_foto">Imagen del producto</string>
+    <string name="cd_icono_menu">Menú de navegación</string>
+    <!-- Permisos de cámara -->
+    <string name="permiso_camara_titulo">Permiso de cámara requerido</string>
+    <string name="permiso_camara_mensaje">La aplicación necesita acceder a la cámara para capturar fotografías de tus creaciones textiles circulares y agregarlas directamente a tu catálogo.</string>
+    <string name="permiso_camara_boton_permitir">Solicitar permiso</string>
+    <string name="permiso_camara_denegado_titulo">Permiso de cámara denegado</string>
+    <string name="permiso_camara_denegado_mensaje">El permiso de cámara está desactivado. Para poder tomar fotografías de tus productos textiles desde la app, debes habilitarlo en los ajustes del sistema.</string>
+    <string name="permiso_camara_boton_ajustes">Ir a ajustes</string>
+    <string name="cd_icono_buscar">Buscar</string>
+    <string name="cd_icono_borrar">Eliminar</string>
+</resources>
