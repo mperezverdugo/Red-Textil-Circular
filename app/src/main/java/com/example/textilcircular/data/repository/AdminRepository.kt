@@ -22,6 +22,22 @@ data class MetricasAdmin(
     val contactosPorRubro: List<Pair<String, Int>>
 )
 
+// Propuesta para métricas de impacto en SQLite:
+// CREATE TABLE metricas_busquedas (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT,
+//     termino TEXT NOT NULL,
+//     region TEXT,
+//     rubro TEXT,
+//     fecha_registro INTEGER NOT NULL
+// );
+// CREATE TABLE metricas_contactos (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT,
+//     tipo_evento TEXT NOT NULL CHECK(tipo_evento IN ('CLIC_CONTACTO', 'CONSULTA_ENVIADA')),
+//     region TEXT NOT NULL,
+//     rubro TEXT NOT NULL,
+//     fecha_registro INTEGER NOT NULL
+// );
+
 // Contrato para la administración de fichas, métricas de impacto y automatizaciones.
 interface AdminRepository {
     fun obtenerFichas(): Flow<List<FichaAdminEmprendimiento>>

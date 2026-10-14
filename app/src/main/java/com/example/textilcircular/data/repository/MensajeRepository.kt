@@ -14,6 +14,29 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Propuesta para tablas de mensajería en SQLite:
+// CREATE TABLE conversaciones (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT,
+//     cliente_id INTEGER NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+//     emprendedora_id INTEGER NOT NULL REFERENCES emprendedoras(id) ON DELETE CASCADE,
+//     producto_id INTEGER REFERENCES productos(id) ON DELETE SET NULL,
+//     ultimo_mensaje TEXT NOT NULL,
+//     fecha_hora TEXT NOT NULL,
+//     no_leidos_cliente INTEGER NOT NULL DEFAULT 0,
+//     no_leidos_emprendedora INTEGER NOT NULL DEFAULT 0,
+//     UNIQUE(cliente_id, emprendedora_id)
+// );
+// CREATE TABLE mensajes (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT,
+//     conversacion_id INTEGER NOT NULL REFERENCES conversaciones(id) ON DELETE CASCADE,
+//     emisor TEXT NOT NULL CHECK(emisor IN ('CLIENTE', 'EMPRENDEDORA')),
+//     contenido TEXT NOT NULL,
+//     fecha_hora TEXT NOT NULL,
+//     es_leido INTEGER NOT NULL DEFAULT 0,
+//     producto_id INTEGER REFERENCES productos(id) ON DELETE SET NULL,
+//     nombre_producto TEXT
+// );
+
 // Contrato para la mensajería interna entre clientes y emprendedoras.
 interface MensajeRepository {
     fun obtenerConversaciones(emprendedoraId: Int): Flow<List<Conversacion>>

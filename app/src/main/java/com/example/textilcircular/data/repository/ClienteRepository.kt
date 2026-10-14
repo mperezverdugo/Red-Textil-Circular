@@ -9,6 +9,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
+// Propuesta para la tabla clientes en SQLite:
+// CREATE TABLE clientes (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT,
+//     nombre TEXT NOT NULL,
+//     email TEXT NOT NULL UNIQUE,
+//     password_hash TEXT NOT NULL,
+//     sal TEXT NOT NULL,
+//     acepta_ley_datos INTEGER NOT NULL DEFAULT 1
+// );
+
 // Contrato para gestionar el registro, consulta y autenticación de clientes.
 interface ClienteRepository {
     fun obtenerTodos(): Flow<List<Cliente>>
