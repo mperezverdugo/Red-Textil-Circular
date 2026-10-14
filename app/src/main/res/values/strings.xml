@@ -323,4 +323,16 @@
     <string name="nav_cliente_explorar">Explorar</string>
     <string name="nav_cliente_mensajes">Mensajes</string>
     <string name="nav_cliente_perfil">Mi perfil</string>
+    <string name="mercado_titulo">Mercado Textil Circular</string>
+    <string name="mercado_buscar_placeholder">Buscar por taller, comuna o rubro…</string>
+    <string name="mercado_filtro_region">Región</string>
+    <string name="mercado_filtro_comuna">Comuna</string>
+    <string name="mercado_filtro_rubro">Rubro textil</string>
+    <string name="mercado_filtro_todos_rubros">Todos los rubros</string>
+    <string name="mercado_filtro_todas_regiones">Todas las regiones</string>
+    <string name="mercado_filtro_todas_comunas">Todas las comunas</string>
+    <string name="mercado_vacio_titulo">No encontramos emprendedoras con esos filtros</string>
+    <string name="mercado_vacio_mensaje">Prueba cambiando los términos de búsqueda o limpiando los filtros para ver más opciones.</string>
+    <string name="mercado_taller_textil">Taller Textil Circular</string>
+    <string name="mercado_total_talleres">%1$d talleres disponibles</string>
 </resources>

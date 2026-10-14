@@ -1,6 +1,7 @@
 package com.example.textilcircular.data.repository
 
 import com.example.textilcircular.model.Emprendedora
+import com.example.textilcircular.model.Rubro
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.util.Resultado
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +13,12 @@ import kotlinx.coroutines.flow.map
 interface EmprendedoraRepository {
     fun obtenerTodas(): Flow<List<Emprendedora>>
     fun obtenerPorId(id: Int): Flow<Emprendedora?>
+    fun obtenerMercado(
+        textoBusqueda: String = "",
+        region: String? = null,
+        comuna: String? = null,
+        rubro: Rubro? = null
+    ): Flow<List<Emprendedora>>
     suspend fun guardar(emprendedora: Emprendedora): Resultado<Emprendedora>
     suspend fun actualizar(emprendedora: Emprendedora): Resultado<Unit>
     suspend fun cambiarVisibilidad(id: Int, activa: Boolean): Resultado<Unit>
@@ -28,6 +35,41 @@ class EmprendedoraRepositoryMemoria : EmprendedoraRepository {
 
     override fun obtenerPorId(id: Int): Flow<Emprendedora?> {
         return _emprendedoras.map { list -> list.firstOrNull { it.id == id } }
+    }
+
+    override fun obtenerMercado(
+        textoBusqueda: String,
+        region: String?,
+        comuna: String?,
+        rubro: Rubro?
+    ): Flow<List<Emprendedora>> {
+        val textoLimpio = textoBusqueda.trim().lowercase()
+        return _emprendedoras.map { list ->
+            // Mostramos solo las emprendedoras que no están ocultas ni dadas de baja
+            list.filter { it.activa }
+                .filter { emp ->
+                    if (textoLimpio.isBlank()) true
+                    else {
+                        emp.nombreComercial.lowercase().contains(textoLimpio) ||
+                                emp.comuna.lowercase().contains(textoLimpio) ||
+                                emp.region.lowercase().contains(textoLimpio) ||
+                                emp.rubros.any { it.nombre.lowercase().contains(textoLimpio) }
+                    }
+                }
+                .filter { emp ->
+                    if (region.isNullOrBlank()) true
+                    else emp.region.equals(region, ignoreCase = true)
+                }
+                .filter { emp ->
+                    if (comuna.isNullOrBlank()) true
+                    else emp.comuna.equals(comuna, ignoreCase = true)
+                }
+                .filter { emp ->
+                    if (rubro == null) true
+                    else emp.rubros.contains(rubro)
+                }
+                .sortedBy { it.nombreComercial.lowercase() }
+        }
     }
 
     override suspend fun guardar(emprendedora: Emprendedora): Resultado<Emprendedora> {

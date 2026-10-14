@@ -85,3 +85,11 @@ data class FichaAdminEmprendimiento(
     val estadoFicha: EstadoFichaEmprendimiento,
     val problemasDetectados: List<String> = emptyList()
 )
+
+// Elemento del mercado visible para clientes con foto de portada y datos clave.
+data class ItemMercadoEmprendedora(
+    val emprendedora: Emprendedora,
+    val fotoPortada: String? = null,
+    val totalProductos: Int = 0
+)
+

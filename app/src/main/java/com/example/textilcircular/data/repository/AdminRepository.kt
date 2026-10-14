@@ -32,6 +32,9 @@ interface AdminRepository {
     suspend fun cambiarEstadoFicha(emprendedoraId: Int, nuevoEstado: EstadoFichaEmprendimiento): Resultado<Unit>
     suspend fun eliminarFicha(emprendedoraId: Int): Resultado<Unit>
     suspend fun reenviarCorreo(correoId: Int): Resultado<Unit>
+    fun registrarBusqueda(termino: String, region: String? = null, rubro: String? = null)
+    fun registrarClicContacto(region: String, rubro: String)
+    fun registrarConsultaEnviada(region: String, rubro: String)
 }
 
 // Implementación en memoria para la gestión y moderación administrativa.
@@ -42,8 +45,28 @@ class AdminRepositoryMemoria(
     private val fichas = DatosDemo.EmprendimientosAdminDemo.toMutableList()
     private val correos = DatosDemo.AutomatizacionesCorreosDemo.toMutableList()
 
+    private var totalBusquedas = DatosDemo.TotalBusquedasMes
+    private var totalConsultas = DatosDemo.TotalConsultasEnviadas
+    private var totalClics = DatosDemo.TotalClicsContacto
+    private val contactosPorRegion = DatosDemo.ContactosPorRegionDemo.toMap().toMutableMap()
+    private val contactosPorRubro = DatosDemo.ContactosPorRubroDemo.toMap().toMutableMap()
+
     private val _fichasFlow = MutableStateFlow<List<FichaAdminEmprendimiento>>(fichas.toList())
     private val _correosFlow = MutableStateFlow<List<RegistroAutomatizacionCorreo>>(correos.toList())
+    private val _metricasFlow = MutableStateFlow(calcularMetricas())
+
+    // Recalcula los números agregados para el panel de administración
+    private fun calcularMetricas(): MetricasAdmin {
+        val fichasRevisar = fichas.count { it.estadoFicha == EstadoFichaEmprendimiento.POR_REVISAR }
+        return MetricasAdmin(
+            totalBusquedas = totalBusquedas,
+            totalConsultas = totalConsultas,
+            totalClics = totalClics,
+            fichasPorRevisar = if (fichasRevisar > 0) fichasRevisar else DatosDemo.FichasPorRevisarContador,
+            contactosPorRegion = contactosPorRegion.toList(),
+            contactosPorRubro = contactosPorRubro.toList()
+        )
+    }
 
     override fun obtenerFichas(): Flow<List<FichaAdminEmprendimiento>> = _fichasFlow.asStateFlow()
 
@@ -51,20 +74,39 @@ class AdminRepositoryMemoria(
         return _fichasFlow.map { list -> list.firstOrNull { it.emprendedora.id == id } }
     }
 
-    override fun obtenerMetricas(): Flow<MetricasAdmin> {
-        val fichasRevisar = fichas.count { it.estadoFicha == EstadoFichaEmprendimiento.POR_REVISAR }
-        val metricas = MetricasAdmin(
-            totalBusquedas = DatosDemo.TotalBusquedasMes,
-            totalConsultas = DatosDemo.TotalConsultasEnviadas,
-            totalClics = DatosDemo.TotalClicsContacto,
-            fichasPorRevisar = if (fichasRevisar > 0) fichasRevisar else DatosDemo.FichasPorRevisarContador,
-            contactosPorRegion = DatosDemo.ContactosPorRegionDemo,
-            contactosPorRubro = DatosDemo.ContactosPorRubroDemo
-        )
-        return MutableStateFlow(metricas).asStateFlow()
-    }
+    override fun obtenerMetricas(): Flow<MetricasAdmin> = _metricasFlow.asStateFlow()
 
     override fun obtenerCorreos(): Flow<List<RegistroAutomatizacionCorreo>> = _correosFlow.asStateFlow()
+
+    // Registra una búsqueda cuando el cliente busca o cambia un filtro
+    override fun registrarBusqueda(termino: String, region: String?, rubro: String?) {
+        totalBusquedas++
+        _metricasFlow.value = calcularMetricas()
+    }
+
+    // Registra un clic cuando el cliente decide contactar
+    override fun registrarClicContacto(region: String, rubro: String) {
+        totalClics++
+        if (region.isNotBlank()) {
+            contactosPorRegion[region] = (contactosPorRegion[region] ?: 0) + 1
+        }
+        if (rubro.isNotBlank()) {
+            contactosPorRubro[rubro] = (contactosPorRubro[rubro] ?: 0) + 1
+        }
+        _metricasFlow.value = calcularMetricas()
+    }
+
+    // Registra una consulta enviada cuando sale el primer mensaje
+    override fun registrarConsultaEnviada(region: String, rubro: String) {
+        totalConsultas++
+        if (region.isNotBlank()) {
+            contactosPorRegion[region] = (contactosPorRegion[region] ?: 0) + 1
+        }
+        if (rubro.isNotBlank()) {
+            contactosPorRubro[rubro] = (contactosPorRubro[rubro] ?: 0) + 1
+        }
+        _metricasFlow.value = calcularMetricas()
+    }
 
     override suspend fun guardarFicha(ficha: FichaAdminEmprendimiento): Resultado<Unit> {
         val problemas = AuditorFichas.auditar(ficha.emprendedora)
@@ -77,6 +119,7 @@ class AdminRepositoryMemoria(
             fichas.add(fichaAuditada)
         }
         _fichasFlow.value = fichas.toList()
+        _metricasFlow.value = calcularMetricas()
 
         // Sincronizar también con el repositorio de emprendedoras
         emprendedoraRepository.guardar(ficha.emprendedora)
@@ -96,6 +139,7 @@ class AdminRepositoryMemoria(
                 emprendedora = fichaActual.emprendedora.copy(activa = activa)
             )
             _fichasFlow.value = fichas.toList()
+            _metricasFlow.value = calcularMetricas()
             emprendedoraRepository.cambiarVisibilidad(emprendedoraId, activa)
             Resultado.Exito(Unit)
         } else {
@@ -107,6 +151,7 @@ class AdminRepositoryMemoria(
         val eliminada = fichas.removeAll { it.emprendedora.id == emprendedoraId }
         return if (eliminada) {
             _fichasFlow.value = fichas.toList()
+            _metricasFlow.value = calcularMetricas()
             emprendedoraRepository.darDeBaja(emprendedoraId)
             Resultado.Exito(Unit)
         } else {
