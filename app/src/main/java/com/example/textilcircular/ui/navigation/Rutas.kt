@@ -15,6 +15,14 @@ sealed class Ruta(val ruta: String) {
     data object MensajesCliente : Ruta("cliente_mensajes")
     data object PerfilCliente : Ruta("cliente_perfil")
 
+    // Pantallas secundarias del cliente
+    data object PerfilEmprendedoraCliente : Ruta("cliente_emprendedora/{emprendedoraId}") {
+        fun crearRuta(id: Int): String = "cliente_emprendedora/$id"
+    }
+    data object ProductoDetalleCliente : Ruta("cliente_producto_detalle/{productoId}") {
+        fun crearRuta(id: Int): String = "cliente_producto_detalle/$id"
+    }
+
     // Pestañas principales de la emprendedora
     data object Inicio : Ruta("emp_inicio")
     data object Catalogo : Ruta("emp_catalogo")

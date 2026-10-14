@@ -125,7 +125,8 @@ fun NavHostApp(
     val rutasCliente = listOf(
         Ruta.Explorar.ruta,
         Ruta.MensajesCliente.ruta,
-        Ruta.PerfilCliente.ruta
+        Ruta.PerfilCliente.ruta,
+        "cliente_"
     )
 
     // Protección de rutas: redirige a cada usuario a su inicio correspondiente si intenta acceder a otra área
@@ -260,7 +261,66 @@ fun NavHostApp(
 
                     composable(Ruta.Explorar.ruta) {
                         ExplorarScreen(
-                            onEmprendedoraClick = {}
+                            onEmprendedoraClick = { id ->
+                                navController.navigate(Ruta.PerfilEmprendedoraCliente.crearRuta(id))
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Ruta.PerfilEmprendedoraCliente.ruta,
+                        arguments = listOf(navArgument("emprendedoraId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val empId = backStackEntry.arguments?.getInt("emprendedoraId") ?: 1
+                        val empFlow = remember(empId) { appContainer.emprendedoraRepository.obtenerPorId(empId) }
+                        val emp by empFlow.collectAsStateWithLifecycle(initialValue = null)
+
+                        val prodsFlow = remember(empId) { appContainer.productoRepository.obtenerPorEmprendedora(empId) }
+                        val prods by prodsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+                        val emprendedoraActual = emp ?: DatosDemo.EmprendedorasActivasDemo.find { it.id == empId } ?: DatosDemo.EmprendedoraDemo
+
+                        VistaPreviaPublicaScreen(
+                            emprendedora = emprendedoraActual,
+                            productos = prods,
+                            onProductoClick = { prodId ->
+                                navController.navigate(Ruta.ProductoDetalleCliente.crearRuta(prodId))
+                            },
+                            onNavegarAtras = { navController.popBackStack() },
+                            esCliente = true,
+                            onEscribirClick = {
+                                appContainer.adminRepository.registrarClicContacto(
+                                    region = emprendedoraActual.region,
+                                    rubro = emprendedoraActual.rubros.firstOrNull()?.nombre ?: ""
+                                )
+                                // TODO: en el Bloque 5 abrimos la conversación real
+                                navController.navigate(Ruta.MensajesCliente.ruta)
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Ruta.ProductoDetalleCliente.ruta,
+                        arguments = listOf(navArgument("productoId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val prodId = backStackEntry.arguments?.getInt("productoId") ?: 101
+                        val prodFlow = remember(prodId) { appContainer.productoRepository.obtenerPorId(prodId) }
+                        val prod by prodFlow.collectAsStateWithLifecycle(initialValue = null)
+                        val productoActual = prod ?: DatosDemo.ProductosDemo.find { it.id == prodId } ?: DatosDemo.ProductosDemo.first()
+
+                        ProductoDetalleScreen(
+                            producto = productoActual,
+                            onNavegarAtras = { navController.popBackStack() },
+                            esCliente = true,
+                            onPreguntarClick = {
+                                val emp = DatosDemo.EmprendedorasActivasDemo.find { it.id == productoActual.emprendedoraId }
+                                appContainer.adminRepository.registrarClicContacto(
+                                    region = emp?.region ?: "",
+                                    rubro = emp?.rubros?.firstOrNull()?.nombre ?: ""
+                                )
+                                // TODO: en el Bloque 5 abrimos la conversación real con el producto sugerido
+                                navController.navigate(Ruta.MensajesCliente.ruta)
+                            }
                         )
                     }
 

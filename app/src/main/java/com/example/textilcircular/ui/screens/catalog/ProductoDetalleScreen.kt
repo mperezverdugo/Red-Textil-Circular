@@ -58,10 +58,12 @@ import java.io.File
 @Composable
 fun ProductoDetalleScreen(
     producto: Producto,
-    onEditarClick: (Int) -> Unit,
-    onEliminarClick: (Int) -> Unit,
+    onEditarClick: (Int) -> Unit = {},
+    onEliminarClick: (Int) -> Unit = {},
     onNavegarAtras: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esCliente: Boolean = false,
+    onPreguntarClick: ((Int) -> Unit)? = null
 ) {
     var mostrarDialogoEliminar by remember { mutableStateOf(false) }
 
@@ -76,21 +78,35 @@ fun ProductoDetalleScreen(
             )
         },
         bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                BotonPrincipal(
-                    texto = stringResource(id = R.string.producto_detalle_boton_editar),
-                    onClick = { onEditarClick(producto.id) }
-                )
-                BotonSecundario(
-                    texto = stringResource(id = R.string.producto_detalle_boton_eliminar),
-                    onClick = { mostrarDialogoEliminar = true }
-                )
+            if (esCliente) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                ) {
+                    BotonPrincipal(
+                        texto = stringResource(id = R.string.producto_detalle_boton_preguntar),
+                        onClick = { onPreguntarClick?.invoke(producto.id) }
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    BotonPrincipal(
+                        texto = stringResource(id = R.string.producto_detalle_boton_editar),
+                        onClick = { onEditarClick(producto.id) }
+                    )
+                    BotonSecundario(
+                        texto = stringResource(id = R.string.producto_detalle_boton_eliminar),
+                        onClick = { mostrarDialogoEliminar = true }
+                    )
+                }
             }
         },
         modifier = modifier
@@ -179,7 +195,7 @@ fun ProductoDetalleScreen(
                     }
                 }
 
-                if (producto.pendienteSincronizar) {
+                if (producto.pendienteSincronizar && !esCliente) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -235,8 +251,8 @@ fun ProductoDetalleScreen(
             }
         }
 
-        // Diálogo para eliminar producto
-        if (mostrarDialogoEliminar) {
+        // Diálogo para eliminar producto exclusivo para la emprendedora
+        if (!esCliente && mostrarDialogoEliminar) {
             DialogoConfirmacion(
                 titulo = stringResource(id = R.string.producto_form_eliminar_titulo),
                 mensaje = stringResource(id = R.string.producto_form_eliminar_mensaje),

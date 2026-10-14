@@ -41,19 +41,21 @@ import com.example.textilcircular.ui.components.TarjetaProducto
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
-// Muestra cómo ven los clientes la ficha de la emprendedora en la web.
+// Muestra cómo ven los clientes la ficha de la emprendedora en la web o desde la app.
 @Composable
 fun VistaPreviaPublicaScreen(
     emprendedora: Emprendedora,
     productos: List<Producto>,
     onProductoClick: (Int) -> Unit,
     onNavegarAtras: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esCliente: Boolean = false,
+    onEscribirClick: (() -> Unit)? = null
 ) {
     Scaffold(
         topBar = {
             BarraSuperior(
-                titulo = stringResource(id = R.string.vista_previa_titulo),
+                titulo = if (esCliente) emprendedora.nombreComercial else stringResource(id = R.string.vista_previa_titulo),
                 onNavegarAtras = onNavegarAtras
             )
         },
@@ -64,26 +66,28 @@ fun VistaPreviaPublicaScreen(
                 .fillMaxSize()
                 .padding(paddingValores)
         ) {
-            // Franja explicativa de la vista previa
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = stringResource(id = R.string.vista_previa_banner_info),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            // Franja explicativa visible solo para la emprendedora
+            if (!esCliente) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(id = R.string.vista_previa_banner_info),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
 
             // Cabecera pública del perfil
@@ -120,38 +124,64 @@ fun VistaPreviaPublicaScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón inactivo que simula el acceso del cliente en la web
-                    Button(
-                        onClick = {},
-                        enabled = false,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            disabledContainerColor = MaterialTheme.colorScheme.outlineVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                    if (esCliente) {
+                        // Botón activo para que el cliente contacte a la artesana
+                        Button(
+                            onClick = { onEscribirClick?.invoke() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.perfil_boton_escribir),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    } else {
+                        // Botón inactivo que simula el acceso del cliente en la web
+                        Button(
+                            onClick = {},
+                            enabled = false,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                disabledContainerColor = MaterialTheme.colorScheme.outlineVariant,
+                                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.vista_previa_boton_escribir),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Text(
-                            text = stringResource(id = R.string.vista_previa_boton_escribir),
-                            style = MaterialTheme.typography.labelLarge
+                            text = stringResource(id = R.string.vista_previa_nota_boton_deshabilitado),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = stringResource(id = R.string.vista_previa_nota_boton_deshabilitado),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
 

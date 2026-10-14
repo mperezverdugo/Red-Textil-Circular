@@ -335,4 +335,7 @@
     <string name="mercado_vacio_mensaje">Prueba cambiando los términos de búsqueda o limpiando los filtros para ver más opciones.</string>
     <string name="mercado_taller_textil">Taller Textil Circular</string>
     <string name="mercado_total_talleres">%1$d talleres disponibles</string>
+    <string name="producto_detalle_boton_preguntar">Preguntar por este producto</string>
+    <string name="perfil_boton_escribir">Escribirle</string>
+    <string name="cliente_perfil_artesana_titulo">Perfil de la emprendedora</string>
 </resources>
