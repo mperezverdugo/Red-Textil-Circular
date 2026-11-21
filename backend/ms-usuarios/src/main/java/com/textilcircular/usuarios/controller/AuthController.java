@@ -15,6 +15,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest solicitud) {
+        return authService.login(solicitud);
+    }
+
     @PostMapping("/registro/emprendedora")
     @ResponseStatus(HttpStatus.CREATED)
     public RegistroEmprendedoraResponse registrarEmprendedora(
