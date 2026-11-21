@@ -57,11 +57,23 @@ public class TokenService {
     }
 
     public DatosToken validar(String token, Rol rolEsperado) {
+        DatosToken datos = validar(token);
+        if (datos.rol() != rolEsperado) {
+            throw new IllegalArgumentException("Token inválido o vencido");
+        }
+        return datos;
+    }
+
+    public DatosToken validar(String token) {
         try {
             Jwt jwt = decoder.decode(token);
             Long usuarioId = Long.valueOf(jwt.getSubject());
-            Rol rol = Rol.valueOf(jwt.getClaimAsString("rol"));
-            if (usuarioId <= 0 || rol != rolEsperado || jwt.getExpiresAt() == null
+            String nombreRol = jwt.getClaimAsString("rol");
+            if (nombreRol == null) {
+                throw new IllegalArgumentException("Token sin rol");
+            }
+            Rol rol = Rol.valueOf(nombreRol);
+            if (usuarioId <= 0 || jwt.getExpiresAt() == null
                     || !jwt.getExpiresAt().isAfter(reloj.instant())) {
                 throw new IllegalArgumentException("Token inválido");
             }
