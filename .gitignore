@@ -1,26 +1,30 @@
-# Gradle y carpetas de compilación
+# Gradle y compilación de todos los proyectos
 .gradle/
 .kotlin/
 build/
-**/build/
-app/build/
 
-# Archivos de configuración local y claves
+# Configuración local y claves
 local.properties
 *.iml
 *.jks
 *.keystore
+.env
+keystore.properties
 
-# Archivos de Android Studio e IDEs
+# Bases de datos locales de los servicios
+/backend/*/data/
+*.mv.db
+*.trace.db
+
+# Android Studio e IDEs
 .idea/
-/.idea/
 *.iws
 *.ipr
 .navigation/
 captures/
-.externalNativeBuild
-.cxx
+.externalNativeBuild/
+.cxx/
 
-# Sistema operativo y temporales
+# Sistema operativo
 .DS_Store
 Thumbs.db
