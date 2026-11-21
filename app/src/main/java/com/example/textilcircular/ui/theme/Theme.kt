@@ -10,8 +10,25 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 /**
- * Esquema de colores exclusivo claro para la Fundación Textil Circular.
- * Diseñado con alto contraste para asegurar legibilidad según RNF-05 y RNF-06.
+ * ====================================================================
+ * ESQUEMA DE DISEÑO MATERIAL 3 - TEXTIL CIRCULAR
+ * ====================================================================
+ *
+ * Guía pedagógica sobre la jerarquía visual de Material 3:
+ * En lugar de pintar elementos con colores sueltos, Material 3 asigna "roles semánticos":
+ *
+ * 1. primary (TurquesaFundacion): Es la voz principal de la marca. Se usa en botones
+ *    principales, pestañas seleccionadas y elementos de mayor jerarquía.
+ * 2. secondary (TerracotaTextil): Tono artesanal cálido que complementa al turquesa,
+ *    ideal para representar oficios y técnicas de confección.
+ * 3. tertiary (AmarilloAcento): Tomado directamente de textilcircular.cl para destacar
+ *    ofertas, estados energéticos o llamados especiales de atención.
+ * 4. background (GrisFondo): El lienzo base de la aplicación. Ahora es un tono
+ *    crudo natural (algodón/lino) que elimina la frialdad de las pantallas comunes.
+ * 5. surface (Blanco / LinoContenedor): El material donde "descansan" las tarjetas,
+ *    listas y diálogos, manteniendo alta legibilidad.
+ * 6. outline (GrisBorde): Los bordes que dividen las secciones, diseñados con
+ *    el color suave de un hilo de hilván textil.
  */
 private val LightColorScheme = lightColorScheme(
     primary = TurquesaFundacion,
@@ -19,20 +36,22 @@ private val LightColorScheme = lightColorScheme(
     primaryContainer = TurquesaClaro,
     onPrimaryContainer = TurquesaOscuro,
 
-    secondary = AmarilloAcento,
-    onSecondary = NegroTexto,
-    secondaryContainer = AmarilloContenedor,
-    onSecondaryContainer = NegroTexto,
+    secondary = TerracotaTextil,
+    onSecondary = Blanco,
+    secondaryContainer = TerracotaClaro,
+    onSecondaryContainer = TerracotaOscuro,
 
-    tertiary = TurquesaOscuro,
-    onTertiary = Blanco,
+    tertiary = AmarilloAcento,
+    onTertiary = NegroTexto,
+    tertiaryContainer = AmarilloContenedor,
+    onTertiaryContainer = NegroTexto,
 
-    background = GrisFondo,
+    background = GrisFondo,             // Tono lino/crudo natural
     onBackground = NegroTexto,
 
     surface = Blanco,
     onSurface = NegroTexto,
-    surfaceVariant = GrisFondo,
+    surfaceVariant = LinoContenedor,    // Fondo suave para cajas secundarias
     onSurfaceVariant = GrisTextoSecundario,
 
     error = RojoError,
@@ -40,13 +59,16 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = RojoErrorFondo,
     onErrorContainer = RojoError,
 
-    outline = GrisBorde,
-    outlineVariant = GrisBorde
+    outline = GrisBorde,                // Hilo de costura sutil
+    outlineVariant = HiloHilvanSuave
 )
 
 /**
- * Tema principal de la aplicación.
- * Solo tema claro con alto contraste y sin color dinámico para consistencia de marca.
+ * Tema central de la aplicación Textil Circular.
+ *
+ * Mantenemos la aplicación en un tema claro intencional para asegurar consistencia
+ * con la identidad visual institucional y facilitar la lectura en exteriores a la
+ * comunidad de artesanas y emprendedoras.
  */
 @Composable
 fun TextilCircularTheme(
@@ -59,7 +81,9 @@ fun TextilCircularTheme(
         SideEffect {
             val window = (view.context as? Activity)?.window
             window?.let {
+                // Sincronizamos la barra de estado superior con el turquesa institucional
                 it.statusBarColor = TurquesaFundacion.toArgb()
+                // Iconos de batería y reloj en blanco para asegurar contraste óptimo
                 WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = false
             }
         }
