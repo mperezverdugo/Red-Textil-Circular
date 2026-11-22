@@ -2,6 +2,8 @@ package com.example.textilcircular.data.repository
 
 import com.example.textilcircular.data.local.dao.EmprendedoraDao
 import com.example.textilcircular.data.local.entity.EmprendedoraEntity
+import com.example.textilcircular.data.remote.ClienteRetrofit
+import com.example.textilcircular.data.remote.api.UsuariosApi
 import com.example.textilcircular.model.Emprendedora
 import com.example.textilcircular.model.EstadoFichaEmprendimiento
 import com.example.textilcircular.model.Rubro
@@ -9,12 +11,14 @@ import com.example.textilcircular.util.Resultado
 import com.example.textilcircular.util.validacion.AuditorFichas
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-// Implementación del repositorio de emprendedoras conectada a SQLite a través de Room.
+// Implementación del repositorio de emprendedoras conectada a SQLite y a ms-usuarios vía Retrofit.
 class EmprendedoraRepositoryRoom(
-    private val emprendedoraDao: EmprendedoraDao
+    private val emprendedoraDao: EmprendedoraDao,
+    private val usuariosApi: UsuariosApi = ClienteRetrofit.usuariosApi
 ) : EmprendedoraRepository {
 
     // Retorna todas las emprendedoras registradas
@@ -25,8 +29,39 @@ class EmprendedoraRepositoryRoom(
     }
 
     // Busca una emprendedora por su identificador
-    override fun obtenerPorId(id: Int): Flow<Emprendedora?> {
-        return emprendedoraDao.obtenerPorId(id).map { it?.aModelo() }
+    override fun obtenerPorId(id: Int): Flow<Emprendedora?> = flow {
+        try {
+            val respuesta = usuariosApi.obtenerEmprendedora(
+                autorizacion = ClienteRetrofit.tokenActivo?.let { "Bearer $it" },
+                id = id.toLong()
+            )
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val dto = respuesta.body()!!
+                val modelo = Emprendedora(
+                    id = dto.id.toInt(),
+                    usuarioId = dto.usuarioId.toInt(),
+                    rut = "",
+                    nombre = "",
+                    nombreComercial = dto.nombreComercial,
+                    region = dto.region,
+                    comuna = dto.comuna,
+                    rubros = dto.rubros.mapNotNull { nombre ->
+                        try { Rubro.valueOf(nombre) } catch (_: IllegalArgumentException) { null }
+                    },
+                    email = "",
+                    instagram = dto.instagram,
+                    activa = true
+                )
+                emit(modelo)
+                return@flow
+            }
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+        }
+
+        emprendedoraDao.obtenerPorId(id).collect {
+            emit(it?.aModelo())
+        }
     }
 
     // Filtra las artesanas activas para la pantalla de mercado de clientes
@@ -35,19 +70,50 @@ class EmprendedoraRepositoryRoom(
         region: String?,
         comuna: String?,
         rubro: Rubro?
-    ): Flow<List<Emprendedora>> {
-        val busquedaNormalizada = textoBusqueda.trim().lowercase()
+    ): Flow<List<Emprendedora>> = flow {
+        try {
+            val respuesta = usuariosApi.listarEmprendedoras(
+                autorizacion = ClienteRetrofit.tokenActivo?.let { "Bearer $it" },
+                texto = textoBusqueda.trim().takeIf { it.isNotBlank() },
+                region = region?.takeIf { it.isNotBlank() },
+                comuna = comuna?.takeIf { it.isNotBlank() },
+                rubro = rubro?.name
+            )
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listaRemota = respuesta.body()!!.map { dto ->
+                    Emprendedora(
+                        id = dto.id.toInt(),
+                        usuarioId = dto.usuarioId.toInt(),
+                        rut = "",
+                        nombre = "",
+                        nombreComercial = dto.nombreComercial,
+                        region = dto.region,
+                        comuna = dto.comuna,
+                        rubros = dto.rubros.mapNotNull { nombre ->
+                            try { Rubro.valueOf(nombre) } catch (_: IllegalArgumentException) { null }
+                        },
+                        email = "",
+                        instagram = dto.instagram,
+                        activa = true
+                    )
+                }
+                emit(listaRemota)
+                return@flow
+            }
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+        }
 
-        return emprendedoraDao.obtenerMercado(
+        val busquedaNormalizada = textoBusqueda.trim().lowercase()
+        emprendedoraDao.obtenerMercado(
             busqueda = busquedaNormalizada,
             region = region?.takeIf { it.isNotBlank() },
             comuna = comuna?.takeIf { it.isNotBlank() }
-        ).map { lista ->
-            // Si el cliente seleccionó un rubro, filtramos en memoria sobre la lista obtenida
+        ).collect { lista ->
             if (rubro == null) {
-                lista.map { it.aModelo() }
+                emit(lista.map { it.aModelo() })
             } else {
-                lista.filter { it.rubros.contains(rubro) }.map { it.aModelo() }
+                emit(lista.filter { it.rubros.contains(rubro) }.map { it.aModelo() })
             }
         }
     }
