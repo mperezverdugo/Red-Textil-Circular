@@ -11,5 +11,6 @@ data class Emprendedora(
     val rubros: List<Rubro>,
     val email: String,
     val instagram: String? = null,
-    val activa: Boolean = true
+    val activa: Boolean = true,
+    val usuarioId: Int = id
 )
