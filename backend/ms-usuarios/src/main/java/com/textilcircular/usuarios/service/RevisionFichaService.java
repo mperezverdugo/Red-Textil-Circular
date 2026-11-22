@@ -29,7 +29,9 @@ public class RevisionFichaService {
         EstadoFichaEmprendimiento actual = ficha.getEstadoFicha();
         EstadoFichaEmprendimiento destino = switch (solicitud.accion()) {
             case APROBAR -> {
-                if (actual != EstadoFichaEmprendimiento.POR_REVISAR && actual != EstadoFichaEmprendimiento.OCULTA) {
+                if (actual != EstadoFichaEmprendimiento.POR_REVISAR
+                        && actual != EstadoFichaEmprendimiento.OCULTA
+                        && actual != EstadoFichaEmprendimiento.RECHAZADA) {
                     throw transicionInvalida();
                 }
                 yield EstadoFichaEmprendimiento.ACTIVA;

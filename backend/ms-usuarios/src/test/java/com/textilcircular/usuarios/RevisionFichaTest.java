@@ -56,7 +56,8 @@ class RevisionFichaTest {
                 Arguments.of(EstadoFichaEmprendimiento.POR_REVISAR, Accion.APROBAR, EstadoFichaEmprendimiento.ACTIVA),
                 Arguments.of(EstadoFichaEmprendimiento.POR_REVISAR, Accion.RECHAZAR, EstadoFichaEmprendimiento.RECHAZADA),
                 Arguments.of(EstadoFichaEmprendimiento.ACTIVA, Accion.OCULTAR, EstadoFichaEmprendimiento.OCULTA),
-                Arguments.of(EstadoFichaEmprendimiento.OCULTA, Accion.APROBAR, EstadoFichaEmprendimiento.ACTIVA));
+                Arguments.of(EstadoFichaEmprendimiento.OCULTA, Accion.APROBAR, EstadoFichaEmprendimiento.ACTIVA),
+                Arguments.of(EstadoFichaEmprendimiento.RECHAZADA, Accion.APROBAR, EstadoFichaEmprendimiento.ACTIVA));
     }
 
     @ParameterizedTest
@@ -86,7 +87,8 @@ class RevisionFichaTest {
                 boolean valida = (estado == EstadoFichaEmprendimiento.POR_REVISAR
                         && (accion == Accion.APROBAR || accion == Accion.RECHAZAR))
                         || (estado == EstadoFichaEmprendimiento.ACTIVA && accion == Accion.OCULTAR)
-                        || (estado == EstadoFichaEmprendimiento.OCULTA && accion == Accion.APROBAR);
+                        || (estado == EstadoFichaEmprendimiento.OCULTA && accion == Accion.APROBAR)
+                        || (estado == EstadoFichaEmprendimiento.RECHAZADA && accion == Accion.APROBAR);
                 if (!valida) casos.add(Arguments.of(estado, accion));
             }
         }
