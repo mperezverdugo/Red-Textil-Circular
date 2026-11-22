@@ -8,39 +8,102 @@ import com.example.textilcircular.data.local.entity.ClienteEntity
 import com.example.textilcircular.data.local.entity.ConversacionEntity
 import com.example.textilcircular.data.local.entity.EmprendedoraEntity
 import com.example.textilcircular.data.local.entity.MensajeEntity
+import com.example.textilcircular.data.remote.ClienteRetrofit
+import com.example.textilcircular.data.remote.api.MercadoApi
+import com.example.textilcircular.data.remote.dto.CrearConversacionRequestDto
+import com.example.textilcircular.data.remote.dto.EnviarMensajeRequestDto
 import com.example.textilcircular.model.Conversacion
 import com.example.textilcircular.model.Mensaje
 import com.example.textilcircular.model.Producto
 import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.util.Resultado
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Implementación del repositorio de mensajería interna y conversaciones sobre SQLite.
+// Implementación del repositorio de mensajería interna y conversaciones conectada a SQLite y a ms-mercado vía Retrofit.
 class MensajeRepositoryRoom(
     private val mensajeDao: MensajeDao,
     private val productoDao: ProductoDao,
     private val clienteDao: ClienteDao? = null,
-    private val emprendedoraDao: EmprendedoraDao? = null
+    private val emprendedoraDao: EmprendedoraDao? = null,
+    private val mercadoApi: MercadoApi? = null
 ) : MensajeRepository {
 
     // Conversaciones para la bandeja de la emprendedora
-    override fun obtenerConversaciones(emprendedoraId: Int): Flow<List<Conversacion>> {
-        return mensajeDao.obtenerConversacionesEmprendedora(emprendedoraId).map { lista ->
-            lista.map { entidad -> entidad.aModelo() }
+    override fun obtenerConversaciones(emprendedoraId: Int): Flow<List<Conversacion>> = flow {
+        val token = ClienteRetrofit.tokenActivo
+        if (mercadoApi != null && token != null) {
+            try {
+                val respuesta = mercadoApi.listarConversaciones("Bearer $token")
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val remota = respuesta.body()!!.map { dto ->
+                        val prod = dto.productoId?.let { productoDao.obtenerPorIdDirecto(it.toInt())?.aModelo() }
+                        Conversacion(
+                            id = dto.id.toInt(),
+                            emprendedoraId = dto.emprendedoraId.toInt(),
+                            clienteId = dto.clienteId.toInt(),
+                            nombreCliente = dto.nombreCliente,
+                            nombreEmprendimiento = dto.nombreEmprendimiento,
+                            ultimoMensaje = dto.ultimoMensaje,
+                            fechaHora = dto.fechaHora,
+                            noLeidosEmprendedora = dto.noLeidosEmprendedora,
+                            noLeidosCliente = dto.noLeidosCliente,
+                            productoAsociado = prod
+                        )
+                    }
+                    emit(remota)
+                    return@flow
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
+
+        mensajeDao.obtenerConversacionesEmprendedora(emprendedoraId).collect { lista ->
+            emit(lista.map { entidad -> entidad.aModelo() })
         }
     }
 
     // Conversaciones para la bandeja del cliente
-    override fun obtenerConversacionesCliente(clienteId: Int): Flow<List<Conversacion>> {
-        return mensajeDao.obtenerConversacionesCliente(clienteId).map { lista ->
-            lista.map { entidad -> entidad.aModelo() }
+    override fun obtenerConversacionesCliente(clienteId: Int): Flow<List<Conversacion>> = flow {
+        val token = ClienteRetrofit.tokenActivo
+        if (mercadoApi != null && token != null) {
+            try {
+                val respuesta = mercadoApi.listarConversaciones("Bearer $token")
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val remota = respuesta.body()!!.map { dto ->
+                        val prod = dto.productoId?.let { productoDao.obtenerPorIdDirecto(it.toInt())?.aModelo() }
+                        Conversacion(
+                            id = dto.id.toInt(),
+                            emprendedoraId = dto.emprendedoraId.toInt(),
+                            clienteId = dto.clienteId.toInt(),
+                            nombreCliente = dto.nombreCliente,
+                            nombreEmprendimiento = dto.nombreEmprendimiento,
+                            ultimoMensaje = dto.ultimoMensaje,
+                            fechaHora = dto.fechaHora,
+                            noLeidosEmprendedora = dto.noLeidosEmprendedora,
+                            noLeidosCliente = dto.noLeidosCliente,
+                            productoAsociado = prod
+                        )
+                    }
+                    emit(remota)
+                    return@flow
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
+
+        mensajeDao.obtenerConversacionesCliente(clienteId).collect { lista ->
+            emit(lista.map { entidad -> entidad.aModelo() })
         }
     }
 
@@ -67,13 +130,81 @@ class MensajeRepositoryRoom(
     }
 
     // Mensajes ordenados por fecha y hora dentro del chat
-    override fun obtenerMensajes(conversacionId: Int): Flow<List<Mensaje>> {
-        return mensajeDao.obtenerMensajesPorConversacion(conversacionId).map { lista ->
-            lista.map { it.aModelo() }
+    override fun obtenerMensajes(conversacionId: Int): Flow<List<Mensaje>> = flow {
+        val token = ClienteRetrofit.tokenActivo
+        if (mercadoApi != null && token != null) {
+            try {
+                val respuesta = mercadoApi.listarMensajes(
+                    autorizacion = "Bearer $token",
+                    id = conversacionId.toLong()
+                )
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val lista = respuesta.body()!!.map { dto ->
+                        Mensaje(
+                            id = dto.id.toInt(),
+                            conversacionId = dto.conversacionId.toInt(),
+                            emisor = try { TipoEmisor.valueOf(dto.emisor) } catch (_: Exception) { TipoEmisor.CLIENTE },
+                            contenido = dto.contenido,
+                            fechaHora = dto.fechaHora,
+                            esLeido = dto.esLeido,
+                            productoId = dto.productoId?.toInt(),
+                            nombreProducto = dto.nombreProducto
+                        )
+                    }
+                    emit(lista)
+                    return@flow
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
+
+        mensajeDao.obtenerMensajesPorConversacion(conversacionId).collect { lista ->
+            emit(lista.map { it.aModelo() })
         }
     }
 
-    // Envía un mensaje, lo persiste en la tabla mensajes y actualiza el encabezado de la conversación
+    // Consulta mensajes nuevos con despuesDeId para el polling incremental y los persiste en SQLite
+    override suspend fun sincronizarMensajes(conversacionId: Int, despuesDeId: Long?): Resultado<List<Mensaje>> = withContext(Dispatchers.IO) {
+        val token = ClienteRetrofit.tokenActivo
+        if (mercadoApi != null && token != null) {
+            try {
+                val respuesta = mercadoApi.listarMensajes(
+                    autorizacion = "Bearer $token",
+                    id = conversacionId.toLong(),
+                    despuesDeId = despuesDeId
+                )
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val nuevos = respuesta.body()!!.map { dto ->
+                        Mensaje(
+                            id = dto.id.toInt(),
+                            conversacionId = dto.conversacionId.toInt(),
+                            emisor = try { TipoEmisor.valueOf(dto.emisor) } catch (_: Exception) { TipoEmisor.CLIENTE },
+                            contenido = dto.contenido,
+                            fechaHora = dto.fechaHora,
+                            esLeido = dto.esLeido,
+                            productoId = dto.productoId?.toInt(),
+                            nombreProducto = dto.nombreProducto
+                        )
+                    }
+                    if (nuevos.isNotEmpty()) {
+                        try {
+                            mensajeDao.insertarMensajes(nuevos.map { MensajeEntity.desdeModelo(it) })
+                        } catch (_: Exception) {}
+                    }
+                    return@withContext Resultado.Exito(nuevos)
+                } else if (respuesta.code() in 400..499) {
+                    val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                    return@withContext Resultado.Error(errorMsg)
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
+        Resultado.Exito(emptyList())
+    }
+
+    // Envía un mensaje, lo sincroniza con ms-mercado y lo respalda en SQLite
     override suspend fun enviarMensaje(
         conversacionId: Int,
         contenido: String,
@@ -83,6 +214,44 @@ class MensajeRepositoryRoom(
     ): Resultado<Mensaje> = withContext(Dispatchers.IO) {
         val formatoHora = SimpleDateFormat("HH:mm", Locale.getDefault())
         val horaActual = formatoHora.format(Date())
+        val token = ClienteRetrofit.tokenActivo
+
+        if (mercadoApi != null && token != null) {
+            try {
+                val respuesta = mercadoApi.enviarMensaje(
+                    autorizacion = "Bearer $token",
+                    id = conversacionId.toLong(),
+                    solicitud = EnviarMensajeRequestDto(
+                        contenido = contenido.trim(),
+                        productoId = productoId?.toLong(),
+                        nombreProducto = nombreProducto
+                    )
+                )
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val dto = respuesta.body()!!
+                    val mensaje = Mensaje(
+                        id = dto.id.toInt(),
+                        conversacionId = dto.conversacionId.toInt(),
+                        emisor = try { TipoEmisor.valueOf(dto.emisor) } catch (_: Exception) { emisor },
+                        contenido = dto.contenido,
+                        fechaHora = dto.fechaHora,
+                        esLeido = dto.esLeido,
+                        productoId = dto.productoId?.toInt(),
+                        nombreProducto = dto.nombreProducto
+                    )
+                    try {
+                        mensajeDao.insertarMensaje(MensajeEntity.desdeModelo(mensaje))
+                    } catch (_: Exception) {}
+                    return@withContext Resultado.Exito(mensaje)
+                } else if (respuesta.code() in 400..499) {
+                    val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                    return@withContext Resultado.Error(errorMsg)
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                // Falla de red: continúa con SQLite local (offline fallback)
+            }
+        }
 
         val mensajeEntity = MensajeEntity(
             id = 0,
@@ -98,7 +267,6 @@ class MensajeRepositoryRoom(
         try {
             val nuevoMsgId = mensajeDao.insertarMensaje(mensajeEntity).toInt()
 
-            // Actualizamos el último mensaje y el contador de no leídos de la otra parte
             val convActual = mensajeDao.obtenerConversacionPorIdDirecto(conversacionId)
             if (convActual != null) {
                 val nuevosNoLeidosEmp = if (emisor == TipoEmisor.CLIENTE) convActual.noLeidosEmprendedora + 1 else convActual.noLeidosEmprendedora
@@ -114,14 +282,13 @@ class MensajeRepositoryRoom(
                 )
             }
 
-            // TODO: cuando haya servidor, sincronizar mensaje vía API REST o WebSocket
             Resultado.Exito(mensajeEntity.copy(id = nuevoMsgId).aModelo())
         } catch (e: Exception) {
             Resultado.Error("No se pudo enviar el mensaje: ${e.message}")
         }
     }
 
-    // Obtiene la conversación única entre cliente y emprendedora o la crea en SQLite si es la primera vez
+    // Obtiene la conversación única entre cliente y emprendedora o la crea en ms-mercado y en SQLite
     override suspend fun iniciarOObtenerConversacion(
         clienteId: Int,
         emprendedoraId: Int,
@@ -133,6 +300,57 @@ class MensajeRepositoryRoom(
     ): Resultado<Conversacion> = withContext(Dispatchers.IO) {
         val formatoHora = SimpleDateFormat("HH:mm", Locale.getDefault())
         val horaActual = formatoHora.format(Date())
+        val token = ClienteRetrofit.tokenActivo
+
+        if (mercadoApi != null && token != null) {
+            try {
+                val respuesta = mercadoApi.crearOObtenerConversacion(
+                    autorizacion = "Bearer $token",
+                    solicitud = CrearConversacionRequestDto(
+                        emprendedoraId = emprendedoraId.toLong(),
+                        nombreCliente = nombreCliente.trim(),
+                        nombreEmprendimiento = nombreEmprendimiento.trim(),
+                        productoId = productoAsociado?.id?.toLong()
+                    )
+                )
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val dto = respuesta.body()!!
+                    val conv = Conversacion(
+                        id = dto.id.toInt(),
+                        emprendedoraId = dto.emprendedoraId.toInt(),
+                        clienteId = dto.clienteId.toInt(),
+                        nombreCliente = dto.nombreCliente,
+                        nombreEmprendimiento = dto.nombreEmprendimiento,
+                        ultimoMensaje = dto.ultimoMensaje,
+                        fechaHora = dto.fechaHora,
+                        noLeidosCliente = dto.noLeidosCliente,
+                        noLeidosEmprendedora = dto.noLeidosEmprendedora,
+                        productoAsociado = productoAsociado
+                    )
+                    if (primerMensaje.isNotBlank()) {
+                        mercadoApi.enviarMensaje(
+                            autorizacion = "Bearer $token",
+                            id = conv.id.toLong(),
+                            solicitud = EnviarMensajeRequestDto(
+                                contenido = primerMensaje.trim(),
+                                productoId = productoAsociado?.id?.toLong(),
+                                nombreProducto = productoAsociado?.nombre
+                            )
+                        )
+                    }
+                    try {
+                        mensajeDao.insertarConversacion(ConversacionEntity.desdeModelo(conv))
+                    } catch (_: Exception) {}
+                    return@withContext Resultado.Exito(conv)
+                } else if (respuesta.code() in 400..499) {
+                    val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                    return@withContext Resultado.Error(errorMsg)
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                // Falla de red: continúa con SQLite local
+            }
+        }
 
         // Aseguramos la existencia de las claves foráneas si están disponibles los DAOs
         if (clienteDao != null && clienteDao.obtenerPorIdDirecto(clienteId) == null) {
@@ -193,7 +411,6 @@ class MensajeRepositoryRoom(
                 )
             }
 
-            // TODO: cuando haya servidor, sincronizar creación de conversación con la API REST
             Resultado.Exito(nuevaEntidad.copy(id = nuevoId).aModelo(productoAsociado))
         } catch (e: Exception) {
             Resultado.Error("No se pudo iniciar la conversación: ${e.message}")
@@ -201,11 +418,33 @@ class MensajeRepositoryRoom(
     }
 
     override suspend fun marcarComoLeidoEmprendedora(conversacionId: Int): Resultado<Unit> = withContext(Dispatchers.IO) {
+        val token = ClienteRetrofit.tokenActivo
+        if (mercadoApi != null && token != null) {
+            try {
+                mercadoApi.marcarLectura(
+                    autorizacion = "Bearer $token",
+                    id = conversacionId.toLong()
+                )
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
         mensajeDao.limpiarNoLeidosEmprendedora(conversacionId)
         Resultado.Exito(Unit)
     }
 
     override suspend fun marcarComoLeidoCliente(conversacionId: Int): Resultado<Unit> = withContext(Dispatchers.IO) {
+        val token = ClienteRetrofit.tokenActivo
+        if (mercadoApi != null && token != null) {
+            try {
+                mercadoApi.marcarLectura(
+                    autorizacion = "Bearer $token",
+                    id = conversacionId.toLong()
+                )
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
         mensajeDao.limpiarNoLeidosCliente(conversacionId)
         Resultado.Exito(Unit)
     }

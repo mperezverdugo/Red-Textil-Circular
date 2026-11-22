@@ -317,10 +317,11 @@ fun NavHostApp(
                         val empFlow = remember(empId) { appContainer.emprendedoraRepository.obtenerPorId(empId) }
                         val emp by empFlow.collectAsStateWithLifecycle(initialValue = null)
 
-                        val prodsFlow = remember(empId) { appContainer.productoRepository.obtenerPorEmprendedora(empId) }
-                        val prods by prodsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-
                         val emprendedoraActual = emp ?: DatosDemo.EmprendedorasActivasDemo.find { it.id == empId } ?: DatosDemo.EmprendedoraDemo
+                        val targetUsuarioId = emprendedoraActual.usuarioId
+
+                        val prodsFlow = remember(targetUsuarioId) { appContainer.productoRepository.obtenerPorEmprendedora(targetUsuarioId) }
+                        val prods by prodsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
                         VistaPreviaPublicaScreen(
                             emprendedora = emprendedoraActual,
@@ -341,7 +342,7 @@ fun NavHostApp(
                                 scope.launch {
                                     val res = appContainer.mensajeRepository.iniciarOObtenerConversacion(
                                         clienteId = clienteId,
-                                        emprendedoraId = emprendedoraActual.id,
+                                        emprendedoraId = emprendedoraActual.usuarioId,
                                         nombreCliente = nombreCliente,
                                         nombreEmprendimiento = emprendedoraActual.nombreComercial,
                                         primerMensaje = "",
@@ -389,7 +390,7 @@ fun NavHostApp(
 
                                     val res = appContainer.mensajeRepository.iniciarOObtenerConversacion(
                                         clienteId = clienteId,
-                                        emprendedoraId = emp.id,
+                                        emprendedoraId = emp.usuarioId,
                                         nombreCliente = nombreCliente,
                                         nombreEmprendimiento = emp.nombreComercial,
                                         primerMensaje = "",
@@ -483,6 +484,11 @@ fun NavHostApp(
 
                         LaunchedEffect(conversacionId) {
                             appContainer.mensajeRepository.marcarComoLeidoCliente(conversacionId)
+                            while (true) {
+                                val ultimoId = msgs.maxOfOrNull { it.id }?.toLong()
+                                appContainer.mensajeRepository.sincronizarMensajes(conversacionId, ultimoId)
+                                kotlinx.coroutines.delay(3000)
+                            }
                         }
 
                         val prodConsultadoFlow = remember(prodId) {
@@ -528,23 +534,6 @@ fun NavHostApp(
                                     }
                                 }
                             },
-                            onSimularInteraccion = {
-                                scope.launch {
-                                    val respuestaArtesana = "¡Hola! Sí, aún tenemos piezas disponibles de este modelo en el taller."
-                                    appContainer.mensajeRepository.enviarMensaje(
-                                        conversacionId = conversacionId,
-                                        contenido = respuestaArtesana,
-                                        emisor = TipoEmisor.EMPRENDEDORA
-                                    )
-                                    NotificacionUtil.mostrarNotificacionMensaje(
-                                        contexto = contexto,
-                                        titulo = conversacionFinal.nombreEmprendimiento.ifBlank { "Taller Textil" },
-                                        contenido = respuestaArtesana,
-                                        conversacionId = conversacionId
-                                    )
-                                }
-                            },
-                            textoSimularInteraccion = stringResource(id = R.string.chat_demo_simular_respuesta),
                             onNavegarAtras = { retrocederConversacion() },
                             onVerPerfilEmprendedoraClick = {
                                 navController.navigate(
@@ -676,8 +665,8 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.Mensajes.ruta) {
-                        val empId = perfilUiState.emprendedora.id
-                        val convsEmpFlow = remember(empId) { appContainer.mensajeRepository.obtenerConversaciones(empId) }
+                        val empUsuarioId = perfilUiState.emprendedora.usuarioId
+                        val convsEmpFlow = remember(empUsuarioId) { appContainer.mensajeRepository.obtenerConversaciones(empUsuarioId) }
                         val convsEmp by convsEmpFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
                         MensajesScreen(
@@ -702,6 +691,11 @@ fun NavHostApp(
 
                         LaunchedEffect(conversacionId) {
                             appContainer.mensajeRepository.marcarComoLeidoEmprendedora(conversacionId)
+                            while (true) {
+                                val ultimoId = msgs.maxOfOrNull { it.id }?.toLong()
+                                appContainer.mensajeRepository.sincronizarMensajes(conversacionId, ultimoId)
+                                kotlinx.coroutines.delay(3000)
+                            }
                         }
 
                         val retrocederConversacion = {
@@ -729,25 +723,6 @@ fun NavHostApp(
                                     )
                                 }
                             },
-                            onSimularInteraccion = {
-                                scope.launch {
-                                    val pregunta = "Hola, ¿sigue disponible este modelo en el taller?"
-                                    appContainer.mensajeRepository.enviarMensaje(
-                                        conversacionId = conversacionId,
-                                        contenido = pregunta,
-                                        emisor = TipoEmisor.CLIENTE,
-                                        productoId = conversacionFinal.productoAsociado?.id,
-                                        nombreProducto = conversacionFinal.productoAsociado?.nombre
-                                    )
-                                    NotificacionUtil.mostrarNotificacionMensaje(
-                                        contexto = contexto,
-                                        titulo = conversacionFinal.nombreCliente,
-                                        contenido = pregunta,
-                                        conversacionId = conversacionId
-                                    )
-                                }
-                            },
-                            textoSimularInteraccion = stringResource(id = R.string.chat_demo_simular_consulta),
                             onNavegarAtras = { retrocederConversacion() }
                         )
                     }

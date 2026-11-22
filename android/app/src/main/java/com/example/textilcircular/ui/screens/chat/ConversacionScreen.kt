@@ -61,8 +61,6 @@ fun ConversacionScreen(
     esCliente: Boolean = false,
     mensajeSugerido: String? = null,
     productoConsultado: Producto? = null,
-    onSimularInteraccion: (() -> Unit)? = null,
-    textoSimularInteraccion: String? = null,
     onVerPerfilEmprendedoraClick: (() -> Unit)? = null
 ) {
     var textoRespuesta by remember(conversacion.id, mensajeSugerido) {
@@ -86,32 +84,6 @@ fun ConversacionScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                // TODO: quitar estas opciones de prueba antes de la entrega final
-                if (onSimularInteraccion != null && textoSimularInteraccion != null) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        AssistChip(
-                            onClick = onSimularInteraccion,
-                            label = {
-                                Text(
-                                    text = textoSimularInteraccion,
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        )
-                    }
-                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically

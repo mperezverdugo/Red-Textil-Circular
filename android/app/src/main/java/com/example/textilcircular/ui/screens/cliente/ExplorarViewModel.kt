@@ -129,7 +129,7 @@ class ExplorarViewModel(
                 rubro = rubroEnum
             ).collect { lista ->
                 val itemsConPortada = lista.map { emp ->
-                    val productos = productoRepository.obtenerPorEmprendedora(emp.id).firstOrNull() ?: emptyList()
+                    val productos = productoRepository.obtenerPorEmprendedora(emp.usuarioId).firstOrNull() ?: emptyList()
                     val portada = productos.firstOrNull { it.fotos.isNotEmpty() }?.fotos?.firstOrNull()
                     ItemMercadoEmprendedora(
                         emprendedora = emp,

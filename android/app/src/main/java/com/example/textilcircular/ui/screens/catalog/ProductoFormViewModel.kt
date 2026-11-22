@@ -200,8 +200,8 @@ class ProductoFormViewModel(
             val estadoSesion = sesionRepository.estadoSesion.value
             val empId = when {
                 actual.id > 0 && actual.emprendedoraId > 0 -> actual.emprendedoraId
-                estadoSesion is EstadoSesion.AutenticadoEmprendedora -> estadoSesion.emprendedora.id
-                else -> actual.emprendedoraId.takeIf { it > 0 } ?: 1
+                estadoSesion is EstadoSesion.AutenticadoEmprendedora -> estadoSesion.emprendedora.usuarioId
+                else -> actual.emprendedoraId.takeIf { it > 0 } ?: 2
             }
 
             val esOffline = sincronizacionRepository.modoSinConexion.value

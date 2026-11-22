@@ -44,6 +44,7 @@ interface MensajeRepository {
     fun obtenerConversacionPorId(conversacionId: Int): Flow<Conversacion?>
     fun obtenerConversacionEntre(clienteId: Int, emprendedoraId: Int): Flow<Conversacion?>
     fun obtenerMensajes(conversacionId: Int): Flow<List<Mensaje>>
+    suspend fun sincronizarMensajes(conversacionId: Int, despuesDeId: Long? = null): Resultado<List<Mensaje>>
     suspend fun enviarMensaje(
         conversacionId: Int,
         contenido: String,
@@ -94,6 +95,11 @@ class MensajeRepositoryMemoria : MensajeRepository {
 
     override fun obtenerMensajes(conversacionId: Int): Flow<List<Mensaje>> {
         return _mensajesFlow.map { list -> list.filter { it.conversacionId == conversacionId } }
+    }
+
+    override suspend fun sincronizarMensajes(conversacionId: Int, despuesDeId: Long?): Resultado<List<Mensaje>> {
+        val lista = mensajes.filter { it.conversacionId == conversacionId && (despuesDeId == null || it.id > despuesDeId) }
+        return Resultado.Exito(lista)
     }
 
     override suspend fun enviarMensaje(

@@ -36,8 +36,8 @@ class CatalogoViewModel(
         viewModelScope.launch {
             sesionRepository.estadoSesion.collect { estadoSesion ->
                 val emprendedoraId = when (estadoSesion) {
-                    is EstadoSesion.AutenticadoEmprendedora -> estadoSesion.emprendedora.id
-                    else -> 1 // ID por defecto para pruebas
+                    is EstadoSesion.AutenticadoEmprendedora -> estadoSesion.emprendedora.usuarioId
+                    else -> 2 // ID de usuario por defecto para pruebas
                 }
 
                 productoRepository.obtenerPorEmprendedora(emprendedoraId).collect { lista ->

@@ -1,5 +1,6 @@
 package com.example.textilcircular.data.remote
 
+import com.example.textilcircular.data.remote.api.MercadoApi
 import com.example.textilcircular.data.remote.api.UsuariosApi
 import com.example.textilcircular.data.remote.dto.ErrorResponseDto
 import com.google.gson.Gson
@@ -14,9 +15,9 @@ import java.util.concurrent.TimeUnit
 // Configuración centralizada de clientes HTTP Retrofit para los microservicios.
 object ClienteRetrofit {
 
-    // URL base para el emulador Android (10.0.2.2 apunta al localhost de la máquina anfitriona).
-    // En pruebas unitarias o de integración se puede reconfigurar dinámicamente.
+    // URLs base para el emulador Android (10.0.2.2 apunta al localhost de la máquina anfitriona).
     var urlBaseUsuarios: String = "http://10.0.2.2:8081/"
+    var urlBaseMercado: String = "http://10.0.2.2:8082/"
 
     // Almacén en memoria del token JWT activo para adjuntarlo a las peticiones protegidas
     @Volatile
@@ -59,6 +60,20 @@ object ClienteRetrofit {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(UsuariosApi::class.java)
+    }
+
+    // Instancia de MercadoApi lista para consumir el microservicio ms-mercado
+    val mercadoApi: MercadoApi by lazy {
+        crearMercadoApi(urlBaseMercado, okHttpClient)
+    }
+
+    fun crearMercadoApi(urlBase: String, client: OkHttpClient = okHttpClient): MercadoApi {
+        return Retrofit.Builder()
+            .baseUrl(urlBase)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MercadoApi::class.java)
     }
 
     // Extrae el mensaje de error estructurado {codigo, mensaje} devuelto por el microservicio

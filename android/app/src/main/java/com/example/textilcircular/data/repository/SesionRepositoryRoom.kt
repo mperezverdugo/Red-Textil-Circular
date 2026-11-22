@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+import com.example.textilcircular.data.local.entity.ClienteEntity
 // Implementación del repositorio de sesión que persiste en SQLite y autentica con ms-usuarios vía Retrofit.
 class SesionRepositoryRoom(
     private val sesionDao: SesionDao,
@@ -310,15 +310,17 @@ class SesionRepositoryRoom(
             )
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val usuarioDto = respuesta.body()!!
-                val local = clienteRepository.registrar(nombre, correo, clave, aceptaDatos)
-                val cliente = ((local as? Resultado.Exito)?.datos ?: Cliente(
+                val cliente = Cliente(
                     id = usuarioDto.id.toInt(),
                     nombre = usuarioDto.nombre,
                     email = usuarioDto.email,
                     passwordHash = "",
                     sal = "",
                     aceptaLeyDatos = aceptaDatos
-                )).copy(id = usuarioDto.id.toInt())
+                )
+                try {
+                    clienteDao.insertar(ClienteEntity.desdeModelo(cliente))
+                } catch (_: Exception) {}
                 sesionDao.guardarSesion(
                     SesionActivaEntity(
                         id = 1,

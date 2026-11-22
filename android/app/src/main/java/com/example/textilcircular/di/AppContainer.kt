@@ -72,7 +72,10 @@ class ContenedorApp(private val context: Context) : AppContainer {
     }
 
     override val productoRepository: ProductoRepository by lazy {
-        ProductoRepositoryRoom(database.productoDao())
+        ProductoRepositoryRoom(
+            productoDao = database.productoDao(),
+            mercadoApi = com.example.textilcircular.data.remote.ClienteRetrofit.mercadoApi
+        )
     }
 
     override val mensajeRepository: MensajeRepository by lazy {
@@ -80,7 +83,8 @@ class ContenedorApp(private val context: Context) : AppContainer {
             mensajeDao = database.mensajeDao(),
             productoDao = database.productoDao(),
             clienteDao = database.clienteDao(),
-            emprendedoraDao = database.emprendedoraDao()
+            emprendedoraDao = database.emprendedoraDao(),
+            mercadoApi = com.example.textilcircular.data.remote.ClienteRetrofit.mercadoApi
         )
     }
 
