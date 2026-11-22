@@ -42,6 +42,17 @@ public class AuthService {
 
     @Transactional
     public RegistroEmprendedoraResponse registrarEmprendedora(RegistroEmprendedoraRequest solicitud) {
+        return registrarEmprendedoraInterno(solicitud, EstadoFichaEmprendimiento.POR_REVISAR);
+    }
+
+    @Transactional
+    public Emprendedora registrarEmprendedoraComoAdmin(RegistroEmprendedoraRequest solicitud) {
+        RegistroEmprendedoraResponse respuesta = registrarEmprendedoraInterno(solicitud, EstadoFichaEmprendimiento.ACTIVA);
+        return emprendedoras.findById(respuesta.emprendedoraId()).orElseThrow();
+    }
+
+    private RegistroEmprendedoraResponse registrarEmprendedoraInterno(
+            RegistroEmprendedoraRequest solicitud, EstadoFichaEmprendimiento estadoInicial) {
         Validadores.validarCorreo(solicitud.email());
         Validadores.validarContrasena(solicitud.password());
         Validadores.validarRut(solicitud.rut());
@@ -53,9 +64,13 @@ public class AuthService {
         }
         Usuario usuario = usuarios.save(new Usuario(solicitud.nombre().strip(), email,
                 passwordEncoder.encode(solicitud.password()), Rol.EMPRENDEDORA, solicitud.aceptaLeyDatos()));
-        Emprendedora ficha = emprendedoras.save(new Emprendedora(usuario, rut,
+        Emprendedora ficha = new Emprendedora(usuario, rut,
                 solicitud.nombreComercial().strip(), solicitud.region().strip(), solicitud.comuna().strip(),
-                solicitud.rubros(), solicitud.instagram()));
+                solicitud.rubros(), solicitud.instagram());
+        if (estadoInicial != EstadoFichaEmprendimiento.POR_REVISAR) {
+            ficha.revisar(estadoInicial, null, null);
+        }
+        ficha = emprendedoras.save(ficha);
         return new RegistroEmprendedoraResponse(UsuarioResponse.desde(usuario), ficha.getId(), ficha.getEstadoFicha());
     }
 

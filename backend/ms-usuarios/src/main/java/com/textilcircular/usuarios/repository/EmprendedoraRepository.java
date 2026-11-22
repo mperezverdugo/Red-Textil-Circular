@@ -17,6 +17,14 @@ public interface EmprendedoraRepository extends Repository<Emprendedora, Long> {
 
     @Query("""
             select e from Emprendedora e
+            where e.activa = true and e.usuario.fechaEliminacion is null
+              and (:estado is null or e.estadoFicha = :estado)
+            order by e.id
+            """)
+    List<Emprendedora> listarParaAdmin(@Param("estado") EstadoFichaEmprendimiento estado);
+
+    @Query("""
+            select e from Emprendedora e
             where e.estadoFicha = :estado and e.activa = true
               and e.usuario.fechaBaja is null and e.usuario.fechaEliminacion is null
               and (:texto is null or locate(lower(:texto), lower(e.nombreComercial)) > 0)

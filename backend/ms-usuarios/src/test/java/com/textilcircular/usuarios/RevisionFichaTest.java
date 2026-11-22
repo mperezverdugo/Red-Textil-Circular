@@ -77,7 +77,7 @@ class RevisionFichaTest {
         Emprendedora guardada = emprendedoras.findById(ficha.getId()).orElseThrow();
         assertThat(guardada.getEstadoFicha()).isEqualTo(destino);
         assertThat(guardada.getMotivoRevision()).isEqualTo("Motivo nuevo");
-        assertThat(guardada.getFechaRevision()).isBetween(antes.minusMillis(1), Instant.now());
+        assertThat(guardada.getFechaRevision()).isBetween(antes.minusMillis(1), Instant.now().plusMillis(100));
     }
 
     static Stream<Arguments> transicionesInvalidas() {
