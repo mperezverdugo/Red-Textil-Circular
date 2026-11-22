@@ -59,6 +59,7 @@ class ListadoEmprendedorasTest {
         mvc.perform(get("/emprendedoras").header("Authorization", autorizacion))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(3))
                 .andExpect(jsonPath("$[0].nombreComercial").value("Taller Circular"))
+                .andExpect(jsonPath("$[0].usuarioId").isNumber())
                 .andExpect(jsonPath("$[0].rubros.length()").value(2))
                 .andExpect(jsonPath("$[0].rut").doesNotExist())
                 .andExpect(jsonPath("$[0].email").doesNotExist())
@@ -129,6 +130,7 @@ class ListadoEmprendedorasTest {
     void obtieneDetalleActivoSinDatosPrivados() throws Exception {
         mvc.perform(get("/emprendedoras/{id}", tallerId).header("Authorization", autorizacion))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(tallerId))
+                .andExpect(jsonPath("$.usuarioId").isNumber())
                 .andExpect(jsonPath("$.rubros.length()").value(2))
                 .andExpect(jsonPath("$.instagram").value("taller"))
                 .andExpect(jsonPath("$.rut").doesNotExist()).andExpect(jsonPath("$.email").doesNotExist());
