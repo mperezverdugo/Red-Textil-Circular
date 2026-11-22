@@ -43,6 +43,8 @@ public class Usuario {
         this.aceptaLeyDatos = aceptaLeyDatos;
     }
 
+    public void cambiarNombre(String nombre) { this.nombre = nombre; }
+
     public void darDeBaja(Instant fecha) { this.fechaBaja = fecha; }
     public void eliminar(Instant fecha) { this.fechaEliminacion = fecha; }
 

@@ -67,6 +67,16 @@ public class Emprendedora {
         this.instagram = instagram;
     }
 
+    public void editarDatos(String nombreComercial, String region, String comuna,
+                            List<Rubro> rubros, String instagram) {
+        this.nombreComercial = nombreComercial;
+        this.region = region;
+        this.comuna = comuna;
+        this.rubros.clear();
+        this.rubros.addAll(rubros);
+        this.instagram = instagram;
+    }
+
     public void revisar(EstadoFichaEmprendimiento estado, String motivo, Instant fecha) {
         this.estadoFicha = estado;
         this.motivoRevision = motivo;
