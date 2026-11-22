@@ -66,6 +66,14 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // Consumo de API externa (Retrofit y OkHttp)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
+
+    // Carga asíncrona de imágenes remotas
+    implementation(libs.coil.compose)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 
