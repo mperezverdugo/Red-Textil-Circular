@@ -10,6 +10,7 @@ import org.springframework.data.repository.Repository;
 import java.util.Optional;
 
 public interface EmprendedoraRepository extends Repository<Emprendedora, Long> {
+    long count();
     Emprendedora save(Emprendedora emprendedora);
     Optional<Emprendedora> findById(Long id);
     Optional<Emprendedora> findByUsuarioId(Long usuarioId);

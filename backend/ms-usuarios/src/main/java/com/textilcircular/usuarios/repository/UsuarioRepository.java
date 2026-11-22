@@ -5,6 +5,7 @@ import org.springframework.data.repository.Repository;
 import java.util.Optional;
 
 public interface UsuarioRepository extends Repository<Usuario, Long> {
+    long count();
     Usuario save(Usuario usuario);
     Optional<Usuario> findById(Long id);
     Optional<Usuario> findByEmail(String email);
