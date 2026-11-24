@@ -4,10 +4,53 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Flecha circular superior / derecha: Blanco (#FFFFFF) -->
     <path
-        android:fillColor="#F5C400"
-        android:pathData="M30,54a24,24 0 1,0 48,0a24,24 0 1,0 -48,0" />
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 38,44 A 20,20 0 0,1 70,44" />
     <path
-        android:fillColor="#1A1A1A"
-        android:pathData="M46,40h16v28h-16z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M 64,37 L 73,44 L 64,51 Z" />
+
+    <!-- Flecha circular inferior / izquierda: TerracotaTextil (#BF5738) -->
+    <path
+        android:strokeColor="#BF5738"
+        android:strokeWidth="3.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 70,64 A 20,20 0 0,1 38,64" />
+    <path
+        android:fillColor="#BF5738"
+        android:pathData="M 44,71 L 35,64 L 44,57 Z" />
+
+    <!-- Eje central de la bobina de hilo en Blanco -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 52.5,42 H 55.5 V 66 H 52.5 Z" />
+
+    <!-- Brida superior de la bobina en AmarilloAcento (#FFD400) -->
+    <path
+        android:fillColor="#FFD400"
+        android:pathData="M 46,44 H 62 C 63,44 63.5,44.5 63.5,45.5 C 63.5,46.5 63,47 62,47 H 46 C 45,47 44.5,46.5 44.5,45.5 C 44.5,44.5 45,44 46,44 Z" />
+
+    <!-- Cuerpo del carrete de hilo devanado en AmarilloAcento (#FFD400) -->
+    <path
+        android:fillColor="#FFD400"
+        android:pathData="M 48,47 H 60 V 61 H 48 Z" />
+
+    <!-- Hilo central decorativo en Blanco -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M 48,54 H 60" />
+
+    <!-- Brida inferior de la bobina en AmarilloAcento (#FFD400) -->
+    <path
+        android:fillColor="#FFD400"
+        android:pathData="M 46,61 H 62 C 63,61 63.5,61.5 63.5,62.5 C 63.5,63.5 63,64 62,64 H 46 C 45,64 44.5,63.5 44.5,62.5 C 44.5,61.5 45,61 46,61 Z" />
 </vector>

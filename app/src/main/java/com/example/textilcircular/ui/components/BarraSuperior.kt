@@ -1,6 +1,10 @@
 package com.example.textilcircular.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,16 +15,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 /**
  * Barra superior estandarizada para toda la aplicación.
  * Garantiza consistencia visual, títulos legibles (>= 22sp) y navegación accesible.
+ * Integra el isotipo animado de la Fundación cuando no se requiere botón de retroceso.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,12 +39,25 @@ fun BarraSuperior(
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                // Cuando no hay botón de retorno, mostramos el logo textil circular animado
+                if (onNavegarAtras == null) {
+                    LogoTextilAnimado(
+                        tamano = 32.dp,
+                        animar = true
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
         navigationIcon = {
             if (onNavegarAtras != null) {
@@ -60,6 +80,7 @@ fun BarraSuperior(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun BarraSuperiorPreview() {
@@ -67,6 +88,18 @@ fun BarraSuperiorPreview() {
         BarraSuperior(
             titulo = "Catálogo de productos",
             onNavegarAtras = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun BarraSuperiorConLogoPreview() {
+    TextilCircularTheme {
+        BarraSuperior(
+            titulo = "Textil Circular",
+            onNavegarAtras = null
         )
     }
 }

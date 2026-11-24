@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -25,12 +26,25 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.BlancoLino
+import com.example.textilcircular.ui.theme.GrisBorde
+import com.example.textilcircular.ui.theme.GrisTextoSecundario
+import com.example.textilcircular.ui.theme.LinoContenedor
+import com.example.textilcircular.ui.theme.NegroTexto
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.theme.TurquesaFundacion
 
 /**
  * Campo de texto reutilizable con etiqueta, texto de ayuda y aviso de error accesible.
- * Cumple con RNF-05 (accesibilidad y señalización doble: color + ícono).
+ * Estética Textil:
+ * - Fondo cálido en fibra natural (BlancoLino #FAF8F5).
+ * - Borde en estado normal tipo hilo de hilván (GrisBorde #D6CFC3).
+ * - Borde enfocado en Turquesa institucional con esquinas de 12.dp.
+ * - Doble señalización de accesibilidad (color + ícono) según RNF-05.
+ *
+ * Mantiene intactos todos los parámetros de la firma original.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CampoTexto(
     valor: String,
@@ -68,13 +82,20 @@ fun CampoTexto(
             minLines = if (lineasMaximas > 1) 3 else 1,
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = BlancoLino,
+                unfocusedContainerColor = BlancoLino,
+                disabledContainerColor = LinoContenedor,
+                errorContainerColor = BlancoLino,
+                focusedBorderColor = TurquesaFundacion,
+                unfocusedBorderColor = GrisBorde,
                 errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                errorLabelColor = MaterialTheme.colorScheme.error
+                focusedLabelColor = TurquesaFundacion,
+                unfocusedLabelColor = GrisTextoSecundario,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+                focusedTextColor = NegroTexto,
+                unfocusedTextColor = NegroTexto
             )
         )
 
@@ -109,6 +130,7 @@ fun CampoTexto(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun CampoTextoPreview() {
@@ -122,6 +144,7 @@ fun CampoTextoPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun CampoTextoErrorPreview() {

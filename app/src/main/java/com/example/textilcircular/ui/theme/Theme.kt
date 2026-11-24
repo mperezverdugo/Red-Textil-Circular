@@ -10,43 +10,55 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 /**
- * Esquema de colores exclusivo claro para la Fundación Textil Circular.
- * Diseñado con alto contraste para asegurar legibilidad según RNF-05 y RNF-06.
+ * ============================================================================
+ * ESQUEMA DE DISEÑO MATERIAL 3 - TEXTIL CIRCULAR
+ * ============================================================================
+ * Esquema exclusivamente claro que proyecta calidez textil, fibras naturales
+ * y contraste accesible (WCAG AA). Propaga automáticamente los colores
+ * a todas las pantallas sin requerir cambios individuales en `ui/screens/`.
  */
 private val LightColorScheme = lightColorScheme(
+    // Identidad institucional primaria: Turquesa accesible con texto blanco de alto contraste
     primary = TurquesaFundacion,
     onPrimary = Blanco,
     primaryContainer = TurquesaClaro,
     onPrimaryContainer = TurquesaOscuro,
 
-    secondary = AmarilloAcento,
-    onSecondary = NegroTexto,
-    secondaryContainer = AmarilloContenedor,
-    onSecondaryContainer = NegroTexto,
+    // Identidad secundaria: Terracota cálido de costura artesanal
+    secondary = TerracotaTextil,
+    onSecondary = Blanco,
+    secondaryContainer = TerracotaClaro,
+    onSecondaryContainer = TerracotaOscuro,
 
-    tertiary = TurquesaOscuro,
+    // Identidad terciaria: Verde musgo botánico para notas de sostenibilidad
+    tertiary = VerdeMusgo,
     onTertiary = Blanco,
+    tertiaryContainer = AmarilloContenedor,
+    onTertiaryContainer = NegroTexto,
 
+    // Fondos y superficies: Base orgánica de lino crudo y blanco lino artesanal
     background = GrisFondo,
     onBackground = NegroTexto,
-
-    surface = Blanco,
+    surface = BlancoLino,
     onSurface = NegroTexto,
-    surfaceVariant = GrisFondo,
+    surfaceVariant = LinoContenedor,
     onSurfaceVariant = GrisTextoSecundario,
 
+    // Estados de error y retroalimentación crítica
     error = RojoError,
     onError = Blanco,
     errorContainer = RojoErrorFondo,
     onErrorContainer = RojoError,
 
+    // Bordes y separadores: Hilván suave y gris hilado
     outline = GrisBorde,
-    outlineVariant = GrisBorde
+    outlineVariant = HiloHilvanSuave
 )
 
 /**
  * Tema principal de la aplicación.
- * Solo tema claro con alto contraste y sin color dinámico para consistencia de marca.
+ * Garantiza consistencia de marca, aplicando la paleta oficial y configurando
+ * la barra de estado con el color institucional TurquesaFundacion e iconos blancos.
  */
 @Composable
 fun TextilCircularTheme(
@@ -59,6 +71,7 @@ fun TextilCircularTheme(
         SideEffect {
             val window = (view.context as? Activity)?.window
             window?.let {
+                // Barra de estado en TurquesaFundacion con iconos en blanco para máxima legibilidad
                 it.statusBarColor = TurquesaFundacion.toArgb()
                 WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = false
             }
