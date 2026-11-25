@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.catalog
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
@@ -39,6 +41,9 @@ import com.example.textilcircular.model.Producto
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.TarjetaProducto
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaBoton
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Muestra cómo ven los clientes la ficha de la emprendedora en la web o desde la app.
@@ -72,13 +77,17 @@ fun VistaPreviaPublicaScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .background(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                            shape = FormaCampo
+                        )
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -95,14 +104,19 @@ fun VistaPreviaPublicaScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(18.dp)) {
                     Text(
                         text = emprendedora.nombreComercial,
                         style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -111,6 +125,7 @@ fun VistaPreviaPublicaScreen(
                     Text(
                         text = "${emprendedora.comuna}, Región de ${emprendedora.region}",
                         style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -139,8 +154,8 @@ fun VistaPreviaPublicaScreen(
                             onClick = { onEscribirClick?.invoke() },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
-                            shape = RoundedCornerShape(8.dp),
+                                .height(50.dp),
+                            shape = FormaBoton,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -164,8 +179,8 @@ fun VistaPreviaPublicaScreen(
                             enabled = false,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
-                            shape = RoundedCornerShape(8.dp),
+                                .height(50.dp),
+                            shape = FormaBoton,
                             colors = ButtonDefaults.buttonColors(
                                 disabledContainerColor = MaterialTheme.colorScheme.outlineVariant,
                                 disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -219,8 +234,8 @@ fun VistaPreviaPublicaScreen(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(productos, key = { it.id }) { producto ->
                         TarjetaProducto(

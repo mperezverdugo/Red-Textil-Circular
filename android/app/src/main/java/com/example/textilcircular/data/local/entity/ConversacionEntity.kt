@@ -11,26 +11,6 @@ import com.example.textilcircular.model.Producto
 // Entidad que representa la conversación única entre un cliente y una emprendedora.
 @Entity(
     tableName = "conversaciones",
-    foreignKeys = [
-        ForeignKey(
-            entity = ClienteEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["cliente_id"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = EmprendedoraEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["emprendedora_id"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = ProductoEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["producto_id"],
-            onDelete = ForeignKey.SET_NULL
-        )
-    ],
     indices = [
         Index(value = ["cliente_id", "emprendedora_id"], unique = true),
         Index(value = ["emprendedora_id"]),

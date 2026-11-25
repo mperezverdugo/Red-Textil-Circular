@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +47,8 @@ import com.example.textilcircular.ui.components.InsigniaEstado
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.AzulRevision
 import com.example.textilcircular.ui.theme.AzulRevisionFondo
+import com.example.textilcircular.ui.theme.FormaBoton
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.ui.theme.VerdeExitoFondo
@@ -91,9 +94,10 @@ fun DetalleEmprendimientoAdminScreen(
 
                 OutlinedButton(
                     onClick = { mostrarDialogoEliminar = true },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = FormaBoton,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.4f))
                 ) {
                     Text(
                         text = stringResource(id = R.string.accion_eliminar),
@@ -117,9 +121,9 @@ fun DetalleEmprendimientoAdminScreen(
             // Cabecera con estado
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
@@ -182,9 +186,13 @@ fun DetalleEmprendimientoAdminScreen(
             // Panel de inconsistencias detectadas
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
                 colors = CardDefaults.cardColors(
                     containerColor = if (problemasAuditoria.isNotEmpty()) AzulRevisionFondo else VerdeExitoFondo
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    if (problemasAuditoria.isNotEmpty()) AzulRevision.copy(alpha = 0.3f) else VerdeExito.copy(alpha = 0.3f)
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {

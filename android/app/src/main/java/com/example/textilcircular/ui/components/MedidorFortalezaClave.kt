@@ -71,17 +71,17 @@ fun MedidorFortalezaClave(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             repeat(3) { indice ->
                 val activo = indice < segmentosActivos
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(3.dp))
                         .background(
-                            if (activo) colorAnimado else MaterialTheme.colorScheme.outlineVariant
+                            if (activo) colorAnimado else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
                         )
                 )
             }

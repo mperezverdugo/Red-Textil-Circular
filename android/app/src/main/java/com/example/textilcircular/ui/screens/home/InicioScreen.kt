@@ -1,6 +1,8 @@
 package com.example.textilcircular.ui.screens.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,16 +32,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.model.Emprendedora
 import com.example.textilcircular.model.EstadoFichaEmprendimiento
+import com.example.textilcircular.model.Rol
+import com.example.textilcircular.ui.components.AvatarUsuario
 import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.InsigniaEstado
+import com.example.textilcircular.ui.components.fondoTramaTextil
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.AmarilloAcento
+import com.example.textilcircular.ui.theme.FormaPildora
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.theme.TurquesaFundacion
 
 // Pantalla de inicio con resumen del perfil, consultas pendientes y accesos directos.
 @Composable
@@ -48,24 +59,45 @@ fun InicioScreen(
     onAgregarProductoClick: () -> Unit,
     onVerMensajesClick: () -> Unit,
     modifier: Modifier = Modifier,
-    consultasNuevas: Int = 0
+    consultasNuevas: Int = 0,
+    onVerEducacionClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
+            .fondoTramaTextil(alpha = 0.03f)
             .padding(horizontal = 20.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Saludo personalizado con lenguaje cálido y sencillo
+        // Saludo personalizado estilo editorial con avatar de usuario a la derecha (estilo referencia)
         val primerNombre = emprendedora.nombre.split(" ").firstOrNull() ?: emprendedora.nombre
-        Text(
-            text = stringResource(id = R.string.inicio_saludo, primerNombre),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Bienvenida 👋",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = primerNombre,
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            AvatarUsuario(
+                rol = Rol.EMPRENDEDORA,
+                tamano = 48.dp
+            )
+        }
 
         Text(
             text = stringResource(id = R.string.inicio_bajada),
@@ -76,11 +108,15 @@ fun InicioScreen(
         // 1. Tarjeta: Estado en el Directorio Web
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = FormaTarjeta,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(18.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -88,20 +124,22 @@ fun InicioScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.inicio_tarjeta_estado_titulo),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
                     )
                     InsigniaEstado(
-                        estado = if (emprendedora.activa) EstadoFichaEmprendimiento.ACTIVA else EstadoFichaEmprendimiento.OCULTA
+                        estado = emprendedora.estadoFicha
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = if (emprendedora.activa) {
-                        stringResource(id = R.string.inicio_tarjeta_estado_visible)
-                    } else {
-                        stringResource(id = R.string.inicio_tarjeta_estado_oculta)
+                    text = when (emprendedora.estadoFicha) {
+                        EstadoFichaEmprendimiento.ACTIVA -> stringResource(id = R.string.inicio_tarjeta_estado_visible)
+                        EstadoFichaEmprendimiento.POR_REVISAR -> stringResource(id = R.string.inicio_tarjeta_estado_por_revisar)
+                        EstadoFichaEmprendimiento.RECHAZADA -> stringResource(id = R.string.inicio_tarjeta_estado_rechazada)
+                        else -> stringResource(id = R.string.inicio_tarjeta_estado_oculta)
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -113,11 +151,15 @@ fun InicioScreen(
         val avancePerfil = 75
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = FormaTarjeta,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(18.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -125,28 +167,30 @@ fun InicioScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.inicio_completar_perfil_titulo),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = stringResource(id = R.string.inicio_completar_perfil_avance, avancePerfil),
                         style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 LinearProgressIndicator(
                     progress = { avancePerfil / 100f },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primaryContainer
+                        .clip(FormaPildora),
+                    color = AmarilloAcento,
+                    trackColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -171,16 +215,20 @@ fun InicioScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onVerMensajesClick() },
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                shape = FormaTarjeta,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                )
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(46.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center
@@ -199,6 +247,7 @@ fun InicioScreen(
                         Text(
                             text = stringResource(id = R.string.inicio_consultas_titulo),
                             style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(2.dp))
@@ -212,15 +261,74 @@ fun InicioScreen(
                     Text(
                         text = stringResource(id = R.string.inicio_consultas_ver),
                         style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
         }
 
+        // 4. Tarjeta de Educación y Sostenibilidad (API Externa de Wikipedia)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onVerEducacionClick?.invoke() },
+            shape = FormaTarjeta,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Aprende sobre Textil Circular",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Artículos en vivo desde la API de Wikipedia sobre reciclaje textil y moda sostenible.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Text(
+                    text = "Ver",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(4.dp))
 
-        // 4. Botón para agregar un producto al catálogo
+        // 5. Botón para agregar un producto al catálogo
         BotonPrincipal(
             texto = stringResource(id = R.string.inicio_boton_agregar_producto),
             onClick = onAgregarProductoClick

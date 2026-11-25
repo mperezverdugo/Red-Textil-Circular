@@ -25,6 +25,14 @@ interface EmprendedoraDao {
     @Query("SELECT * FROM emprendedoras WHERE id = :id LIMIT 1")
     suspend fun obtenerPorIdDirecto(id: Int): EmprendedoraEntity?
 
+    // Busca una emprendedora por su identificador de usuario (ms-usuarios / ms-mercado)
+    @Query("SELECT * FROM emprendedoras WHERE usuario_id = :usuarioId LIMIT 1")
+    suspend fun obtenerPorUsuarioIdDirecto(usuarioId: Int): EmprendedoraEntity?
+
+    // Elimina todas las emprendedoras en caché antes de sincronizar desde administración
+    @Query("DELETE FROM emprendedoras")
+    suspend fun eliminarTodas(): Int
+
     // Busca una emprendedora por su correo electrónico para autenticación segura
     @Query("SELECT * FROM emprendedoras WHERE LOWER(email) = LOWER(:email) LIMIT 1")
     suspend fun obtenerPorEmailDirecto(email: String): EmprendedoraEntity?
@@ -41,6 +49,7 @@ interface EmprendedoraDao {
     @Query("""
         SELECT * FROM emprendedoras 
         WHERE activa = 1 
+          AND estado_ficha = 'ACTIVA'
           AND (:busqueda = '' OR LOWER(nombre_comercial) LIKE '%' || :busqueda || '%' 
                               OR LOWER(comuna) LIKE '%' || :busqueda || '%' 
                               OR LOWER(region) LIKE '%' || :busqueda || '%' 

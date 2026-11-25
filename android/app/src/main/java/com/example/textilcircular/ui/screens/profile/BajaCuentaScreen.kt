@@ -1,6 +1,8 @@
 package com.example.textilcircular.ui.screens.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonSecundario
+import com.example.textilcircular.ui.theme.FormaBoton
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
@@ -79,8 +83,8 @@ fun BajaCuentaContent(
                     onClick = onConfirmarBaja,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(10.dp),
+                        .height(52.dp),
+                    shape = FormaBoton,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
@@ -112,7 +116,8 @@ fun BajaCuentaContent(
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.errorContainer),
+                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f))
+                    .border(1.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -136,8 +141,8 @@ fun BajaCuentaContent(
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                shape = RoundedCornerShape(10.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                shape = FormaTarjeta,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             ) {
                 Text(
                     text = stringResource(id = R.string.baja_explicacion_cuerpo),

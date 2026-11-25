@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Techo / marquesina del taller artesanal -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M8,8 h32 v4 H8 z M10,24 v-4 l-2,-8 h32 l-2,8 v4 h2 v14 H28 V32 H20 v14 H8 V24 h2 z" />
+    <!-- Detalle de entrada / vitrina del taller en mostaza cálido -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M22,34 h4 v10 h-4 z M14,24 h6 v6 h-6 z M28,24 h6 v6 h-6 z" />
+</vector>

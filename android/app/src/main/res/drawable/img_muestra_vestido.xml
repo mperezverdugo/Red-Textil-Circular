@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Fondo suave lino rosáceo vintage -->
+    <path
+        android:fillColor="#F9F3F0"
+        android:pathData="M0,0h200v200h-200z" />
+    <!-- Círculo decorativo -->
+    <path
+        android:fillColor="#EEDDD8"
+        android:pathData="M100,100m-68,0a68,68 0 1,0 136,0a68,68 0 1,0 -136,0" />
+    <!-- Torso / blusa del vestido en verde petróleo -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M84,38c0,0 -10,12 -12,22c-2,10 4,28 10,32h36c6,-4 12,-22 10,-32c-2,-10 -12,-22 -12,-22c-4,6 -10,10 -16,10s-12,-4 -16,-10z" />
+    <!-- Cinturón o lazo en mostaza -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M80,90h40v6h-40z" />
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M98,90l-4,20l6,-2l6,2l-4,-20z" />
+    <!-- Falda acampanada con vuelo estilo vintage 90s -->
+    <path
+        android:fillColor="#004D4A"
+        android:pathData="M80,96h40l28,74h-96z" />
+    <!-- Estampado floral retro en mostaza y marfil -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M76,120m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M124,120m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M100,135m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M85,150m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M115,150m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M90,128m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0 M110,128m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0 M100,160m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0" />
+    <!-- Botonadura frontal del escote -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M100,56m-1.5,0a1.5,1.5 0 1,0 3,0a1.5,1.5 0 1,0 -3,0 M100,66m-1.5,0a1.5,1.5 0 1,0 3,0a1.5,1.5 0 1,0 -3,0 M100,76m-1.5,0a1.5,1.5 0 1,0 3,0a1.5,1.5 0 1,0 -3,0" />
+</vector>

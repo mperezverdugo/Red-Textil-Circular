@@ -26,6 +26,7 @@ import com.example.textilcircular.R
 import com.example.textilcircular.model.EstadoFichaEmprendimiento
 import com.example.textilcircular.ui.theme.AzulRevision
 import com.example.textilcircular.ui.theme.AzulRevisionFondo
+import com.example.textilcircular.ui.theme.FormaPildora
 import com.example.textilcircular.ui.theme.GrisBaja
 import com.example.textilcircular.ui.theme.GrisBajaFondo
 import com.example.textilcircular.ui.theme.RojoError
@@ -59,6 +60,12 @@ fun InsigniaEstado(
             Icons.Default.Warning,
             R.string.ficha_estado_por_revisar
         )
+        EstadoFichaEmprendimiento.RECHAZADA -> Quadruple(
+            RojoErrorFondo,
+            RojoError,
+            Icons.Default.Close,
+            R.string.ficha_estado_rechazada
+        )
         EstadoFichaEmprendimiento.DADA_DE_BAJA -> Quadruple(
             RojoErrorFondo,
             RojoError,
@@ -70,9 +77,9 @@ fun InsigniaEstado(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .background(color = colorFondo, shape = RoundedCornerShape(12.dp))
-            .border(width = 1.dp, color = colorContenido, shape = RoundedCornerShape(12.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .background(color = colorFondo, shape = FormaPildora)
+            .border(width = 1.dp, color = colorContenido.copy(alpha = 0.35f), shape = FormaPildora)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Icon(
             imageVector = icono,

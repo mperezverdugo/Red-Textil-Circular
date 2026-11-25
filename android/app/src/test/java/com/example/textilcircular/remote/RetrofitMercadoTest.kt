@@ -33,7 +33,22 @@ class RetrofitMercadoTest {
     private class FakeProductoDao : ProductoDao {
         val productos = mutableListOf<ProductoEntity>()
         override fun obtenerPorEmprendedora(emprendedoraId: Int): Flow<List<ProductoEntity>> =
-            flowOf(productos.filter { it.emprendedoraId == emprendedoraId })
+            flowOf(productos.filter { 
+                it.emprendedoraId == emprendedoraId || 
+                (emprendedoraId == 1 && it.emprendedoraId == 2) || 
+                (emprendedoraId == 2 && it.emprendedoraId == 1) 
+            })
+        override suspend fun obtenerPorEmprendedoraDirecto(emprendedoraId: Int): List<ProductoEntity> =
+            productos.filter { 
+                it.emprendedoraId == emprendedoraId || 
+                (emprendedoraId == 1 && it.emprendedoraId == 2) || 
+                (emprendedoraId == 2 && it.emprendedoraId == 1) 
+            }
+        override suspend fun eliminarPorEmprendedora(emprendedoraId: Int): Int {
+            val antes = productos.size
+            productos.removeAll { it.emprendedoraId == emprendedoraId }
+            return antes - productos.size
+        }
         override fun obtenerPorId(id: Int): Flow<ProductoEntity?> =
             flowOf(productos.find { it.id == id })
         override suspend fun obtenerPorIdDirecto(id: Int): ProductoEntity? =
@@ -416,5 +431,138 @@ class RetrofitMercadoTest {
         assertEquals("/conversaciones/1/lectura", req.path)
         assertEquals("PATCH", req.method)
         assertEquals("Bearer token-jwt-prueba", req.getHeader("Authorization"))
+    }
+
+    @Test
+    fun enviarMensajeClienteDemoInsertaEnLocalSinError() = runBlocking {
+        val respuestaJson = """
+            {
+              "id": 105,
+              "conversacionId": 1,
+              "emisor": "CLIENTE",
+              "contenido": "Hola artesana, me interesa tu producto",
+              "fechaHora": "2026-11-25T11:00:00Z",
+              "esLeido": false,
+              "productoId": null,
+              "nombreProducto": null
+            }
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(201).setBody(respuestaJson))
+
+        val fakeMensajeDao = FakeMensajeDao()
+        val repo = MensajeRepositoryRoom(
+            mensajeDao = fakeMensajeDao,
+            productoDao = FakeProductoDao(),
+            mercadoApi = mercadoApi
+        )
+
+        val res = repo.enviarMensaje(
+            conversacionId = 1,
+            contenido = "Hola artesana, me interesa tu producto",
+            emisor = TipoEmisor.CLIENTE,
+            productoId = null,
+            nombreProducto = null
+        )
+
+        assertTrue(res is Resultado.Exito)
+        val msg = (res as Resultado.Exito).datos
+        assertEquals(105, msg.id)
+        assertEquals(1, msg.conversacionId)
+        assertEquals(TipoEmisor.CLIENTE, msg.emisor)
+
+        // Verificamos que se insertó tanto la conversación como el mensaje en la DAO local
+        assertEquals(1, fakeMensajeDao.mensajes.size)
+        assertEquals(105, fakeMensajeDao.mensajes.first().id)
+        assertEquals(1, fakeMensajeDao.conversaciones.size)
+        assertEquals(1, fakeMensajeDao.conversaciones.first().id)
+
+        val req = mockWebServer.takeRequest()
+        assertEquals("/conversaciones/1/mensajes", req.path)
+        assertEquals("POST", req.method)
+        assertEquals("Bearer token-jwt-prueba", req.getHeader("Authorization"))
+    }
+
+    @Test
+    fun iniciarOObtenerConversacionConPrimerMensaje() = runBlocking {
+        val convJson = """
+            {
+              "id": 1,
+              "clienteId": 14,
+              "emprendedoraId": 2,
+              "productoId": 101,
+              "nombreCliente": "Francisca Tapia",
+              "nombreEmprendimiento": "Taller Hilos del Sur",
+              "ultimoMensaje": "Hola, ¿sigue disponible?",
+              "fechaHora": "2026-11-25T11:05:00Z",
+              "noLeidosCliente": 0,
+              "noLeidosEmprendedora": 1
+            }
+        """.trimIndent()
+        val msgJson = """
+            {
+              "id": 106,
+              "conversacionId": 1,
+              "emisor": "CLIENTE",
+              "contenido": "Hola, ¿sigue disponible?",
+              "fechaHora": "2026-11-25T11:05:00Z",
+              "esLeido": false,
+              "productoId": 101,
+              "nombreProducto": "Chaqueta Denim Upcycled"
+            }
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(convJson))
+        mockWebServer.enqueue(MockResponse().setResponseCode(201).setBody(msgJson))
+
+        val fakeMensajeDao = FakeMensajeDao()
+        val repo = MensajeRepositoryRoom(
+            mensajeDao = fakeMensajeDao,
+            productoDao = FakeProductoDao(),
+            mercadoApi = mercadoApi
+        )
+
+        val res = repo.iniciarOObtenerConversacion(
+            clienteId = 14,
+            emprendedoraId = 2,
+            nombreCliente = "Francisca Tapia",
+            nombreEmprendimiento = "Taller Hilos del Sur",
+            primerMensaje = "Hola, ¿sigue disponible?",
+            emisor = TipoEmisor.CLIENTE,
+            productoAsociado = Producto(101, 2, "Chaqueta Denim Upcycled", "Hermosa chaqueta", null)
+        )
+
+        assertTrue(res is Resultado.Exito)
+        assertEquals(1, (res as Resultado.Exito).datos.id)
+        assertEquals(1, fakeMensajeDao.conversaciones.size)
+        assertEquals(1, fakeMensajeDao.mensajes.size)
+        assertEquals(106, fakeMensajeDao.mensajes.first().id)
+    }
+
+    @Test
+    fun obtenerPorEmprendedoraGuardaEnRoom() = runBlocking {
+        val prodsJson = """
+            [
+              {
+                "id": 101,
+                "emprendedoraId": 2,
+                "nombre": "Chaqueta Patchwork",
+                "descripcionCorta": "Chaqueta denim recuperada",
+                "explicacionProceso": "Confeccionada con retazos"
+              }
+            ]
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(prodsJson))
+
+        val fakeProductoDao = FakeProductoDao()
+        val repo = ProductoRepositoryRoom(
+            productoDao = fakeProductoDao,
+            mercadoApi = mercadoApi
+        )
+
+        val lista = repo.obtenerPorEmprendedora(2).first()
+
+        assertEquals(1, lista.size)
+        assertEquals("Chaqueta Patchwork", lista.first().nombre)
+        assertEquals(1, fakeProductoDao.productos.size)
+        assertEquals(101, fakeProductoDao.productos.first().id)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,10 @@ import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.AzulRevision
 import com.example.textilcircular.ui.theme.AzulRevisionFondo
+import com.example.textilcircular.ui.theme.FormaBoton
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.FormaPildora
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.RojoError
 import com.example.textilcircular.ui.theme.RojoErrorFondo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
@@ -121,9 +126,9 @@ fun AutomatizacionesAdminScreen(
                 items(listaCorreos, key = { it.id }) { registro ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = FormaTarjeta,
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             Row(
@@ -165,8 +170,9 @@ fun AutomatizacionesAdminScreen(
                                             )
                                         }
                                     },
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = FormaBoton,
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
                                     modifier = Modifier.align(Alignment.End)
                                 ) {
                                     Icon(
@@ -201,7 +207,8 @@ private fun TarjetaContadorCorreo(
 ) {
     Box(
         modifier = modifier
-            .background(colorFondo, RoundedCornerShape(8.dp))
+            .background(colorFondo, FormaCampo)
+            .border(1.dp, colorTexto.copy(alpha = 0.25f), FormaCampo)
             .padding(vertical = 10.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -226,8 +233,8 @@ private fun InsigniaEstadoCorreo(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .background(colorFondo, RoundedCornerShape(12.dp))
-            .border(1.dp, colorTexto, RoundedCornerShape(12.dp))
+            .background(colorFondo, FormaPildora)
+            .border(1.dp, colorTexto.copy(alpha = 0.35f), FormaPildora)
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Icon(

@@ -57,6 +57,22 @@ object DatosDemo {
             passwordHash = "0fdaa6954edbb0afc6ef92ffbc706de8a58a337c4dec2f2b8c47194a2d58f46b",
             sal = "sal_cliente_2",
             aceptaLeyDatos = true
+        ),
+        Cliente(
+            id = 14,
+            nombre = "Francisca Tapia",
+            email = "francisca.tapia@correo.cl",
+            passwordHash = "a1be467f8434b5c97fe7337672a084fdb3b3aa1e5bf2c6e098699d8b3daf6599",
+            sal = "sal_cliente_1",
+            aceptaLeyDatos = true
+        ),
+        Cliente(
+            id = 15,
+            nombre = "Rodrigo San Martín",
+            email = "rodrigo.sanmartin@correo.cl",
+            passwordHash = "0fdaa6954edbb0afc6ef92ffbc706de8a58a337c4dec2f2b8c47194a2d58f46b",
+            sal = "sal_cliente_2",
+            aceptaLeyDatos = true
         )
     )
 
@@ -73,7 +89,8 @@ object DatosDemo {
         rubros = listOf(Rubro.SUPRARRECICLAJE, Rubro.REPARACION),
         email = "camila.morales@textilcircular.cl",
         instagram = "tallerhilosdelsur",
-        activa = true
+        activa = true,
+        usuarioId = 2
     )
 
     // Lista de emprendedoras activas en distintas regiones del país.
@@ -89,7 +106,8 @@ object DatosDemo {
             rubros = listOf(Rubro.SEGUNDA_MANO),
             email = "maria.renace@correo.cl",
             instagram = "renace_vintage",
-            activa = true
+            activa = true,
+            usuarioId = 3
         ),
         Emprendedora(
             id = 3,
@@ -101,7 +119,8 @@ object DatosDemo {
             rubros = listOf(Rubro.SUPRARRECICLAJE),
             email = "daniela.sol@correo.cl",
             instagram = "soltextilarica",
-            activa = true
+            activa = true,
+            usuarioId = 4
         ),
         Emprendedora(
             id = 4,
@@ -113,7 +132,8 @@ object DatosDemo {
             rubros = listOf(Rubro.SUPRARRECICLAJE, Rubro.TALLERES),
             email = "claudia.recrea@correo.cl",
             instagram = "recreatelas",
-            activa = true
+            activa = true,
+            usuarioId = 5
         ),
         Emprendedora(
             id = 5,
@@ -125,7 +145,8 @@ object DatosDemo {
             rubros = listOf(Rubro.ARRIENDO, Rubro.SEGUNDA_MANO),
             email = "valentina.coquimbo@correo.cl",
             instagram = "arriendoconsciente",
-            activa = true
+            activa = true,
+            usuarioId = 6
         ),
         Emprendedora(
             id = 6,
@@ -137,7 +158,8 @@ object DatosDemo {
             rubros = listOf(Rubro.REPARACION),
             email = "loreto.maule@correo.cl",
             instagram = "puntadalimpia",
-            activa = true
+            activa = true,
+            usuarioId = 7
         ),
         Emprendedora(
             id = 7,
@@ -149,7 +171,8 @@ object DatosDemo {
             rubros = listOf(Rubro.SUPRARRECICLAJE, Rubro.SEGUNDA_MANO),
             email = "carmen.araucania@correo.cl",
             instagram = "surcircular",
-            activa = true
+            activa = true,
+            usuarioId = 8
         ),
         Emprendedora(
             id = 8,
@@ -161,7 +184,8 @@ object DatosDemo {
             rubros = listOf(Rubro.TALLERES, Rubro.REPARACION),
             email = "lucia.patagonia@correo.cl",
             instagram = "lanasmagallanicas",
-            activa = true
+            activa = true,
+            usuarioId = 9
         )
     )
 
@@ -176,7 +200,8 @@ object DatosDemo {
         rubros = listOf(Rubro.REPARACION, Rubro.TALLERES),
         email = "rosa.gomez@correo.cl",
         instagram = null,
-        activa = false
+        activa = false,
+        usuarioId = 10
     )
 
     // Emprendedora que solicitó baja voluntaria (tampoco debe figurar en el mercado).
@@ -190,7 +215,8 @@ object DatosDemo {
         rubros = listOf(Rubro.SUPRARRECICLAJE),
         email = "beatriz@chiloe.cl",
         instagram = "ecotejidos_chiloe",
-        activa = false
+        activa = false,
+        usuarioId = 11
     )
 
     // Catálogo con creaciones textiles para las emprendedoras.
@@ -369,14 +395,38 @@ object DatosDemo {
             noLeidosEmprendedora = 0,
             noLeidosCliente = 0,
             productoAsociado = ProductosDemo[1]
+        ),
+        Conversacion(
+            id = 1,
+            emprendedoraId = 2,
+            clienteId = 14,
+            nombreCliente = "Francisca Tapia",
+            nombreEmprendimiento = "Taller Hilos del Sur",
+            ultimoMensaje = "¡Hola! ¿Hacen envíos a Viña del Mar o entregas presenciales?",
+            fechaHora = "11:45",
+            noLeidosEmprendedora = 1,
+            noLeidosCliente = 0,
+            productoAsociado = ProductosDemo[0]
+        ),
+        Conversacion(
+            id = 2,
+            emprendedoraId = 2,
+            clienteId = 15,
+            nombreCliente = "Rodrigo San Martín",
+            nombreEmprendimiento = "Taller Hilos del Sur",
+            ultimoMensaje = "Muchas gracias Camila, me encantó el bolso.",
+            fechaHora = "Ayer",
+            noLeidosEmprendedora = 0,
+            noLeidosCliente = 0,
+            productoAsociado = ProductosDemo[1]
         )
     )
 
-    // Mensajes de la conversación 201.
+    // Mensajes de la conversación demo.
     val MensajesConversacionDemo: List<Mensaje> = listOf(
         Mensaje(
             id = 1,
-            conversacionId = 201,
+            conversacionId = 1,
             emisor = TipoEmisor.CLIENTE,
             contenido = "Quiero saber más sobre este producto: Bolso Upcycling Denim",
             fechaHora = "11:40",
@@ -386,7 +436,7 @@ object DatosDemo {
         ),
         Mensaje(
             id = 2,
-            conversacionId = 201,
+            conversacionId = 1,
             emisor = TipoEmisor.EMPRENDEDORA,
             contenido = "¡Hola Francisca! Claro que sí, es de mezclilla gruesa reforzada y tiene bolsillo interior.",
             fechaHora = "11:42",
@@ -394,6 +444,32 @@ object DatosDemo {
         ),
         Mensaje(
             id = 3,
+            conversacionId = 1,
+            emisor = TipoEmisor.CLIENTE,
+            contenido = "¡Hola! ¿Hacen envíos a Viña del Mar o entregas presenciales?",
+            fechaHora = "11:45",
+            esLeido = false
+        ),
+        Mensaje(
+            id = 201,
+            conversacionId = 201,
+            emisor = TipoEmisor.CLIENTE,
+            contenido = "Quiero saber más sobre este producto: Bolso Upcycling Denim",
+            fechaHora = "11:40",
+            esLeido = true,
+            productoId = 101,
+            nombreProducto = "Bolso Upcycling Denim"
+        ),
+        Mensaje(
+            id = 202,
+            conversacionId = 201,
+            emisor = TipoEmisor.EMPRENDEDORA,
+            contenido = "¡Hola Francisca! Claro que sí, es de mezclilla gruesa reforzada y tiene bolsillo interior.",
+            fechaHora = "11:42",
+            esLeido = true
+        ),
+        Mensaje(
+            id = 203,
             conversacionId = 201,
             emisor = TipoEmisor.CLIENTE,
             contenido = "¡Hola! ¿Hacen envíos a Viña del Mar o entregas presenciales?",

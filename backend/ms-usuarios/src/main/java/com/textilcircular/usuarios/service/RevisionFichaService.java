@@ -22,7 +22,7 @@ public class RevisionFichaService {
         Emprendedora ficha = emprendedoras.findById(id).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "EMPRENDEDORA_NO_ENCONTRADA", "La emprendedora no existe"));
         Usuario usuario = ficha.getUsuario();
-        if (!ficha.isActiva() || usuario.getFechaBaja() != null || usuario.getFechaEliminacion() != null
+        if (usuario.getFechaBaja() != null || usuario.getFechaEliminacion() != null
                 || ficha.getEstadoFicha() == EstadoFichaEmprendimiento.DADA_DE_BAJA) {
             throw transicionInvalida();
         }
@@ -55,6 +55,7 @@ public class RevisionFichaService {
                     "Debes indicar el motivo del rechazo");
         }
         ficha.revisar(destino, motivo == null || motivo.isBlank() ? null : motivo, Instant.now());
+        emprendedoras.save(ficha);
         return RevisionFichaResponse.desde(ficha);
     }
 

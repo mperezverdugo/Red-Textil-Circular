@@ -98,7 +98,8 @@ class ContenedorApp(private val context: Context) : AppContainer {
     override val adminRepository: AdminRepository by lazy {
         AdminRepositoryRoom(
             adminDao = database.adminDao(),
-            emprendedoraDao = database.emprendedoraDao()
+            emprendedoraDao = database.emprendedoraDao(),
+            usuariosApi = com.example.textilcircular.data.remote.ClienteRetrofit.usuariosApi
         )
     }
 }

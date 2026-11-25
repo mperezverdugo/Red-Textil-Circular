@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.FormaPildora
 import com.example.textilcircular.ui.theme.NaranjaAdvertencia
 import com.example.textilcircular.ui.theme.NaranjaAdvertenciaFondo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
@@ -32,9 +33,9 @@ fun InsigniaPendiente(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .background(color = NaranjaAdvertenciaFondo, shape = RoundedCornerShape(12.dp))
-            .border(width = 1.dp, color = NaranjaAdvertencia, shape = RoundedCornerShape(12.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .background(color = NaranjaAdvertenciaFondo, shape = FormaPildora)
+            .border(width = 1.dp, color = NaranjaAdvertencia.copy(alpha = 0.35f), shape = FormaPildora)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Refresh,

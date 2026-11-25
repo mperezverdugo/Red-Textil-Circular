@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Fondo suave lino cálido -->
+    <path
+        android:fillColor="#F6F4EE"
+        android:pathData="M0,0h200v200h-200z" />
+    <!-- Círculo decorativo -->
+    <path
+        android:fillColor="#E8E4DA"
+        android:pathData="M100,100m-68,0a68,68 0 1,0 136,0a68,68 0 1,0 -136,0" />
+    <!-- Cuerpo de la chaqueta intervenida en verde petróleo profundo -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M78,42l-36,24l16,32l20,-12v78h44v-78l20,12l16,-32l-36,-24c-5,10 -15,14 -22,14s-17,-4 -22,-14z" />
+    <!-- Canesú superior en contraste mezclilla -->
+    <path
+        android:fillColor="#004D4A"
+        android:pathData="M78,42l-22,15l10,20l14,-8v-12z M122,42l22,15l-10,20l-14,-8v-12z" />
+    <!-- Cuello de solapa camisero -->
+    <path
+        android:fillColor="#003B38"
+        android:pathData="M84,46l16,24l16,-24c-4,4 -10,6 -16,6s-12,-2 -16,-6z" />
+    <!-- Botones metálicos de latón / bronce -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M100,82m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M100,104m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M100,126m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M100,148m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+    <!-- Bordado botánico artesanal intervenido (flores y hojas en mostaza y carmín) -->
+    <!-- Flor izquierda -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M86,96m-5,0a5,5 0 1,0 10,0a5,5 0 1,0 -10,0" />
+    <path
+        android:fillColor="#D1ECE9"
+        android:pathData="M86,88c2,4 1,8 -3,8c-4,0 -5,-4 -3,-8z M86,104c-2,-4 -1,-8 3,-8c4,0 5,4 3,8z" />
+    <!-- Tallo bordado -->
+    <path
+        android:fillColor="#9E2532"
+        android:pathData="M85,96c-2,10 4,20 2,30h2c2,-10 -4,-20 -2,-30z" />
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M82,112c3,-3 7,-2 7,1c0,3 -4,4 -7,-1z" />
+    <!-- Detalle bordado manga derecha -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M118,98m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+    <path
+        android:fillColor="#D1ECE9"
+        android:pathData="M118,92c2,3 1,6 -2,6c-3,0 -4,-3 -2,-6z M118,104c-2,-3 -1,-6 2,-6c3,0 4,3 2,6z" />
+</vector>

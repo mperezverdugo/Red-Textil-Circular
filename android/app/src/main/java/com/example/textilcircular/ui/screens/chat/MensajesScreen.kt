@@ -1,6 +1,7 @@
 package com.example.textilcircular.ui.screens.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -31,15 +33,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.model.Conversacion
+import com.example.textilcircular.model.Rol
+import com.example.textilcircular.ui.components.AvatarUsuario
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.EstadoVacio
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaPildora
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Bandeja de mensajes con la lista de conversaciones de clientes o de la emprendedora.
@@ -126,20 +133,10 @@ private fun FilaConversacion(
             .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = if (esCliente) Icons.Default.ShoppingCart else Icons.Default.Person,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(26.dp)
-            )
-        }
+        AvatarUsuario(
+            rol = if (esCliente) Rol.EMPRENDEDORA else Rol.CLIENTE,
+            tamano = 48.dp
+        )
 
         Spacer(modifier = Modifier.width(14.dp))
 
@@ -152,6 +149,7 @@ private fun FilaConversacion(
                 Text(
                     text = nombre,
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -169,7 +167,7 @@ private fun FilaConversacion(
                 text = conversacion.ultimoMensaje,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (noLeidos > 0) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = if (noLeidos > 0) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal,
+                fontWeight = if (noLeidos > 0) FontWeight.SemiBold else FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -179,14 +177,17 @@ private fun FilaConversacion(
             Spacer(modifier = Modifier.width(8.dp))
             Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .height(24.dp)
+                    .widthIn(min = 24.dp)
+                    .clip(FormaPildora)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = noLeidos.toString(),
                     style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             }

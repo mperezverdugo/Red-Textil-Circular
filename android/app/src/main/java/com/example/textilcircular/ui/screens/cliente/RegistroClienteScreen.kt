@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.cliente
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.components.MedidorFortalezaClave
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
@@ -101,6 +103,11 @@ fun RegistroClienteContent(
             // Aviso si ocurre algún problema general
             if (uiState.errorGeneral != null) {
                 Card(
+                    shape = FormaTarjeta,
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.35f)
+                    ),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -108,7 +115,7 @@ fun RegistroClienteContent(
                         text = uiState.errorGeneral,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(12.dp)
+                        modifier = Modifier.padding(14.dp)
                     )
                 }
             }

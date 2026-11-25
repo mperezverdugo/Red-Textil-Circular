@@ -2,35 +2,37 @@ package com.example.textilcircular.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Colores de la aplicación pensados para que tengan buen contraste y sean fáciles de leer.
-// TODO: consultar con la Fundación los códigos de color oficiales definitivos.
+// Opción C: Sustentabilidad Editorial (Elegante & Minimalista)
+// Primario: #006865 (Verde Petróleo Profundo)
+val TurquesaFundacion = Color(0xFF006865)
+val TurquesaOscuro = Color(0xFF004D4A)
+val TurquesaClaro = Color(0xFFD1ECE9)
 
-// Colores institucionales principales
-val TurquesaFundacion = Color(0xFF0B7A7A)
-val TurquesaOscuro = Color(0xFF075454)
-val TurquesaClaro = Color(0xFFE0F2F1)
+// Acento sutil: #E2A03F (Mostaza Suave / Ocre)
+val AmarilloAcento = Color(0xFFE2A03F)
+val AmarilloContenedor = Color(0xFFFBF2E3)
 
-val AmarilloAcento = Color(0xFFF5C400)
-val AmarilloContenedor = Color(0xFFFFF4C2)
-
-val NegroTexto = Color(0xFF1A1A1A)
-val GrisTextoSecundario = Color(0xFF4A4A4A)
-val GrisBorde = Color(0xFFCCCCCC)
-val GrisFondo = Color(0xFFF7F7F7)
+// Tonos neutros y de superficie (Lino & Salvia Orgánico Cálido)
+val NegroTexto = Color(0xFF1E2323)
+val GrisTextoSecundario = Color(0xFF5A6262)
+val GrisBorde = Color(0xFFDCE2DF)
+val GrisFondo = Color(0xFFF3F5F3)
+val SuperficieVariante = Color(0xFFE8ECE9)
+val PetroleoOscuroFondo = Color(0xFF0F2422)
 val Blanco = Color(0xFFFFFFFF)
 
-// Colores de estado y semántica (alto contraste)
-val VerdeExito = Color(0xFF1B5E20)
-val VerdeExitoFondo = Color(0xFFE8F5E9)
+// Colores de estado y semántica (alto contraste con fondos suaves)
+val VerdeExito = Color(0xFF2D6633)
+val VerdeExitoFondo = Color(0xFFEBF3EC)
 
-val NaranjaAdvertencia = Color(0xFFB74700)
-val NaranjaAdvertenciaFondo = Color(0xFFFFF3E0)
+val NaranjaAdvertencia = Color(0xFFA14612)
+val NaranjaAdvertenciaFondo = Color(0xFFFAF1E6)
 
-val RojoError = Color(0xFFB00020)
-val RojoErrorFondo = Color(0xFFFFEBEE)
+val RojoError = Color(0xFF9E2532)
+val RojoErrorFondo = Color(0xFFFAEBF0)
 
 // Estados de fichas de emprendimiento
-val AzulRevision = Color(0xFF0D47A1)
-val AzulRevisionFondo = Color(0xFFE3F2FD)
-val GrisBaja = Color(0xFF616161)
-val GrisBajaFondo = Color(0xFFEEEEEE)
+val AzulRevision = Color(0xFF224E82)
+val AzulRevisionFondo = Color(0xFFEBF2F8)
+val GrisBaja = Color(0xFF606666)
+val GrisBajaFondo = Color(0xFFEFF2F2)

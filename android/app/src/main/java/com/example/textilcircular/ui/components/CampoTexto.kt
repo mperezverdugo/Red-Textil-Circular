@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.FormaCampo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Campo de texto con etiquetas, ayudas y aviso de error con ícono y texto.
@@ -65,13 +66,16 @@ fun CampoTexto(
             minLines = if (lineasMaximas > 1) 3 else 1,
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
-            shape = RoundedCornerShape(8.dp),
+            shape = FormaCampo,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                 errorBorderColor = MaterialTheme.colorScheme.error,
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
-                errorLabelColor = MaterialTheme.colorScheme.error
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 

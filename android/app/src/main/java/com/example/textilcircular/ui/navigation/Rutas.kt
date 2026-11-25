@@ -12,6 +12,7 @@ sealed class Ruta(val ruta: String) {
 
     // Pestañas principales del cliente
     data object Explorar : Ruta("cliente_explorar")
+    data object EducacionCliente : Ruta("cliente_educacion")
     data object MensajesCliente : Ruta("cliente_mensajes")
     data object PerfilCliente : Ruta("cliente_perfil")
 
@@ -43,6 +44,7 @@ sealed class Ruta(val ruta: String) {
     data object Perfil : Ruta("emp_perfil")
 
     // Pantallas secundarias de la emprendedora
+    data object EducacionEmp : Ruta("emp_educacion")
     data object ProductoForm : Ruta("emp_producto_form?productoId={productoId}") {
         fun crearRuta(productoId: Int? = null): String {
             return if (productoId != null) "emp_producto_form?productoId=$productoId" else "emp_producto_form"

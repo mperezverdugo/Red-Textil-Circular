@@ -1,7 +1,9 @@
 package com.example.textilcircular.ui.screens.cliente
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,15 +43,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.textilcircular.R
+import com.example.textilcircular.model.Rol
+import com.example.textilcircular.ui.components.AvatarUsuario
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.BotonSecundario
+import com.example.textilcircular.ui.theme.FormaBoton
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.FormaDialogo
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
@@ -95,26 +105,17 @@ fun MiPerfilClienteScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Avatar y datos principales
-            Box(
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(54.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            AvatarUsuario(
+                rol = Rol.CLIENTE,
+                tamano = 88.dp
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = uiState.nombre.ifBlank { "Cliente" },
                 style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
 
@@ -129,14 +130,19 @@ fun MiPerfilClienteScreen(
             // Tarjeta de información de la cuenta
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(18.dp)) {
                     Text(
                         text = stringResource(id = R.string.cliente_perfil_seccion_datos),
                         style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -164,7 +170,7 @@ fun MiPerfilClienteScreen(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -195,7 +201,11 @@ fun MiPerfilClienteScreen(
             // Botón para editar nombre
             OutlinedButton(
                 onClick = viewModel::abrirDialogoEdicion,
-                modifier = Modifier.fillMaxWidth()
+                shape = FormaBoton,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -203,7 +213,10 @@ fun MiPerfilClienteScreen(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = stringResource(id = R.string.cliente_perfil_editar_nombre))
+                Text(
+                    text = stringResource(id = R.string.cliente_perfil_editar_nombre),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -224,8 +237,14 @@ fun MiPerfilClienteScreen(
     if (uiState.dialogandoEdicion) {
         AlertDialog(
             onDismissRequest = viewModel::cerrarDialogoEdicion,
+            shape = FormaDialogo,
+            containerColor = MaterialTheme.colorScheme.surface,
             title = {
-                Text(text = stringResource(id = R.string.cliente_perfil_dialogo_titulo))
+                Text(
+                    text = stringResource(id = R.string.cliente_perfil_dialogo_titulo),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
             },
             text = {
                 Column {

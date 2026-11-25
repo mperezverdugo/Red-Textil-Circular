@@ -26,6 +26,7 @@ data class MetricasAdmin(
 interface AdminRepository {
     fun obtenerFichas(): Flow<List<FichaAdminEmprendimiento>>
     fun obtenerFichaPorId(id: Int): Flow<FichaAdminEmprendimiento?>
+    suspend fun sincronizarFichas(): Resultado<Unit> = Resultado.Exito(Unit)
     fun obtenerMetricas(): Flow<MetricasAdmin>
     fun obtenerCorreos(): Flow<List<RegistroAutomatizacionCorreo>>
     suspend fun guardarFicha(ficha: FichaAdminEmprendimiento): Resultado<Unit>

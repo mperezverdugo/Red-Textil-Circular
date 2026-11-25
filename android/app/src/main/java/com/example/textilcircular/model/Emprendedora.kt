@@ -12,5 +12,6 @@ data class Emprendedora(
     val email: String,
     val instagram: String? = null,
     val activa: Boolean = true,
-    val usuarioId: Int = id
+    val usuarioId: Int = id,
+    val estadoFicha: EstadoFichaEmprendimiento = if (activa) EstadoFichaEmprendimiento.ACTIVA else EstadoFichaEmprendimiento.OCULTA
 )

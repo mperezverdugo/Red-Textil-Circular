@@ -78,6 +78,9 @@ import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.components.DialogoConfirmacion
 import com.example.textilcircular.ui.components.IndicadorCargando
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaBoton
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.FormaDialogo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 import com.example.textilcircular.util.Constantes
@@ -405,11 +408,11 @@ private fun ProductoFormContenido(
                             Box(
                                 modifier = Modifier
                                     .size(100.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .clip(FormaCampo)
                                     .border(
-                                        width = 1.5.dp,
+                                        width = 1.dp,
                                         color = MaterialTheme.colorScheme.primary,
-                                        shape = RoundedCornerShape(8.dp)
+                                        shape = FormaCampo
                                     )
                                     .clickable { mostrarHojaOrigenFoto = true },
                                 contentAlignment = Alignment.Center
@@ -442,8 +445,8 @@ private fun ProductoFormContenido(
                         Box(
                             modifier = Modifier
                                 .size(100.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
+                                .clip(FormaCampo)
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
                             contentAlignment = Alignment.Center
                         ) {
                             if (bitmap != null) {
@@ -524,8 +527,10 @@ private fun ProductoFormContenido(
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
                     onClick = { mostrarDialogoEliminar = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = FormaBoton,
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
                     Icon(
@@ -548,6 +553,7 @@ private fun ProductoFormContenido(
         if (mostrarHojaOrigenFoto) {
             ModalBottomSheet(
                 onDismissRequest = { mostrarHojaOrigenFoto = false },
+                shape = FormaDialogo,
                 sheetState = sheetState
             ) {
                 Column(

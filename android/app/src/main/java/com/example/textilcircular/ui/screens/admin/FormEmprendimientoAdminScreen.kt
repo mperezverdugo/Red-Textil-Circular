@@ -11,7 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +40,9 @@ import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.components.ChipsRubros
 import com.example.textilcircular.ui.components.SelectorDesplegable
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaCampo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.ui.theme.VerdeExito
 import com.example.textilcircular.util.validacion.ValidadorContacto
 import com.example.textilcircular.util.validacion.ValidadorRut
 import com.example.textilcircular.util.validacion.ValidadorTexto
@@ -171,15 +179,61 @@ fun FormEmprendimientoAdminScreen(
                 esError = errorNombre != null
             )
 
-            CampoTexto(
-                valor = rut,
-                onValorCambiado = {
+            val esRutValidoAdmin = remember(rut) {
+                if (rut.isNotBlank()) ValidadorRut.validar(rut).esValido else false
+            }
+
+            OutlinedTextField(
+                value = rut,
+                onValueChange = {
                     rut = it
                     errorRut = null
                 },
-                etiqueta = stringResource(id = R.string.registro_campo_rut),
-                textoAyuda = errorRut ?: stringResource(id = R.string.registro_campo_rut_ayuda),
-                esError = errorRut != null
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(id = R.string.registro_campo_rut), style = MaterialTheme.typography.bodyLarge) },
+                isError = errorRut != null,
+                supportingText = {
+                    if (errorRut != null) {
+                        Text(
+                            text = errorRut ?: "RUT inválido",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(id = R.string.registro_campo_rut_ayuda),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (errorRut != null) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = stringResource(id = R.string.cd_icono_error),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    } else if (esRutValidoAdmin) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = stringResource(id = R.string.cd_icono_exito),
+                            tint = VerdeExito
+                        )
+                    }
+                },
+                singleLine = true,
+                shape = FormaCampo,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    errorBorderColor = MaterialTheme.colorScheme.error,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    errorLabelColor = MaterialTheme.colorScheme.error,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                )
             )
 
             CampoTexto(

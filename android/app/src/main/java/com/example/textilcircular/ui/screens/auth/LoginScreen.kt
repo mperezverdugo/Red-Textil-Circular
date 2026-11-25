@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.auth
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BotonPrincipal
 import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.components.CampoTexto
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
@@ -111,6 +113,11 @@ fun LoginContent(
 
             if (uiState.errorGeneral != null) {
                 Card(
+                    shape = FormaTarjeta,
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.35f)
+                    ),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -118,7 +125,7 @@ fun LoginContent(
                         text = uiState.errorGeneral,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(12.dp)
+                        modifier = Modifier.padding(14.dp)
                     )
                 }
             }

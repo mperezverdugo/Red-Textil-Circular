@@ -34,14 +34,15 @@ fun IndicadorCargando(
     ) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 4.dp,
-            modifier = Modifier.size(48.dp)
+            trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+            strokeWidth = 3.5.dp,
+            modifier = Modifier.size(44.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = mensaje,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

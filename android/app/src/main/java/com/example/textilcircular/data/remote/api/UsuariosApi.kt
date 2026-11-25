@@ -30,4 +30,47 @@ interface UsuariosApi {
         @Header("Authorization") autorizacion: String? = null,
         @Path("id") id: Long
     ): Response<EmprendedoraPublicaDto>
+
+    @GET("usuarios/me")
+    suspend fun obtenerMiPerfil(
+        @Header("Authorization") autorizacion: String? = null
+    ): Response<PerfilResponseDto>
+
+    @GET("admin/emprendedoras")
+    suspend fun listarEmprendedorasAdmin(
+        @Header("Authorization") autorizacion: String? = null,
+        @Query("estado") estado: String? = null
+    ): Response<List<EmprendedoraAdminDto>>
+
+    @GET("admin/emprendedoras/{id}")
+    suspend fun obtenerEmprendedoraAdmin(
+        @Header("Authorization") autorizacion: String? = null,
+        @Path("id") id: Long
+    ): Response<EmprendedoraAdminDto>
+
+    @POST("admin/emprendedoras")
+    suspend fun crearEmprendedoraAdmin(
+        @Header("Authorization") autorizacion: String? = null,
+        @Body solicitud: RegistroEmprendedoraRequestDto
+    ): Response<EmprendedoraAdminDto>
+
+    @PUT("admin/emprendedoras/{id}")
+    suspend fun editarEmprendedoraAdmin(
+        @Header("Authorization") autorizacion: String? = null,
+        @Path("id") id: Long,
+        @Body solicitud: EditarFichaAdminRequestDto
+    ): Response<EmprendedoraAdminDto>
+
+    @DELETE("admin/emprendedoras/{id}")
+    suspend fun eliminarEmprendedoraAdmin(
+        @Header("Authorization") autorizacion: String? = null,
+        @Path("id") id: Long
+    ): Response<Unit>
+
+    @PATCH("admin/emprendedoras/{id}/revision")
+    suspend fun revisarEmprendedora(
+        @Header("Authorization") autorizacion: String? = null,
+        @Path("id") id: Long,
+        @Body solicitud: RevisionFichaRequestDto
+    ): Response<RevisionFichaResponseDto>
 }

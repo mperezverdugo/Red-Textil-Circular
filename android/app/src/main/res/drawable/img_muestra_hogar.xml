@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Fondo suave -->
+    <path
+        android:fillColor="#FDF4E7"
+        android:pathData="M0,0h200v200h-200z" />
+    <!-- Círculo decorativo -->
+    <path
+        android:fillColor="#FBE9CE"
+        android:pathData="M100,100m-65,0a65,65 0 1,0 130,0a65,65 0 1,0 -130,0" />
+    <!-- Cojín / accesorio de hogar romboidal con esquinas suaves -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M100,45c4,0 7.5,2.5 9,6.2l38,40c3.5,3.7 3.5,9.5 0,13.2l-38,40c-1.5,3.7 -5,6.2 -9,6.2s-7.5,-2.5 -9,-6.2l-38,-40c-3.5,-3.7 -3.5,-9.5 0,-13.2l38,-40c1.5,-3.7 5,-6.2 9,-6.2z" />
+    <!-- Diseño geométrico central en mostaza y crema -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M100,75l22,25l-22,25l-22,-25z" />
+    <!-- Centro blanco -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M100,90l9,10l-9,10l-9,-10z" />
+</vector>

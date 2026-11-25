@@ -29,7 +29,7 @@ private val LightColorScheme = lightColorScheme(
 
     surface = Blanco,
     onSurface = NegroTexto,
-    surfaceVariant = GrisFondo,
+    surfaceVariant = SuperficieVariante,
     onSurfaceVariant = GrisTextoSecundario,
 
     error = RojoError,
@@ -62,6 +62,7 @@ fun TextilCircularTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }

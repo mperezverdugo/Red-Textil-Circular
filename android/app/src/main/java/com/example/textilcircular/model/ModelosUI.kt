@@ -77,6 +77,7 @@ enum class EstadoFichaEmprendimiento {
     ACTIVA,
     OCULTA,
     POR_REVISAR,
+    RECHAZADA,
     DADA_DE_BAJA
 }
 

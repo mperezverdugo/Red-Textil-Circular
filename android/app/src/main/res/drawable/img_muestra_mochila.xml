@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Fondo suave arena desértica -->
+    <path
+        android:fillColor="#F6F3EE"
+        android:pathData="M0,0h200v200h-200z" />
+    <!-- Círculo decorativo -->
+    <path
+        android:fillColor="#E8DFD3"
+        android:pathData="M100,100m-68,0a68,68 0 1,0 136,0a68,68 0 1,0 -136,0" />
+    <!-- Asa superior de cinta recuperada -->
+    <path
+        android:fillColor="#1E2323"
+        android:pathData="M84,52c0,-12 7,-20 16,-20s16,8 16,20h-6c0,-8 -4.5,-14 -10,-14s-10,6 -10,14h-6z" />
+    <!-- Cuerpo de la mochila en lona y denim reciclado -->
+    <path
+        android:fillColor="#2A4B63"
+        android:pathData="M60,60c0,-8 6,-14 14,-14h52c8,0 14,6 14,14v96c0,8 -6,14 -14,14h-52c-8,0 -14,-6 -14,-14z" />
+    <!-- Solapa frontal superior en lona color mostaza -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M58,54h84v36c0,8 -6,14 -14,14h-56c-8,0 -14,-6 -14,-14z" />
+    <!-- Correas y broches de ajuste en cinta negra -->
+    <path
+        android:fillColor="#1E2323"
+        android:pathData="M78,80h6v50h-6z M116,80h6v50h-6z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M77,105h8v6h-8z M115,105h8v6h-8z" />
+    <!-- Bolsillo inferior en tela de saco / lino artesanal -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M68,124h64c4,0 8,4 8,8v24h-80v-24c0,-4 4,-8 8,-8z" />
+    <!-- Cierre metálico del bolsillo -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M76,132h48v3h-48z" />
+</vector>

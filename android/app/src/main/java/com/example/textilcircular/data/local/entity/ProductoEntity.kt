@@ -10,14 +10,6 @@ import com.example.textilcircular.model.Producto
 // Entidad que representa la tabla de creaciones textiles de las emprendedoras en SQLite.
 @Entity(
     tableName = "productos",
-    foreignKeys = [
-        ForeignKey(
-            entity = EmprendedoraEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["emprendedora_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
     indices = [
         Index(value = ["emprendedora_id"])
     ]

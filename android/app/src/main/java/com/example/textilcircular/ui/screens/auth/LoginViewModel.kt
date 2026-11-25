@@ -6,6 +6,7 @@ import com.example.textilcircular.data.repository.SesionRepository
 import com.example.textilcircular.util.Resultado
 import com.example.textilcircular.util.validacion.ValidadorContacto
 import com.example.textilcircular.util.validacion.ValidadorContrasena
+import com.example.textilcircular.model.Rol
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -73,44 +74,21 @@ class LoginViewModel(
 
         viewModelScope.launch {
             val correoLimpio = estadoActual.correo.trim().lowercase()
-            val esCuentaAdmin = correoLimpio.contains("admin")
-
-            if (esCuentaAdmin) {
-                when (val res = sesionRepository.iniciarSesionAdmin(correoLimpio, estadoActual.password)) {
-                    is Resultado.Exito -> {
-                        _uiState.update { it.copy(estaCargando = false) }
-                        onExitoAdmin()
-                    }
-                    is Resultado.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                estaCargando = false,
-                                errorGeneral = res.mensaje
-                            )
-                        }
+            when (val res = sesionRepository.iniciarSesion(correoLimpio, estadoActual.password)) {
+                is Resultado.Exito -> {
+                    _uiState.update { it.copy(estaCargando = false) }
+                    when (res.datos) {
+                        Rol.EMPRENDEDORA -> onExitoEmprendedora()
+                        Rol.ADMINISTRADORA -> onExitoAdmin()
+                        Rol.CLIENTE -> onExitoCliente()
                     }
                 }
-            } else {
-                // Primero comprobamos si es cuenta de cliente
-                val resCliente = sesionRepository.iniciarSesionCliente(correoLimpio, estadoActual.password)
-                if (resCliente is Resultado.Exito) {
-                    _uiState.update { it.copy(estaCargando = false) }
-                    onExitoCliente()
-                } else {
-                    // Si no es cliente, intentamos como emprendedora
-                    when (val resEmp = sesionRepository.iniciarSesionEmprendedora(correoLimpio, estadoActual.password)) {
-                        is Resultado.Exito -> {
-                            _uiState.update { it.copy(estaCargando = false) }
-                            onExitoEmprendedora()
-                        }
-                        is Resultado.Error -> {
-                            _uiState.update {
-                                it.copy(
-                                    estaCargando = false,
-                                    errorGeneral = resEmp.mensaje
-                                )
-                            }
-                        }
+                is Resultado.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            estaCargando = false,
+                            errorGeneral = res.mensaje
+                        )
                     }
                 }
             }

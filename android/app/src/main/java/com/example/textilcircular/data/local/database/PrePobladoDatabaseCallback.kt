@@ -35,6 +35,16 @@ class PrePobladoDatabaseCallback(
             try {
                 val baseDatos = obtenerBaseDatos()
                 sembrarSiEstaVacia(baseDatos)
+                // Asegurar que cliente 14 y conversaciones demo estén disponibles
+                val cliente14 = baseDatos.clienteDao().obtenerPorIdDirecto(14)
+                if (cliente14 == null) {
+                    baseDatos.clienteDao().insertarVarios(DatosDemo.ClientesDemo.map { ClienteEntity.desdeModelo(it) })
+                }
+                val conv1 = baseDatos.mensajeDao().obtenerConversacionPorIdDirecto(1)
+                if (conv1 == null) {
+                    baseDatos.mensajeDao().insertarConversaciones(DatosDemo.ConversacionesDemo.map { ConversacionEntity.desdeModelo(it) })
+                    baseDatos.mensajeDao().insertarMensajes(DatosDemo.MensajesConversacionDemo.map { MensajeEntity.desdeModelo(it) })
+                }
                 // Limpieza de cualquier elemento demo residual de sincronización en bases ya existentes
                 baseDatos.sincronizacionDao().eliminarPorDetalleDemo("%Cojín Textil Parche%")
                 baseDatos.sincronizacionDao().eliminarPorDetalleDemo("%@tallerhilosdelsur%")
@@ -64,8 +74,16 @@ class PrePobladoDatabaseCallback(
             }
             baseDatos.emprendedoraDao().insertarVarias(emprendedorasEntidades)
 
-            // 3. El catálogo de productos y las conversaciones provienen de ms-mercado (puerto 8082).
-            // No se siembran productos ni mensajes estáticos locales en Room.
+            // 3. Catálogo de productos textiles
+            val productosEntidades = DatosDemo.ProductosDemo.map { ProductoEntity.desdeModelo(it) }
+            baseDatos.productoDao().insertarVarios(productosEntidades)
+
+            // 4. Conversaciones y mensajes iniciales del chat
+            val conversacionesEntidades = DatosDemo.ConversacionesDemo.map { ConversacionEntity.desdeModelo(it) }
+            baseDatos.mensajeDao().insertarConversaciones(conversacionesEntidades)
+
+            val mensajesEntidades = DatosDemo.MensajesConversacionDemo.map { MensajeEntity.desdeModelo(it) }
+            baseDatos.mensajeDao().insertarMensajes(mensajesEntidades)
 
             // 5. Registros de automatizaciones de correo
             val correosEntidades = DatosDemo.AutomatizacionesCorreosDemo.map { CorreoAutomatizacionEntity.desdeModelo(it) }

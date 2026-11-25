@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,9 +23,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +48,8 @@ import com.example.textilcircular.model.FichaAdminEmprendimiento
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.InsigniaEstado
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaPildora
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Directorio administrativo para buscar y supervisar emprendimientos.
@@ -75,8 +81,10 @@ fun EmprendimientosAdminScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAgregarEmprendimientoClick,
+                shape = RoundedCornerShape(16.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -101,16 +109,23 @@ fun EmprendimientosAdminScreen(
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.admin_emp_buscar_placeholder),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = stringResource(id = R.string.cd_icono_buscar)
+                        contentDescription = stringResource(id = R.string.cd_icono_buscar),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 },
-                shape = RoundedCornerShape(10.dp),
+                shape = FormaPildora,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -125,10 +140,13 @@ fun EmprendimientosAdminScreen(
                     FilterChip(
                         selected = filtroEstadoSeleccionado == null,
                         onClick = { filtroEstadoSeleccionado = null },
+                        shape = FormaPildora,
                         label = { Text(text = stringResource(id = R.string.admin_emp_filtro_todos)) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
                 }
@@ -136,18 +154,22 @@ fun EmprendimientosAdminScreen(
                     FilterChip(
                         selected = filtroEstadoSeleccionado == estado,
                         onClick = { filtroEstadoSeleccionado = estado },
+                        shape = FormaPildora,
                         label = {
                             val textoRes = when (estado) {
                                 EstadoFichaEmprendimiento.ACTIVA -> R.string.ficha_estado_activa
                                 EstadoFichaEmprendimiento.OCULTA -> R.string.ficha_estado_oculta
                                 EstadoFichaEmprendimiento.POR_REVISAR -> R.string.ficha_estado_por_revisar
+                                EstadoFichaEmprendimiento.RECHAZADA -> R.string.ficha_estado_rechazada
                                 EstadoFichaEmprendimiento.DADA_DE_BAJA -> R.string.ficha_estado_dada_de_baja
                             }
                             Text(text = stringResource(id = textoRes))
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
                 }
@@ -165,7 +187,7 @@ fun EmprendimientosAdminScreen(
 
             // Lista de fichas
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(fichasFiltradas, key = { it.emprendedora.id }) { ficha ->
@@ -173,7 +195,11 @@ fun EmprendimientosAdminScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onEmprendimientoClick(ficha.emprendedora.id) },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = FormaTarjeta,
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                        ),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {

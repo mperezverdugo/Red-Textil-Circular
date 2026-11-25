@@ -1,6 +1,7 @@
 package com.example.textilcircular.ui.screens.catalog
 
 import android.graphics.BitmapFactory
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,7 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
@@ -50,6 +53,8 @@ import com.example.textilcircular.ui.components.BotonSecundario
 import com.example.textilcircular.ui.components.DialogoConfirmacion
 import com.example.textilcircular.ui.components.InsigniaPendiente
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.util.ResolvedorImagenProducto
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import java.io.File
 
@@ -122,7 +127,8 @@ fun ProductoDetalleScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.2f)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 HorizontalPager(
@@ -151,24 +157,15 @@ fun ProductoDetalleScreen(
                                 modifier = Modifier.fillMaxSize()
                             )
                         } else {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    imageVector = Icons.Default.ShoppingCart,
-                                    contentDescription = stringResource(id = R.string.cd_icono_foto),
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(64.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = if (producto.fotos.isNotEmpty()) {
-                                        stringResource(id = R.string.producto_fotos_contador, pagina + 1, totalPaginas)
-                                    } else {
-                                        stringResource(id = R.string.producto_sin_foto)
-                                    },
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                            val drawableMuestra = remember(producto, pagina) {
+                                ResolvedorImagenProducto.resolverDrawable(producto, pagina)
                             }
+                            Image(
+                                painter = painterResource(id = drawableMuestra),
+                                contentDescription = producto.nombre,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
                     }
                 }
@@ -227,14 +224,19 @@ fun ProductoDetalleScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                     Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                        ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = FormaTarjeta,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.padding(18.dp)) {
                             Text(
                                 text = stringResource(id = R.string.producto_detalle_proceso_titulo),
                                 style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.height(6.dp))

@@ -1,6 +1,7 @@
 package com.textilcircular.usuarios;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.textilcircular.usuarios.dto.RegistroEmprendedoraRequest;
 import com.textilcircular.usuarios.dto.RevisionFichaRequest;
 import com.textilcircular.usuarios.dto.RevisionFichaRequest.Accion;
 import com.textilcircular.usuarios.model.*;
@@ -168,5 +169,52 @@ class RevisionFichaTest {
         mvc.perform(patch("/admin/emprendedoras/1/revision").header("Authorization", tokenAdmin())
                 .contentType("application/json").content(cuerpo))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.codigo").value("DATOS_INVALIDOS"));
+    }
+
+    @Test
+    void flujoCompletoRegistroListadoAprobacionYAparicionPublica() throws Exception {
+        RegistroEmprendedoraRequest reg = new RegistroEmprendedoraRequest(
+                "Francisca Lagos", "francisca.lagos@example.cl", "secreto", true, "12.345.678-5",
+                "Costuras Francisca", "Metropolitana", "Providencia",
+                List.of(Rubro.REPARACION, Rubro.SUPRARRECICLAJE), "@costurasfrancisca"
+        );
+        mvc.perform(post("/auth/registro/emprendedora").contentType("application/json")
+                .content(json.writeValueAsString(reg)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.estadoFicha").value("POR_REVISAR"));
+
+        String tokenAdm = tokenAdmin();
+        mvc.perform(get("/admin/emprendedoras?estado=POR_REVISAR").header("Authorization", tokenAdm))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.email == 'francisca.lagos@example.cl')].nombreComercial").value("Costuras Francisca"));
+
+        Emprendedora registrada = emprendedoras.listarParaAdmin(EstadoFichaEmprendimiento.POR_REVISAR).stream()
+                .filter(e -> e.getUsuario().getEmail().equalsIgnoreCase("francisca.lagos@example.cl"))
+                .findFirst().orElseThrow();
+
+        mvc.perform(get("/emprendedoras?texto=Costuras").header("Authorization", tokenAdm))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+
+        mvc.perform(patch("/admin/emprendedoras/{id}/revision", registrada.getId())
+                .header("Authorization", tokenAdm)
+                .contentType("application/json")
+                .content("{\"accion\":\"APROBAR\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estadoFicha").value("ACTIVA"));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mvc.perform(get("/emprendedoras?texto=Costuras").header("Authorization", tokenAdm))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nombreComercial").value("Costuras Francisca"))
+                .andExpect(jsonPath("$[0].id").value(registrada.getId()));
+
+        String credenciales = "{\"email\":\"francisca.lagos@example.cl\",\"password\":\"secreto\"}";
+        mvc.perform(post("/auth/login").contentType("application/json").content(credenciales))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.usuario.rol").value("EMPRENDEDORA"));
     }
 }

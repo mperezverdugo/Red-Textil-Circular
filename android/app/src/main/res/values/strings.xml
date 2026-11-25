@@ -38,7 +38,7 @@
     <string name="registro_campo_nombre">Nombre completo</string>
     <string name="registro_campo_nombre_ayuda">Ejemplo: Francisca Silva (con mayúsculas iniciales)</string>
     <string name="registro_campo_rut">RUT</string>
-    <string name="registro_campo_rut_ayuda">Ejemplo: 12.345.678-9</string>
+    <string name="registro_campo_rut_ayuda">Formato: 12.345.678-9</string>
     <string name="registro_campo_correo">Correo electrónico</string>
     <string name="registro_campo_correo_ayuda">Te enviaremos un correo de bienvenida y aviso de consultas</string>
     <string name="registro_campo_password">Contraseña</string>
@@ -81,6 +81,8 @@
     <string name="inicio_tarjeta_estado_titulo">Tu perfil en el directorio</string>
     <string name="inicio_tarjeta_estado_visible">Tu ficha está visible para clientes en todo Chile.</string>
     <string name="inicio_tarjeta_estado_oculta">Tu ficha está oculta temporalmente.</string>
+    <string name="inicio_tarjeta_estado_por_revisar">Tu registro está en revisión por la Fundación. Cuando sea aprobado, será visible en el directorio público.</string>
+    <string name="inicio_tarjeta_estado_rechazada">Tu ficha fue rechazada en moderación. Revisa tus datos o contacta a administración.</string>
     <string name="inicio_completar_perfil_titulo">Completa tu perfil</string>
     <string name="inicio_completar_perfil_avance">%1$d%% completado</string>
     <string name="inicio_pendiente_fotos">Agrega fotos a tus productos para atraer más clientes.</string>
@@ -261,6 +263,7 @@
     <string name="ficha_estado_activa">Activa</string>
     <string name="ficha_estado_oculta">Oculta</string>
     <string name="ficha_estado_por_revisar">Por revisar</string>
+    <string name="ficha_estado_rechazada">Rechazada</string>
     <string name="ficha_estado_dada_de_baja">Dada de baja</string>
 
     <!-- Componente Rubros y Selección -->
@@ -324,6 +327,7 @@
     <string name="fortaleza_fuerte">Fuerte</string>
     <string name="fortaleza_etiqueta">Seguridad: %1$s</string>
     <string name="nav_cliente_explorar">Explorar</string>
+    <string name="nav_educacion">Educación</string>
     <string name="nav_cliente_mensajes">Mensajes</string>
     <string name="nav_cliente_perfil">Mi perfil</string>
     <string name="mercado_titulo">Mercado Textil Circular</string>

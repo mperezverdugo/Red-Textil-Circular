@@ -1,5 +1,6 @@
 package com.example.textilcircular.ui.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
@@ -37,6 +39,8 @@ import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.ui.theme.AzulRevision
 import com.example.textilcircular.ui.theme.AzulRevisionFondo
+import com.example.textilcircular.ui.theme.FormaPildora
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Panel administrativo: métricas de impacto, contactos por región y rubro.
@@ -100,16 +104,20 @@ fun PanelAdminScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onVerFichasPorRevisarClick() },
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = AzulRevision.copy(alpha = 0.35f)
+                ),
                 colors = CardDefaults.cardColors(containerColor = AzulRevisionFondo)
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(46.dp)
                             .clip(CircleShape)
                             .background(AzulRevision),
                         contentAlignment = Alignment.Center
@@ -128,6 +136,7 @@ fun PanelAdminScreen(
                         Text(
                             text = stringResource(id = R.string.admin_alerta_fichas_revisar),
                             style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
                             color = AzulRevision
                         )
                         Spacer(modifier = Modifier.height(2.dp))
@@ -143,14 +152,19 @@ fun PanelAdminScreen(
             // Gráfico de contactos por región
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(18.dp)) {
                     Text(
                         text = stringResource(id = R.string.admin_grafico_region_titulo),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -165,7 +179,7 @@ fun PanelAdminScreen(
                             proporcion = proporcion,
                             colorBarra = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
@@ -173,14 +187,19 @@ fun PanelAdminScreen(
             // Gráfico de contactos por rubro
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = FormaTarjeta,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(18.dp)) {
                     Text(
                         text = stringResource(id = R.string.admin_grafico_rubro_titulo),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -195,7 +214,7 @@ fun PanelAdminScreen(
                             proporcion = proporcion,
                             colorBarra = MaterialTheme.colorScheme.secondary
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
@@ -213,17 +232,22 @@ private fun TarjetaMetricaResumen(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
+        shape = FormaTarjeta,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = valor,
                 style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -264,15 +288,15 @@ private fun FilaBarraGrafico(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(10.dp)
-                .clip(RoundedCornerShape(5.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .height(8.dp)
+                .clip(FormaPildora)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(proporcion)
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(5.dp))
+                    .height(8.dp)
+                    .clip(FormaPildora)
                     .background(colorBarra)
             )
         }

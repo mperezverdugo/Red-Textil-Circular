@@ -13,8 +13,28 @@ import kotlinx.coroutines.flow.Flow
 interface ProductoDao {
 
     // Retorna todos los productos creados por una emprendedora específica
-    @Query("SELECT * FROM productos WHERE emprendedora_id = :emprendedoraId ORDER BY id DESC")
+    @Query("""
+        SELECT * FROM productos 
+        WHERE emprendedora_id = :emprendedoraId 
+           OR (:emprendedoraId = 2 AND emprendedora_id = 1) 
+           OR (:emprendedoraId = 1 AND emprendedora_id = 2) 
+        ORDER BY id DESC
+    """)
     fun obtenerPorEmprendedora(emprendedoraId: Int): Flow<List<ProductoEntity>>
+
+    // Lectura directa de productos de una emprendedora (para conservar rutas de fotos locales al sincronizar)
+    @Query("""
+        SELECT * FROM productos 
+        WHERE emprendedora_id = :emprendedoraId 
+           OR (:emprendedoraId = 2 AND emprendedora_id = 1) 
+           OR (:emprendedoraId = 1 AND emprendedora_id = 2) 
+        ORDER BY id DESC
+    """)
+    suspend fun obtenerPorEmprendedoraDirecto(emprendedoraId: Int): List<ProductoEntity>
+
+    // Elimina productos en caché de una emprendedora antes de sincronizar lista remota
+    @Query("DELETE FROM productos WHERE emprendedora_id = :emprendedoraId")
+    suspend fun eliminarPorEmprendedora(emprendedoraId: Int): Int
 
     // Busca un producto por su id de forma reactiva
     @Query("SELECT * FROM productos WHERE id = :id LIMIT 1")

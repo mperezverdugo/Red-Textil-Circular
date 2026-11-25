@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,6 +35,8 @@ import com.example.textilcircular.ui.components.EstadoVacio
 import com.example.textilcircular.ui.components.IndicadorCargando
 import com.example.textilcircular.ui.components.TarjetaProducto
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.AmarilloAcento
+import com.example.textilcircular.ui.theme.Blanco
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
 
@@ -45,6 +49,10 @@ fun CatalogoScreen(
     simularListasVacias: Boolean = false,
     viewModel: CatalogoViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        viewModel.recargar()
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     CatalogoContent(
@@ -91,8 +99,10 @@ fun CatalogoContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAgregarProductoClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                shape = RoundedCornerShape(16.dp),
+                containerColor = AmarilloAcento,
+                contentColor = Blanco,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 3.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -135,8 +145,8 @@ fun CatalogoContent(
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             contentPadding = PaddingValues(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(productos, key = { it.id }) { producto ->

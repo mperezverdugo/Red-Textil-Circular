@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.model.Rubro
+import com.example.textilcircular.ui.theme.FormaPildora
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.util.Constantes
 
@@ -65,10 +66,11 @@ fun ChipsRubros(
                             onRubroToggled(rubro)
                         }
                     },
+                    shape = FormaPildora,
                     label = {
                         Text(
                             text = rubro.nombre,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     },
                     leadingIcon = if (estaSeleccionado) {
@@ -76,14 +78,23 @@ fun ChipsRubros(
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = stringResource(id = R.string.cd_icono_exito),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     } else null,
                     enabled = puedeSeleccionar,
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = puedeSeleccionar,
+                        selected = estaSeleccionado,
+                        borderColor = MaterialTheme.colorScheme.outlineVariant,
+                        selectedBorderColor = MaterialTheme.colorScheme.primary,
+                        borderWidth = 1.dp,
+                        selectedBorderWidth = 1.dp
+                    ),
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
                         containerColor = MaterialTheme.colorScheme.surface,
                         labelColor = MaterialTheme.colorScheme.onSurface
                     )

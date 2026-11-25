@@ -79,6 +79,9 @@ public class Emprendedora {
 
     public void revisar(EstadoFichaEmprendimiento estado, String motivo, Instant fecha) {
         this.estadoFicha = estado;
+        if (estado == EstadoFichaEmprendimiento.ACTIVA) {
+            this.activa = true;
+        }
         this.motivoRevision = motivo;
         this.fechaRevision = fecha;
     }

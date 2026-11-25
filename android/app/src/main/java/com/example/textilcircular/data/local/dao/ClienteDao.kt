@@ -32,8 +32,8 @@ interface ClienteDao {
     @Query("SELECT * FROM clientes WHERE LOWER(email) = LOWER(:email) LIMIT 1")
     suspend fun obtenerPorEmailDirecto(email: String): ClienteEntity?
 
-    // Registra un nuevo cliente
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    // Registra o actualiza un cliente
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(cliente: ClienteEntity): Long
 
     // Inserta clientes iniciales en lote

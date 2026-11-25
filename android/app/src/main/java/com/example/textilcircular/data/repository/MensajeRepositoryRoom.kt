@@ -59,8 +59,10 @@ class MensajeRepositoryRoom(
                             productoAsociado = prod
                         )
                     }
+                    try {
+                        mensajeDao.insertarConversaciones(remota.map { ConversacionEntity.desdeModelo(it) })
+                    } catch (_: Exception) {}
                     emit(remota)
-                    return@flow
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -94,8 +96,10 @@ class MensajeRepositoryRoom(
                             productoAsociado = prod
                         )
                     }
+                    try {
+                        mensajeDao.insertarConversaciones(remota.map { ConversacionEntity.desdeModelo(it) })
+                    } catch (_: Exception) {}
                     emit(remota)
-                    return@flow
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -151,8 +155,25 @@ class MensajeRepositoryRoom(
                             nombreProducto = dto.nombreProducto
                         )
                     }
+                    try {
+                        if (mensajeDao.obtenerConversacionPorIdDirecto(conversacionId) == null) {
+                            mensajeDao.insertarConversacion(
+                                ConversacionEntity(
+                                    id = conversacionId,
+                                    clienteId = 14,
+                                    emprendedoraId = 2,
+                                    nombreCliente = "Cliente",
+                                    nombreEmprendimiento = "Emprendimiento",
+                                    ultimoMensaje = lista.lastOrNull()?.contenido ?: "",
+                                    fechaHora = lista.lastOrNull()?.fechaHora ?: "",
+                                    noLeidosCliente = 0,
+                                    noLeidosEmprendedora = 0
+                                )
+                            )
+                        }
+                        mensajeDao.insertarMensajes(lista.map { MensajeEntity.desdeModelo(it) })
+                    } catch (_: Exception) {}
                     emit(lista)
-                    return@flow
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -189,6 +210,21 @@ class MensajeRepositoryRoom(
                     }
                     if (nuevos.isNotEmpty()) {
                         try {
+                            if (mensajeDao.obtenerConversacionPorIdDirecto(conversacionId) == null) {
+                                mensajeDao.insertarConversacion(
+                                    ConversacionEntity(
+                                        id = conversacionId,
+                                        clienteId = 14,
+                                        emprendedoraId = 2,
+                                        nombreCliente = "Cliente",
+                                        nombreEmprendimiento = "Emprendimiento",
+                                        ultimoMensaje = nuevos.last().contenido,
+                                        fechaHora = nuevos.last().fechaHora,
+                                        noLeidosCliente = 0,
+                                        noLeidosEmprendedora = 0
+                                    )
+                                )
+                            }
                             mensajeDao.insertarMensajes(nuevos.map { MensajeEntity.desdeModelo(it) })
                         } catch (_: Exception) {}
                     }
@@ -216,7 +252,10 @@ class MensajeRepositoryRoom(
         val horaActual = formatoHora.format(Date())
         val token = ClienteRetrofit.tokenActivo
 
-        if (mercadoApi != null && token != null) {
+        if (mercadoApi != null) {
+            if (token.isNullOrBlank()) {
+                return@withContext Resultado.Error("Se requiere una sesión activa con token para enviar mensajes al servidor")
+            }
             try {
                 val respuesta = mercadoApi.enviarMensaje(
                     autorizacion = "Bearer $token",
@@ -240,16 +279,44 @@ class MensajeRepositoryRoom(
                         nombreProducto = dto.nombreProducto
                     )
                     try {
+                        val convActual = mensajeDao.obtenerConversacionPorIdDirecto(conversacionId)
+                        if (convActual == null) {
+                            mensajeDao.insertarConversacion(
+                                ConversacionEntity(
+                                    id = conversacionId,
+                                    clienteId = 14,
+                                    emprendedoraId = 2,
+                                    nombreCliente = "Cliente",
+                                    nombreEmprendimiento = "Emprendimiento",
+                                    ultimoMensaje = contenido.trim(),
+                                    fechaHora = dto.fechaHora,
+                                    noLeidosEmprendedora = if (emisor == TipoEmisor.CLIENTE) 1 else 0,
+                                    noLeidosCliente = if (emisor == TipoEmisor.EMPRENDEDORA) 1 else 0
+                                )
+                            )
+                        } else {
+                            val nuevosNoLeidosEmp = if (emisor == TipoEmisor.CLIENTE) convActual.noLeidosEmprendedora + 1 else convActual.noLeidosEmprendedora
+                            val nuevosNoLeidosCli = if (emisor == TipoEmisor.EMPRENDEDORA) convActual.noLeidosCliente + 1 else convActual.noLeidosCliente
+
+                            mensajeDao.actualizarConversacion(
+                                convActual.copy(
+                                    ultimoMensaje = contenido.trim(),
+                                    fechaHora = dto.fechaHora,
+                                    noLeidosEmprendedora = nuevosNoLeidosEmp,
+                                    noLeidosCliente = nuevosNoLeidosCli
+                                )
+                            )
+                        }
                         mensajeDao.insertarMensaje(MensajeEntity.desdeModelo(mensaje))
                     } catch (_: Exception) {}
                     return@withContext Resultado.Exito(mensaje)
-                } else if (respuesta.code() in 400..499) {
+                } else {
                     val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
                     return@withContext Resultado.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                // Falla de red: continúa con SQLite local (offline fallback)
+                return@withContext Resultado.Error("Error al enviar mensaje al servidor: ${e.message}")
             }
         }
 
@@ -302,7 +369,10 @@ class MensajeRepositoryRoom(
         val horaActual = formatoHora.format(Date())
         val token = ClienteRetrofit.tokenActivo
 
-        if (mercadoApi != null && token != null) {
+        if (mercadoApi != null) {
+            if (token.isNullOrBlank()) {
+                return@withContext Resultado.Error("Se requiere una sesión activa con token para iniciar la conversación en el servidor")
+            }
             try {
                 val respuesta = mercadoApi.crearOObtenerConversacion(
                     autorizacion = "Bearer $token",
@@ -327,8 +397,12 @@ class MensajeRepositoryRoom(
                         noLeidosEmprendedora = dto.noLeidosEmprendedora,
                         productoAsociado = productoAsociado
                     )
+                    try {
+                        mensajeDao.insertarConversacion(ConversacionEntity.desdeModelo(conv))
+                    } catch (_: Exception) {}
+
                     if (primerMensaje.isNotBlank()) {
-                        mercadoApi.enviarMensaje(
+                        val respMsg = mercadoApi.enviarMensaje(
                             autorizacion = "Bearer $token",
                             id = conv.id.toLong(),
                             solicitud = EnviarMensajeRequestDto(
@@ -337,18 +411,32 @@ class MensajeRepositoryRoom(
                                 nombreProducto = productoAsociado?.nombre
                             )
                         )
+                        if (respMsg.isSuccessful && respMsg.body() != null) {
+                            val msgDto = respMsg.body()!!
+                            try {
+                                mensajeDao.insertarMensaje(
+                                    MensajeEntity(
+                                        id = msgDto.id.toInt(),
+                                        conversacionId = msgDto.conversacionId.toInt(),
+                                        emisor = try { TipoEmisor.valueOf(msgDto.emisor) } catch (_: Exception) { emisor },
+                                        contenido = msgDto.contenido,
+                                        fechaHora = msgDto.fechaHora,
+                                        esLeido = msgDto.esLeido,
+                                        productoId = msgDto.productoId?.toInt(),
+                                        nombreProducto = msgDto.nombreProducto
+                                    )
+                                )
+                            } catch (_: Exception) {}
+                        }
                     }
-                    try {
-                        mensajeDao.insertarConversacion(ConversacionEntity.desdeModelo(conv))
-                    } catch (_: Exception) {}
                     return@withContext Resultado.Exito(conv)
-                } else if (respuesta.code() in 400..499) {
+                } else {
                     val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
                     return@withContext Resultado.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                // Falla de red: continúa con SQLite local
+                return@withContext Resultado.Error("Error al conectar con el servidor de mercado: ${e.message}")
             }
         }
 

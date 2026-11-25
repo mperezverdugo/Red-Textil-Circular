@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.FormaPildora
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Indicador que muestra en qué paso del formulario va la persona.
@@ -30,7 +32,8 @@ fun BarraProgresoPasos(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(id = R.string.paso_indicador, pasoActual, totalPasos),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary
         )
 
@@ -38,20 +41,21 @@ fun BarraProgresoPasos(
 
         Text(
             text = tituloPaso,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         LinearProgressIndicator(
             progress = { progreso },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(4.dp)),
+                .height(6.dp)
+                .clip(FormaPildora),
             color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.primaryContainer
+            trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
         )
     }
 }

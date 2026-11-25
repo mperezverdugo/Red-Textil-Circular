@@ -24,6 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Menú desplegable para elegir de una lista cerrada sin escribir a mano.
@@ -58,12 +60,14 @@ fun SelectorDesplegable(
                 },
                 enabled = habilitado,
                 isError = mensajeError != null,
-                shape = RoundedCornerShape(8.dp),
+                shape = FormaCampo,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                    disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
                 modifier = Modifier
                     .menuAnchor()

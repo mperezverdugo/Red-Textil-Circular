@@ -1,6 +1,7 @@
 package com.example.textilcircular.ui.screens.auth
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +52,10 @@ import com.example.textilcircular.ui.components.CampoTexto
 import com.example.textilcircular.ui.components.ChipsRubros
 import com.example.textilcircular.ui.components.SelectorDesplegable
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.VerdeExito
+import com.example.textilcircular.util.validacion.ValidadorRut
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 import com.example.textilcircular.util.Constantes
 import com.example.textilcircular.ui.viewmodel.AppViewModelProvider
@@ -208,12 +219,59 @@ fun RegistroGuiadoContent(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    CampoTexto(
-                        valor = uiState.rut,
-                        onValorCambiado = onRutCambiado,
-                        etiqueta = stringResource(id = R.string.registro_campo_rut),
-                        textoAyuda = stringResource(id = R.string.registro_campo_rut_ayuda),
-                        mensajeError = uiState.errorRut
+                    val esRutValido = remember(uiState.rut) {
+                        if (uiState.rut.isNotBlank()) ValidadorRut.validar(uiState.rut).esValido else false
+                    }
+                    val errorRut = uiState.errorRut
+
+                    OutlinedTextField(
+                        value = uiState.rut,
+                        onValueChange = onRutCambiado,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(id = R.string.registro_campo_rut), style = MaterialTheme.typography.bodyLarge) },
+                        isError = errorRut != null,
+                        supportingText = {
+                            if (errorRut != null) {
+                                Text(
+                                    text = errorRut,
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(id = R.string.registro_campo_rut_ayuda),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        },
+                        trailingIcon = {
+                            if (errorRut != null) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = stringResource(id = R.string.cd_icono_error),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            } else if (esRutValido) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = stringResource(id = R.string.cd_icono_exito),
+                                    tint = VerdeExito
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        shape = FormaCampo,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            errorBorderColor = MaterialTheme.colorScheme.error,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            errorLabelColor = MaterialTheme.colorScheme.error,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -325,14 +383,18 @@ fun RegistroGuiadoContent(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                        shape = RoundedCornerShape(8.dp)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                        shape = FormaCampo,
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                        )
                     ) {
                         Text(
                             text = stringResource(id = R.string.registro_aviso_chat),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(12.dp)
+                            modifier = Modifier.padding(14.dp)
                         )
                     }
                 }
@@ -349,11 +411,16 @@ fun RegistroGuiadoContent(
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
+                        shape = FormaTarjeta,
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                        ),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
                         Column(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.padding(18.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(

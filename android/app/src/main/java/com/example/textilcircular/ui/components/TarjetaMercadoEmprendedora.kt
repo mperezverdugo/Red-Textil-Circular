@@ -1,6 +1,7 @@
 package com.example.textilcircular.ui.components
 
 import android.graphics.BitmapFactory
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,12 +36,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
 import com.example.textilcircular.model.ItemMercadoEmprendedora
+import com.example.textilcircular.ui.theme.FormaPildora
+import com.example.textilcircular.ui.theme.FormaTarjeta
+import com.example.textilcircular.util.ResolvedorImagenProducto
 import java.io.File
 
 // Tarjeta que presenta a una emprendedora en el mercado para los clientes.
@@ -55,11 +60,18 @@ fun TarjetaMercadoEmprendedora(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = FormaTarjeta,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp,
+            pressedElevation = 3.dp
+        )
     ) {
         Column {
             val foto = item.fotoPortada
@@ -77,8 +89,8 @@ fun TarjetaMercadoEmprendedora(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
-                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 if (bitmap != null) {
@@ -89,20 +101,15 @@ fun TarjetaMercadoEmprendedora(
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(44.dp)
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(id = R.string.mercado_taller_textil),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                    val drawableMuestra = remember(item.emprendedora.id) {
+                        ResolvedorImagenProducto.resolverDrawablePorEmprendedora(item.emprendedora.id)
                     }
+                    Image(
+                        painter = painterResource(id = drawableMuestra),
+                        contentDescription = item.emprendedora.nombreComercial,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
 
@@ -146,6 +153,7 @@ fun TarjetaMercadoEmprendedora(
                     item.emprendedora.rubros.take(3).forEach { rubro ->
                         AssistChip(
                             onClick = {},
+                            shape = FormaPildora,
                             label = {
                                 Text(
                                     text = rubro.nombre,
@@ -153,8 +161,8 @@ fun TarjetaMercadoEmprendedora(
                                 )
                             },
                             colors = AssistChipDefaults.assistChipColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                                labelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                labelColor = MaterialTheme.colorScheme.onPrimaryContainer
                             ),
                             border = null,
                             modifier = Modifier.height(28.dp)

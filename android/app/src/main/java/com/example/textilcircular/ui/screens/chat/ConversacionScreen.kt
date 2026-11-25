@@ -1,5 +1,8 @@
 package com.example.textilcircular.ui.screens.chat
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -37,7 +41,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
@@ -48,7 +56,12 @@ import com.example.textilcircular.model.TipoEmisor
 import com.example.textilcircular.ui.components.BarraSuperior
 import com.example.textilcircular.ui.components.BurbujaMensaje
 import com.example.textilcircular.ui.preview.DatosDemo
+import com.example.textilcircular.ui.theme.FormaCampo
+import com.example.textilcircular.ui.theme.FormaPildora
+import com.example.textilcircular.ui.theme.FormaTarjeta
 import com.example.textilcircular.ui.theme.TextilCircularTheme
+import com.example.textilcircular.util.ResolvedorImagenProducto
+import java.io.File
 
 // Pantalla de chat entre la emprendedora y un cliente interesado.
 @Composable
@@ -61,6 +74,8 @@ fun ConversacionScreen(
     esCliente: Boolean = false,
     mensajeSugerido: String? = null,
     productoConsultado: Producto? = null,
+    onSimularInteraccion: (() -> Unit)? = null,
+    textoSimularInteraccion: String? = null,
     onVerPerfilEmprendedoraClick: (() -> Unit)? = null
 ) {
     var textoRespuesta by remember(conversacion.id, mensajeSugerido) {
@@ -84,6 +99,31 @@ fun ConversacionScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
+                if (onSimularInteraccion != null && textoSimularInteraccion != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 6.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        AssistChip(
+                            onClick = onSimularInteraccion,
+                            label = {
+                                Text(
+                                    text = textoSimularInteraccion,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -98,10 +138,12 @@ fun ConversacionScreen(
                             )
                         },
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(24.dp),
+                        shape = FormaPildora,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
                         )
                     )
 
@@ -117,7 +159,7 @@ fun ConversacionScreen(
                         enabled = textoRespuesta.isNotBlank(),
                         modifier = Modifier
                             .size(48.dp)
-                            .clip(RoundedCornerShape(24.dp))
+                            .clip(CircleShape)
                             .background(
                                 if (textoRespuesta.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                             )
@@ -145,27 +187,51 @@ fun ConversacionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = FormaTarjeta,
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Row(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val primeraFoto = producto.fotos.firstOrNull()
+                        val bitmap = remember(primeraFoto) {
+                            if (!primeraFoto.isNullOrBlank()) {
+                                val archivo = File(primeraFoto)
+                                if (archivo.exists()) BitmapFactory.decodeFile(archivo.absolutePath) else null
+                            } else null
+                        }
+
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
+                                .size(48.dp)
+                                .clip(FormaCampo)
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(22.dp)
-                            )
+                            if (bitmap != null) {
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = producto.nombre,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                val muestra = remember(producto) {
+                                    ResolvedorImagenProducto.resolverDrawable(producto, 0)
+                                }
+                                Image(
+                                    painter = painterResource(id = muestra),
+                                    contentDescription = producto.nombre,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.width(12.dp))
@@ -178,7 +244,8 @@ fun ConversacionScreen(
                             )
                             Text(
                                 text = producto.nombre,
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
@@ -189,8 +256,9 @@ fun ConversacionScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant, shape = FormaCampo)
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(

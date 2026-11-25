@@ -91,9 +91,9 @@ fun NavHostApp(
     }
 
     // Fichas administrativas leídas de forma reactiva desde SQLite a través del repositorio Room
-    val fichasAdminFlow = remember { appContainer.adminRepository.obtenerFichas() }
+    val fichasAdminFlow = remember(estadoSesion) { appContainer.adminRepository.obtenerFichas() }
     val fichasAdmin by fichasAdminFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-    val metricasAdminFlow = remember { appContainer.adminRepository.obtenerMetricas() }
+    val metricasAdminFlow = remember(estadoSesion) { appContainer.adminRepository.obtenerMetricas() }
     val metricasAdmin by metricasAdminFlow.collectAsStateWithLifecycle(initialValue = null)
 
     // Detección de rol y pestañas activas
@@ -113,6 +113,7 @@ fun NavHostApp(
 
     val esPestanaCliente = rutaActual in listOf(
         Ruta.Explorar.ruta,
+        Ruta.EducacionCliente.ruta,
         Ruta.MensajesCliente.ruta,
         Ruta.PerfilCliente.ruta
     )
@@ -305,8 +306,20 @@ fun NavHostApp(
                         ExplorarScreen(
                             onEmprendedoraClick = { id ->
                                 navController.navigate(Ruta.PerfilEmprendedoraCliente.crearRuta(id))
+                            },
+                            onVerEducacionClick = {
+                                navController.navigate(Ruta.EducacionCliente.ruta)
                             }
                         )
+                    }
+
+                    composable(Ruta.EducacionCliente.ruta) {
+                        BackHandler {
+                            navController.navigate(Ruta.Explorar.ruta) {
+                                popUpTo(Ruta.Explorar.ruta) { inclusive = true }
+                            }
+                        }
+                        com.example.textilcircular.educacion.ui.SeccionEducacionWikipedia()
                     }
 
                     composable(
@@ -535,6 +548,23 @@ fun NavHostApp(
                                 }
                             },
                             onNavegarAtras = { retrocederConversacion() },
+                            onSimularInteraccion = {
+                                scope.launch {
+                                    val respuestaArtesana = "¡Hola! Sí, aún tenemos piezas disponibles de este modelo en el taller."
+                                    appContainer.mensajeRepository.enviarMensaje(
+                                        conversacionId = conversacionId,
+                                        contenido = respuestaArtesana,
+                                        emisor = TipoEmisor.EMPRENDEDORA
+                                    )
+                                    com.example.textilcircular.util.notificaciones.NotificacionUtil.mostrarNotificacionMensaje(
+                                        contexto = contexto,
+                                        titulo = conversacionFinal.nombreEmprendimiento.ifBlank { "Taller Textil" },
+                                        contenido = respuestaArtesana,
+                                        conversacionId = conversacionId
+                                    )
+                                }
+                            },
+                            textoSimularInteraccion = stringResource(id = R.string.chat_demo_simular_respuesta),
                             onVerPerfilEmprendedoraClick = {
                                 navController.navigate(
                                     Ruta.PerfilEmprendedoraCliente.crearRuta(conversacionFinal.emprendedoraId)
@@ -571,7 +601,7 @@ fun NavHostApp(
 
                     // Rutas de la emprendedora
                     composable(Ruta.Inicio.ruta) {
-                        val empId = perfilUiState.emprendedora.id
+                        val empId = perfilUiState.emprendedora.usuarioId
                         val convsEmpFlow = remember(empId) { appContainer.mensajeRepository.obtenerConversaciones(empId) }
                         val convsEmp by convsEmpFlow.collectAsStateWithLifecycle(initialValue = emptyList())
                         val totalNoLeidos = convsEmp.sumOf { it.noLeidosEmprendedora }
@@ -580,7 +610,14 @@ fun NavHostApp(
                             emprendedora = perfilUiState.emprendedora,
                             onAgregarProductoClick = { navController.navigate(Ruta.ProductoForm.crearRuta()) },
                             onVerMensajesClick = { navController.navigate(Ruta.Mensajes.ruta) },
-                            consultasNuevas = totalNoLeidos
+                            consultasNuevas = totalNoLeidos,
+                            onVerEducacionClick = { navController.navigate(Ruta.EducacionEmp.ruta) }
+                        )
+                    }
+
+                    composable(Ruta.EducacionEmp.ruta) {
+                        com.example.textilcircular.educacion.ui.SeccionEducacionWikipedia(
+                            onNavegarAtras = { navController.popBackStack() }
                         )
                     }
 
@@ -649,7 +686,7 @@ fun NavHostApp(
                     composable(Ruta.VistaPreviaPublica.ruta) {
                         val contexto = androidx.compose.ui.platform.LocalContext.current
                         val appContainer = (contexto.applicationContext as com.example.textilcircular.TextilCircularApp).contenedor
-                        val empId = perfilUiState.emprendedora.id
+                        val empId = perfilUiState.emprendedora.usuarioId
                         val productosEmprendedora by androidx.compose.runtime.produceState<List<Producto>>(initialValue = emptyList(), empId) {
                             appContainer.productoRepository.obtenerPorEmprendedora(empId).collect {
                                 value = it
@@ -723,6 +760,25 @@ fun NavHostApp(
                                     )
                                 }
                             },
+                            onSimularInteraccion = {
+                                scope.launch {
+                                    val pregunta = "Hola, ¿sigue disponible este modelo en el taller?"
+                                    appContainer.mensajeRepository.enviarMensaje(
+                                        conversacionId = conversacionId,
+                                        contenido = pregunta,
+                                        emisor = TipoEmisor.CLIENTE,
+                                        productoId = conversacionFinal.productoAsociado?.id,
+                                        nombreProducto = conversacionFinal.productoAsociado?.nombre
+                                    )
+                                    com.example.textilcircular.util.notificaciones.NotificacionUtil.mostrarNotificacionMensaje(
+                                        contexto = contexto,
+                                        titulo = conversacionFinal.nombreCliente,
+                                        contenido = pregunta,
+                                        conversacionId = conversacionId
+                                    )
+                                }
+                            },
+                            textoSimularInteraccion = stringResource(id = R.string.chat_demo_simular_consulta),
                             onNavegarAtras = { retrocederConversacion() }
                         )
                     }
@@ -823,6 +879,9 @@ fun NavHostApp(
 
                     // Rutas de la administración
                     composable(Ruta.PanelAdmin.ruta) {
+                        LaunchedEffect(Unit) {
+                            appContainer.adminRepository.sincronizarFichas()
+                        }
                         val totalPorRevisar = fichasAdmin.count { it.estadoFicha == EstadoFichaEmprendimiento.POR_REVISAR }
                         PanelAdminScreen(
                             onVerFichasPorRevisarClick = { navController.navigate(Ruta.EmprendimientosAdmin.ruta) },
@@ -836,6 +895,9 @@ fun NavHostApp(
                     }
 
                     composable(Ruta.EmprendimientosAdmin.ruta) {
+                        LaunchedEffect(Unit) {
+                            appContainer.adminRepository.sincronizarFichas()
+                        }
                         EmprendimientosAdminScreen(
                             fichas = fichasAdmin,
                             onEmprendimientoClick = { id -> navController.navigate(Ruta.DetalleEmprendimientoAdmin.crearRuta(id)) },

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Fondo suave -->
+    <path
+        android:fillColor="#D1ECE9"
+        android:pathData="M0,0h200v200h-200z" />
+    <!-- Círculo decorativo de fondo -->
+    <path
+        android:fillColor="#BFE2DE"
+        android:pathData="M100,100m-70,0a70,70 0 1,0 140,0a70,70 0 1,0 -140,0" />
+    <!-- Asas del bolso -->
+    <path
+        android:fillColor="#004D4A"
+        android:pathData="M78,65c0,-14 9.85,-25 22,-25s22,11 22,25h-8c0,-9.94 -6.27,-17 -14,-17s-14,7.06 -14,17h-8z" />
+    <!-- Cuerpo del bolso tote -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M60,65h80l-8,85c-0.6,6.5 -6.1,11.5 -12.6,11.5h-38.8c-6.5,0 -12,-5 -12.6,-11.5l-8,-85z" />
+    <!-- Bolsillo delantero o parche de upcycling (mostaza/ocre) -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M80,95h40v35c0,3.3 -2.7,6 -6,6h-28c-3.3,0 -6,-2.7 -6,-6v-35z" />
+    <!-- Costura o detalle de pespunte -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M84,102h32v2h-32z" />
+</vector>

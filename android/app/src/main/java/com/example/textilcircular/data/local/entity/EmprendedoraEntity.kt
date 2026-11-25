@@ -33,7 +33,11 @@ data class EmprendedoraEntity(
     @ColumnInfo(name = "estado_ficha")
     val estadoFicha: EstadoFichaEmprendimiento = EstadoFichaEmprendimiento.ACTIVA,
     @ColumnInfo(name = "problemas_detectados")
-    val problemasDetectados: List<String> = emptyList()
+    val problemasDetectados: List<String> = emptyList(),
+    @ColumnInfo(name = "usuario_id")
+    val usuarioId: Int = 0,
+    @ColumnInfo(name = "motivo_revision")
+    val motivoRevision: String? = null
 ) {
     // Convierte la entidad de la base de datos al modelo que usa la interfaz de usuario
     fun aModelo(): Emprendedora {
@@ -47,7 +51,9 @@ data class EmprendedoraEntity(
             rubros = rubros,
             email = email,
             instagram = instagram,
-            activa = activa
+            activa = activa,
+            usuarioId = if (usuarioId > 0) usuarioId else id,
+            estadoFicha = estadoFicha
         )
     }
 
@@ -64,8 +70,9 @@ data class EmprendedoraEntity(
         // Crea una entidad a partir del modelo de la aplicación
         fun desdeModelo(
             emprendedora: Emprendedora,
-            estadoFicha: EstadoFichaEmprendimiento = if (emprendedora.activa) EstadoFichaEmprendimiento.ACTIVA else EstadoFichaEmprendimiento.OCULTA,
-            problemas: List<String> = emptyList()
+            estadoFicha: EstadoFichaEmprendimiento = emprendedora.estadoFicha,
+            problemas: List<String> = emptyList(),
+            motivoRevision: String? = null
         ): EmprendedoraEntity {
             return EmprendedoraEntity(
                 id = emprendedora.id,
@@ -79,7 +86,9 @@ data class EmprendedoraEntity(
                 instagram = emprendedora.instagram,
                 activa = emprendedora.activa,
                 estadoFicha = estadoFicha,
-                problemasDetectados = problemas
+                problemasDetectados = problemas,
+                usuarioId = emprendedora.usuarioId,
+                motivoRevision = motivoRevision
             )
         }
     }

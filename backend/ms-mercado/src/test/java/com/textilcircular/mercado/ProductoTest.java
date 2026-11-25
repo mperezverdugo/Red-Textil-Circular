@@ -200,4 +200,34 @@ class ProductoTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.codigo").value("PRODUCTO_NO_ENCONTRADO"));
     }
+
+    @Test
+    void emprendedoraCreaEditaYEliminaProductoPersistiendoEnH2() throws Exception {
+        CrearProductoRequest nuevo = new CrearProductoRequest(
+                "Cartera Jeans Reciclada",
+                "Cartera artesanal confeccionada con retazos de mezclilla.",
+                "Corte manual y costura reforzada."
+        );
+
+        String creadoJson = mvc.perform(post("/productos")
+                        .header("Authorization", token(16L, Rol.EMPRENDEDORA))
+                        .contentType("application/json")
+                        .content(json.writeValueAsString(nuevo)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.emprendedoraId").value(16))
+                .andExpect(jsonPath("$.nombre").value("Cartera Jeans Reciclada"))
+                .andReturn().getResponse().getContentAsString();
+
+        Long prodId = json.readTree(creadoJson).get("id").asLong();
+
+        // Verifica que se consulta inmediatamente por emprendedoraId
+        mvc.perform(get("/productos")
+                        .param("emprendedoraId", "16")
+                        .header("Authorization", token(14L, Rol.CLIENTE)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(prodId));
+
+        assertThat(productos.findById(prodId)).isPresent();
+    }
 }

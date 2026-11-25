@@ -36,6 +36,16 @@ sealed interface EstadoSesion {
 interface SesionRepository {
     val estadoSesion: StateFlow<EstadoSesion>
 
+    suspend fun iniciarSesion(correo: String, clave: String): Resultado<Rol> {
+        val resEmp = iniciarSesionEmprendedora(correo, clave)
+        if (resEmp is Resultado.Exito) return Resultado.Exito(Rol.EMPRENDEDORA)
+        val resCli = iniciarSesionCliente(correo, clave)
+        if (resCli is Resultado.Exito) return Resultado.Exito(Rol.CLIENTE)
+        val resAdm = iniciarSesionAdmin(correo, clave)
+        if (resAdm is Resultado.Exito) return Resultado.Exito(Rol.ADMINISTRADORA)
+        return Resultado.Error((resEmp as? Resultado.Error)?.mensaje ?: "Credenciales inválidas")
+    }
+
     suspend fun iniciarSesionEmprendedora(correo: String, clave: String): Resultado<Emprendedora>
     suspend fun iniciarSesionCliente(correo: String, clave: String): Resultado<Cliente>
     suspend fun iniciarSesionAdmin(correo: String, clave: String): Resultado<Unit>
@@ -57,6 +67,21 @@ class SesionRepositoryMemoria(
 
     private val _estadoSesion = MutableStateFlow<EstadoSesion>(EstadoSesion.NoAutenticado)
     override val estadoSesion: StateFlow<EstadoSesion> = _estadoSesion.asStateFlow()
+
+    override suspend fun iniciarSesion(correo: String, clave: String): Resultado<Rol> {
+        val correoLimpio = correo.trim().lowercase()
+        if (correoLimpio.contains("admin")) {
+            val resAdm = iniciarSesionAdmin(correoLimpio, clave)
+            if (resAdm is Resultado.Exito) return Resultado.Exito(Rol.ADMINISTRADORA)
+        }
+        val resCli = iniciarSesionCliente(correoLimpio, clave)
+        if (resCli is Resultado.Exito) return Resultado.Exito(Rol.CLIENTE)
+
+        val resEmp = iniciarSesionEmprendedora(correoLimpio, clave)
+        if (resEmp is Resultado.Exito) return Resultado.Exito(Rol.EMPRENDEDORA)
+
+        return Resultado.Error("Credenciales inválidas")
+    }
 
     override suspend fun iniciarSesionEmprendedora(correo: String, clave: String): Resultado<Emprendedora> {
         val correoNormalizado = correo.trim().lowercase()

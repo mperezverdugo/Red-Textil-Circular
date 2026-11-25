@@ -18,7 +18,7 @@ public interface EmprendedoraRepository extends Repository<Emprendedora, Long> {
 
     @Query("""
             select e from Emprendedora e
-            where e.activa = true and e.usuario.fechaEliminacion is null
+            where e.usuario.fechaEliminacion is null
               and (:estado is null or e.estadoFicha = :estado)
             order by e.id
             """)

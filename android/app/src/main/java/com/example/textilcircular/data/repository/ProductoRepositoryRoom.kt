@@ -22,9 +22,14 @@ class ProductoRepositoryRoom(
 
     // Retorna todos los productos creados por la artesana especificada (id de usuario)
     override fun obtenerPorEmprendedora(emprendedoraId: Int): Flow<List<Producto>> = flow {
+        val token = ClienteRetrofit.tokenActivo
         if (mercadoApi != null) {
+            val idRemoto = if (emprendedoraId == 1) 2L else emprendedoraId.toLong()
             try {
-                val respuesta = mercadoApi.listarPorEmprendedora(emprendedoraId.toLong())
+                val respuesta = mercadoApi.listarPorEmprendedora(
+                    autorizacion = token?.let { "Bearer $it" },
+                    emprendedoraId = idRemoto
+                )
                 if (respuesta.isSuccessful && respuesta.body() != null) {
                     val remotos = respuesta.body()!!.map { dto ->
                         Producto(
@@ -35,8 +40,9 @@ class ProductoRepositoryRoom(
                             explicacionProceso = dto.explicacionProceso
                         )
                     }
-                    emit(remotos)
-                    return@flow
+                    try {
+                        productoDao.insertarVarios(remotos.map { ProductoEntity.desdeModelo(it) })
+                    } catch (_: Exception) {}
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -50,21 +56,25 @@ class ProductoRepositoryRoom(
 
     // Busca un producto por su identificador único
     override fun obtenerPorId(id: Int): Flow<Producto?> = flow {
+        val token = ClienteRetrofit.tokenActivo
         if (mercadoApi != null) {
             try {
-                val respuesta = mercadoApi.obtenerProducto(id.toLong())
+                val respuesta = mercadoApi.obtenerProducto(
+                    autorizacion = token?.let { "Bearer $it" },
+                    id = id.toLong()
+                )
                 if (respuesta.isSuccessful && respuesta.body() != null) {
                     val dto = respuesta.body()!!
-                    emit(
-                        Producto(
-                            id = dto.id.toInt(),
-                            emprendedoraId = dto.emprendedoraId.toInt(),
-                            nombre = dto.nombre,
-                            descripcionCorta = dto.descripcionCorta,
-                            explicacionProceso = dto.explicacionProceso
-                        )
+                    val prod = Producto(
+                        id = dto.id.toInt(),
+                        emprendedoraId = dto.emprendedoraId.toInt(),
+                        nombre = dto.nombre,
+                        descripcionCorta = dto.descripcionCorta,
+                        explicacionProceso = dto.explicacionProceso
                     )
-                    return@flow
+                    try {
+                        productoDao.insertar(ProductoEntity.desdeModelo(prod))
+                    } catch (_: Exception) {}
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -79,7 +89,10 @@ class ProductoRepositoryRoom(
     // Guarda una nueva creación textil sincronizándola con ms-mercado y respaldando en SQLite
     override suspend fun guardar(producto: Producto): Resultado<Producto> = withContext(Dispatchers.IO) {
         val token = ClienteRetrofit.tokenActivo
-        if (mercadoApi != null && token != null) {
+        if (mercadoApi != null) {
+            if (token.isNullOrBlank()) {
+                return@withContext Resultado.Error("Se requiere una sesión activa con token para publicar en el servidor")
+            }
             try {
                 val respuesta = mercadoApi.crearProducto(
                     autorizacion = "Bearer $token",
@@ -99,13 +112,13 @@ class ProductoRepositoryRoom(
                         productoDao.insertar(ProductoEntity.desdeModelo(nuevoProducto))
                     } catch (_: Exception) {}
                     return@withContext Resultado.Exito(nuevoProducto)
-                } else if (respuesta.code() in 400..499) {
+                } else {
                     val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
                     return@withContext Resultado.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                // Falla de red: continúa con SQLite local (offline fallback)
+                return@withContext Resultado.Error("Error al conectar con el servidor de mercado: ${e.message}")
             }
         }
 
@@ -122,7 +135,10 @@ class ProductoRepositoryRoom(
     // Actualiza los datos de un producto en ms-mercado y en SQLite
     override suspend fun actualizar(producto: Producto): Resultado<Unit> = withContext(Dispatchers.IO) {
         val token = ClienteRetrofit.tokenActivo
-        if (mercadoApi != null && token != null) {
+        if (mercadoApi != null) {
+            if (token.isNullOrBlank()) {
+                return@withContext Resultado.Error("Se requiere una sesión activa con token para actualizar en el servidor")
+            }
             try {
                 val respuesta = mercadoApi.editarProducto(
                     autorizacion = "Bearer $token",
@@ -138,13 +154,13 @@ class ProductoRepositoryRoom(
                         productoDao.actualizar(ProductoEntity.desdeModelo(producto))
                     } catch (_: Exception) {}
                     return@withContext Resultado.Exito(Unit)
-                } else if (respuesta.code() in 400..499) {
+                } else {
                     val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
                     return@withContext Resultado.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                // Falla de red: continúa con SQLite local
+                return@withContext Resultado.Error("Error al conectar con el servidor: ${e.message}")
             }
         }
 
@@ -163,7 +179,10 @@ class ProductoRepositoryRoom(
     // Elimina el producto por id en ms-mercado y en SQLite
     override suspend fun eliminar(id: Int): Resultado<Unit> = withContext(Dispatchers.IO) {
         val token = ClienteRetrofit.tokenActivo
-        if (mercadoApi != null && token != null) {
+        if (mercadoApi != null) {
+            if (token.isNullOrBlank()) {
+                return@withContext Resultado.Error("Se requiere una sesión activa con token para eliminar en el servidor")
+            }
             try {
                 val respuesta = mercadoApi.eliminarProducto(
                     autorizacion = "Bearer $token",
@@ -174,13 +193,13 @@ class ProductoRepositoryRoom(
                         productoDao.eliminarPorId(id)
                     } catch (_: Exception) {}
                     return@withContext Resultado.Exito(Unit)
-                } else if (respuesta.code() in 400..499) {
+                } else {
                     val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
                     return@withContext Resultado.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                // Falla de red: continúa con SQLite local
+                return@withContext Resultado.Error("Error al conectar con el servidor: ${e.message}")
             }
         }
 

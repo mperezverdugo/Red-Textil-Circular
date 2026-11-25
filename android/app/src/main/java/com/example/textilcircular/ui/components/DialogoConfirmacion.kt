@@ -7,8 +7,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.FormaDialogo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
 
 // Ventana emergente que pide confirmación antes de borrar o realizar cambios importantes.
@@ -24,16 +26,20 @@ fun DialogoConfirmacion(
 ) {
     AlertDialog(
         onDismissRequest = onCancelar,
+        shape = FormaDialogo,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(
                 text = titulo,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
         },
         text = {
             Text(
                 text = mensaje,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         confirmButton = {

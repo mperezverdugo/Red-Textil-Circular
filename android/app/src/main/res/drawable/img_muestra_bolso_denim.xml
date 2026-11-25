@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Fondo suave lino/salvia -->
+    <path
+        android:fillColor="#F0F4F2"
+        android:pathData="M0,0h200v200h-200z" />
+    <!-- Círculo decorativo editorial -->
+    <path
+        android:fillColor="#DCE7E3"
+        android:pathData="M100,100m-68,0a68,68 0 1,0 136,0a68,68 0 1,0 -136,0" />
+    <!-- Asas de cuero recuperado en tono café artesanal -->
+    <path
+        android:fillColor="#5C3A21"
+        android:pathData="M76,64c0,-16 10.7,-28 24,-28s24,12 24,28h-8c0,-11.5 -7.2,-20 -16,-20s-16,8.5 -16,20h-8z" />
+    <!-- Remaches metálicos de sujeción -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M78,64m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0 M122,64m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+    <!-- Cuerpo del bolso en denim azul profundo (upcycling jeans) -->
+    <path
+        android:fillColor="#2A4B63"
+        android:pathData="M56,66h88l-9,90c-0.6,6.5 -6.2,11.5 -12.7,11.5h-44.6c-6.5,0 -12.1,-5 -12.7,-11.5l-9,-90z" />
+    <!-- Panel superior de contraste en mezclilla clara -->
+    <path
+        android:fillColor="#3D6888"
+        android:pathData="M56,66h88l-2,20h-84z" />
+    <!-- Bolsillo frontal clásico de jeans rescatado -->
+    <path
+        android:fillColor="#325875"
+        android:pathData="M78,96h44v32l-22,12l-22,-12z" />
+    <!-- Doble pespunte clásico de jeans en color mostaza/ocre -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M80,98h40v2h-40z M80,102h40v1.5h-40z" />
+    <!-- Costura en V del bolsillo trasero de jeans -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M82,110l18,12l18,-12l-2,-2l-16,10l-16,-10z" />
+    <!-- Insignia textil circular upcycling -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M118,126m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+</vector>

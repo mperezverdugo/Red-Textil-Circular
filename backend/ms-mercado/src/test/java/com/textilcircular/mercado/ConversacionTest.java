@@ -237,4 +237,44 @@ class ConversacionTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.codigo").value("DATOS_INVALIDOS"));
     }
+
+    @Test
+    void flujoClienteDemoCrearConversacionEnviarYLeerMensajes() throws Exception {
+        // Cliente demo (usuarioId = 14) inicia conversación con emprendedora demo (usuarioId = 2)
+        CrearConversacionRequest solicitud = new CrearConversacionRequest(
+                2L, "Francisca Tapia", "Taller Hilos del Sur", 101L);
+
+        String respConv = mvc.perform(post("/conversaciones")
+                        .header("Authorization", token(14L, Rol.CLIENTE))
+                        .contentType("application/json")
+                        .content(json.writeValueAsString(solicitud)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clienteId").value(14))
+                .andExpect(jsonPath("$.emprendedoraId").value(2))
+                .andReturn().getResponse().getContentAsString();
+
+        Long convId = json.readTree(respConv).get("id").asLong();
+
+        // Cliente demo envía un mensaje y se persiste inmediatamente con 201
+        mvc.perform(post("/conversaciones/{id}/mensajes", convId)
+                        .header("Authorization", token(14L, Rol.CLIENTE))
+                        .contentType("application/json")
+                        .content(json.writeValueAsString(new EnviarMensajeRequest("Hola, consulta desde cliente demo", 101L, "Bolso Upcycling Denim"))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.emisor").value("CLIENTE"))
+                .andExpect(jsonPath("$.contenido").value("Hola, consulta desde cliente demo"));
+
+        // Al listar conversaciones y mensajes del cliente demo aparece inmediatamente
+        mvc.perform(get("/conversaciones")
+                        .header("Authorization", token(14L, Rol.CLIENTE)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(convId))
+                .andExpect(jsonPath("$[0].ultimoMensaje").value("Hola, consulta desde cliente demo"));
+
+        mvc.perform(get("/conversaciones/{id}/mensajes", convId)
+                        .header("Authorization", token(14L, Rol.CLIENTE)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].contenido").value("Hola, consulta desde cliente demo"));
+    }
 }

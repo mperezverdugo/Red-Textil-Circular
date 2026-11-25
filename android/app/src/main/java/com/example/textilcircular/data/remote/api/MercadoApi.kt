@@ -24,6 +24,7 @@ interface MercadoApi {
     // Endpoints de Productos
     @GET("productos")
     suspend fun listarPorEmprendedora(
+        @Header("Authorization") autorizacion: String? = null,
         @Query("emprendedoraId") emprendedoraId: Long
     ): Response<List<ProductoResponseDto>>
 
@@ -34,6 +35,7 @@ interface MercadoApi {
 
     @GET("productos/{id}")
     suspend fun obtenerProducto(
+        @Header("Authorization") autorizacion: String? = null,
         @Path("id") id: Long
     ): Response<ProductoResponseDto>
 

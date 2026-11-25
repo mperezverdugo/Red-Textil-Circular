@@ -13,5 +13,10 @@ data class SesionActivaEntity(
     val rol: Rol,
     @ColumnInfo(name = "usuario_id")
     val usuarioId: Int? = null,
-    val correo: String = ""
-)
+    val correo: String = "",
+    val token: String? = null,
+    @ColumnInfo(name = "emprendedora_id")
+    val emprendedoraId: Int? = null
+) {
+    val tokenJwt: String? get() = token
+}

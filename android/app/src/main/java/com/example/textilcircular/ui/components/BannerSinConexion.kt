@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.textilcircular.R
+import com.example.textilcircular.ui.theme.FormaCampo
 import com.example.textilcircular.ui.theme.NaranjaAdvertencia
 import com.example.textilcircular.ui.theme.NaranjaAdvertenciaFondo
 import com.example.textilcircular.ui.theme.TextilCircularTheme
@@ -41,7 +43,9 @@ fun BannerSinConexion(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
                 .fillMaxWidth()
-                .background(NaranjaAdvertenciaFondo)
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .background(NaranjaAdvertenciaFondo, shape = FormaCampo)
+                .border(width = 1.dp, color = NaranjaAdvertencia.copy(alpha = 0.35f), shape = FormaCampo)
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
             Icon(

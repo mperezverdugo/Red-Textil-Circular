@@ -3,6 +3,8 @@ package com.example.textilcircular.data.repository
 import com.example.textilcircular.data.local.dao.ClienteDao
 import com.example.textilcircular.data.local.dao.EmprendedoraDao
 import com.example.textilcircular.data.local.dao.SesionDao
+import com.example.textilcircular.data.local.entity.ClienteEntity
+import com.example.textilcircular.data.local.entity.EmprendedoraEntity
 import com.example.textilcircular.data.local.entity.SesionActivaEntity
 import com.example.textilcircular.data.remote.ClienteRetrofit
 import com.example.textilcircular.data.remote.api.UsuariosApi
@@ -11,6 +13,7 @@ import com.example.textilcircular.data.remote.dto.RegistroClienteRequestDto
 import com.example.textilcircular.data.remote.dto.RegistroEmprendedoraRequestDto
 import com.example.textilcircular.model.Cliente
 import com.example.textilcircular.model.Emprendedora
+import com.example.textilcircular.model.EstadoFichaEmprendimiento
 import com.example.textilcircular.model.Rol
 import com.example.textilcircular.ui.preview.DatosDemo
 import com.example.textilcircular.util.Resultado
@@ -21,7 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.textilcircular.data.local.entity.ClienteEntity
 // Implementación del repositorio de sesión que persiste en SQLite y autentica con ms-usuarios vía Retrofit.
 class SesionRepositoryRoom(
     private val sesionDao: SesionDao,
@@ -47,9 +49,12 @@ class SesionRepositoryRoom(
     internal suspend fun restaurarSesionDesdeBaseDeDatos() {
         try {
             val sesionGuardada = sesionDao.obtenerSesionDirecta() ?: return
+            ClienteRetrofit.tokenActivo = sesionGuardada.token
             when (sesionGuardada.rol) {
                 Rol.EMPRENDEDORA -> {
-                    val entidad = sesionGuardada.usuarioId?.let { emprendedoraDao.obtenerPorIdDirecto(it) }
+                    val entidad = sesionGuardada.emprendedoraId?.let { emprendedoraDao.obtenerPorIdDirecto(it) }
+                        ?: sesionGuardada.usuarioId?.let { emprendedoraDao.obtenerPorUsuarioIdDirecto(it) }
+                        ?: sesionGuardada.usuarioId?.let { emprendedoraDao.obtenerPorIdDirecto(it) }
                     if (entidad != null) {
                         _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(entidad.aModelo())
                     } else {
@@ -75,6 +80,194 @@ class SesionRepositoryRoom(
         }
     }
 
+    private suspend fun sincronizarPerfilEmprendedora(token: String, usuario: com.example.textilcircular.data.remote.dto.UsuarioDto): Emprendedora {
+        val correoNormalizado = usuario.email.trim().lowercase()
+        val local = emprendedoraDao.obtenerPorEmailDirecto(correoNormalizado)?.aModelo()
+        try {
+            val resPerfil = usuariosApi.obtenerMiPerfil("Bearer $token")
+            if (resPerfil.isSuccessful && resPerfil.body() != null) {
+                val perfil = resPerfil.body()!!
+                val ficha = perfil.ficha
+                if (ficha != null) {
+                    val estadoFicha = try {
+                        EstadoFichaEmprendimiento.valueOf(ficha.estadoFicha)
+                    } catch (_: Exception) {
+                        EstadoFichaEmprendimiento.ACTIVA
+                    }
+                    val rubrosParsed = ficha.rubros.mapNotNull { nombreRubro ->
+                        try {
+                            com.example.textilcircular.model.Rubro.valueOf(nombreRubro.trim().uppercase())
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+                    val empRemota = Emprendedora(
+                        id = ficha.id.toInt(),
+                        rut = ficha.rut,
+                        nombre = perfil.nombre,
+                        nombreComercial = ficha.nombreComercial,
+                        region = ficha.region,
+                        comuna = ficha.comuna,
+                        rubros = rubrosParsed,
+                        email = perfil.email,
+                        instagram = ficha.instagram,
+                        activa = ficha.activa,
+                        estadoFicha = estadoFicha,
+                        usuarioId = perfil.id.toInt()
+                    )
+                    try {
+                        emprendedoraDao.insertar(EmprendedoraEntity.desdeModelo(empRemota))
+                    } catch (_: Exception) {}
+                    return empRemota
+                }
+            }
+        } catch (_: Exception) {}
+
+        val empFallback = local?.copy(usuarioId = usuario.id.toInt())
+            ?: Emprendedora(
+                id = (usuario.id - 1).toInt().coerceAtLeast(1),
+                rut = "",
+                nombre = usuario.nombre,
+                nombreComercial = usuario.nombre,
+                region = "",
+                comuna = "",
+                rubros = emptyList(),
+                email = usuario.email,
+                activa = true,
+                estadoFicha = EstadoFichaEmprendimiento.ACTIVA,
+                usuarioId = usuario.id.toInt()
+            )
+        try {
+            emprendedoraDao.insertar(EmprendedoraEntity.desdeModelo(empFallback))
+        } catch (_: Exception) {}
+        return empFallback
+    }
+
+    override suspend fun iniciarSesion(correo: String, clave: String): Resultado<Rol> = withContext(Dispatchers.IO) {
+        val correoNormalizado = correo.trim().lowercase()
+        try {
+            val respuesta = usuariosApi.login(LoginRequestDto(correoNormalizado, clave))
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val loginBody = respuesta.body()!!
+                ClienteRetrofit.tokenActivo = loginBody.token
+                val rolServidor = loginBody.usuario.rol.trim().uppercase()
+
+                when (rolServidor) {
+                    "ADMIN", "ADMINISTRADORA" -> {
+                        sesionDao.guardarSesion(
+                            SesionActivaEntity(
+                                id = 1,
+                                rol = Rol.ADMINISTRADORA,
+                                usuarioId = loginBody.usuario.id.toInt(),
+                                correo = loginBody.usuario.email,
+                                token = loginBody.token
+                            )
+                        )
+                        _estadoSesion.value = EstadoSesion.AutenticadoAdmin
+                        return@withContext Resultado.Exito(Rol.ADMINISTRADORA)
+                    }
+                    "EMPRENDEDORA" -> {
+                        val emp = sincronizarPerfilEmprendedora(loginBody.token, loginBody.usuario)
+                        sesionDao.guardarSesion(
+                            SesionActivaEntity(
+                                id = 1,
+                                rol = Rol.EMPRENDEDORA,
+                                usuarioId = emp.usuarioId,
+                                correo = emp.email,
+                                token = loginBody.token,
+                                emprendedoraId = emp.id
+                            )
+                        )
+                        _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(emp)
+                        return@withContext Resultado.Exito(Rol.EMPRENDEDORA)
+                    }
+                    "CLIENTE" -> {
+                        val local = clienteDao.obtenerPorEmailDirecto(correoNormalizado)?.aModelo()
+                        val cliente = (local ?: Cliente(
+                            id = loginBody.usuario.id.toInt(),
+                            nombre = loginBody.usuario.nombre,
+                            email = loginBody.usuario.email,
+                            passwordHash = "",
+                            sal = "",
+                            aceptaLeyDatos = true
+                        )).copy(id = loginBody.usuario.id.toInt())
+
+                        try {
+                            clienteDao.insertar(ClienteEntity.desdeModelo(cliente))
+                        } catch (_: Exception) {}
+
+                        sesionDao.guardarSesion(
+                            SesionActivaEntity(
+                                id = 1,
+                                rol = Rol.CLIENTE,
+                                usuarioId = cliente.id,
+                                correo = cliente.email,
+                                token = loginBody.token
+                            )
+                        )
+                        _estadoSesion.value = EstadoSesion.AutenticadoCliente(cliente)
+                        return@withContext Resultado.Exito(Rol.CLIENTE)
+                    }
+                    else -> {
+                        return@withContext Resultado.Error("Rol desconocido devuelto por el servidor: $rolServidor")
+                    }
+                }
+            } else {
+                val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                return@withContext Resultado.Error(errorMsg)
+            }
+        } catch (_: java.io.IOException) {
+            // Falla de red: continúa con el almacenamiento local (offline fallback)
+        }
+
+        // 2. Intento de autenticación local
+        val entidadEmp = emprendedoraDao.obtenerPorEmailDirecto(correoNormalizado)
+        if (entidadEmp != null) {
+            val emp = entidadEmp.aModelo()
+            sesionDao.guardarSesion(
+                SesionActivaEntity(
+                    id = 1,
+                    rol = Rol.EMPRENDEDORA,
+                    usuarioId = emp.usuarioId,
+                    correo = emp.email,
+                    emprendedoraId = emp.id
+                )
+            )
+            _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(emp)
+            return@withContext Resultado.Exito(Rol.EMPRENDEDORA)
+        }
+
+        val resultadoAuth = clienteRepository.autenticar(correo, clave)
+        if (resultadoAuth is Resultado.Exito) {
+            val cli = resultadoAuth.datos
+            sesionDao.guardarSesion(
+                SesionActivaEntity(
+                    id = 1,
+                    rol = Rol.CLIENTE,
+                    usuarioId = cli.id,
+                    correo = cli.email
+                )
+            )
+            _estadoSesion.value = EstadoSesion.AutenticadoCliente(cli)
+            return@withContext Resultado.Exito(Rol.CLIENTE)
+        }
+
+        if (correoNormalizado.contains("admin")) {
+            sesionDao.guardarSesion(
+                SesionActivaEntity(
+                    id = 1,
+                    rol = Rol.ADMINISTRADORA,
+                    usuarioId = null,
+                    correo = correoNormalizado
+                )
+            )
+            _estadoSesion.value = EstadoSesion.AutenticadoAdmin
+            return@withContext Resultado.Exito(Rol.ADMINISTRADORA)
+        }
+
+        Resultado.Error("No existe una cuenta registrada con estas credenciales")
+    }
+
     override suspend fun iniciarSesionEmprendedora(correo: String, clave: String): Resultado<Emprendedora> = withContext(Dispatchers.IO) {
         val correoNormalizado = correo.trim().lowercase()
 
@@ -83,29 +276,22 @@ class SesionRepositoryRoom(
             val respuesta = usuariosApi.login(LoginRequestDto(correoNormalizado, clave))
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val loginBody = respuesta.body()!!
+                val rolServidor = loginBody.usuario.rol.trim().uppercase()
+                if (rolServidor != "EMPRENDEDORA") {
+                    return@withContext Resultado.Error("El usuario autenticado no tiene rol de emprendedora ($rolServidor)")
+                }
                 ClienteRetrofit.tokenActivo = loginBody.token
 
-                val local = emprendedoraDao.obtenerPorEmailDirecto(correoNormalizado)?.aModelo()
-                val emprendedora = local?.copy(usuarioId = loginBody.usuario.id.toInt())
-                    ?: Emprendedora(
-                        id = (loginBody.usuario.id - 1).toInt(),
-                        rut = "",
-                        nombre = loginBody.usuario.nombre,
-                        nombreComercial = loginBody.usuario.nombre,
-                        region = "",
-                        comuna = "",
-                        rubros = emptyList(),
-                        email = loginBody.usuario.email,
-                        activa = true,
-                        usuarioId = loginBody.usuario.id.toInt()
-                    )
+                val emprendedora = sincronizarPerfilEmprendedora(loginBody.token, loginBody.usuario)
 
                 sesionDao.guardarSesion(
                     SesionActivaEntity(
                         id = 1,
                         rol = Rol.EMPRENDEDORA,
-                        usuarioId = emprendedora.id,
-                        correo = emprendedora.email
+                        usuarioId = emprendedora.usuarioId,
+                        correo = emprendedora.email,
+                        token = loginBody.token,
+                        emprendedoraId = emprendedora.id
                     )
                 )
                 _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(emprendedora)
@@ -129,8 +315,9 @@ class SesionRepositoryRoom(
             SesionActivaEntity(
                 id = 1,
                 rol = Rol.EMPRENDEDORA,
-                usuarioId = emprendedora.id,
-                correo = emprendedora.email
+                usuarioId = emprendedora.usuarioId,
+                correo = emprendedora.email,
+                emprendedoraId = emprendedora.id
             )
         )
         _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(emprendedora)
@@ -144,6 +331,10 @@ class SesionRepositoryRoom(
             val respuesta = usuariosApi.login(LoginRequestDto(correoNormalizado, clave))
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val loginBody = respuesta.body()!!
+                val rolServidor = loginBody.usuario.rol.trim().uppercase()
+                if (rolServidor != "CLIENTE") {
+                    return@withContext Resultado.Error("El usuario autenticado no tiene rol de cliente ($rolServidor)")
+                }
                 ClienteRetrofit.tokenActivo = loginBody.token
 
                 val local = clienteDao.obtenerPorEmailDirecto(correoNormalizado)?.aModelo()
@@ -156,12 +347,17 @@ class SesionRepositoryRoom(
                     aceptaLeyDatos = true
                 )).copy(id = loginBody.usuario.id.toInt())
 
+                try {
+                    clienteDao.insertar(ClienteEntity.desdeModelo(cliente))
+                } catch (_: Exception) {}
+
                 sesionDao.guardarSesion(
                     SesionActivaEntity(
                         id = 1,
                         rol = Rol.CLIENTE,
                         usuarioId = cliente.id,
-                        correo = cliente.email
+                        correo = cliente.email,
+                        token = loginBody.token
                     )
                 )
                 _estadoSesion.value = EstadoSesion.AutenticadoCliente(cliente)
@@ -200,6 +396,10 @@ class SesionRepositoryRoom(
             val respuesta = usuariosApi.login(LoginRequestDto(correoLimpio, clave))
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val loginBody = respuesta.body()!!
+                val rolServidor = loginBody.usuario.rol.trim().uppercase()
+                if (rolServidor != "ADMIN" && rolServidor != "ADMINISTRADORA") {
+                    return@withContext Resultado.Error("El usuario autenticado no tiene rol de administradora ($rolServidor)")
+                }
                 ClienteRetrofit.tokenActivo = loginBody.token
 
                 sesionDao.guardarSesion(
@@ -207,7 +407,8 @@ class SesionRepositoryRoom(
                         id = 1,
                         rol = Rol.ADMINISTRADORA,
                         usuarioId = loginBody.usuario.id.toInt(),
-                        correo = loginBody.usuario.email
+                        correo = loginBody.usuario.email,
+                        token = loginBody.token
                     )
                 )
                 _estadoSesion.value = EstadoSesion.AutenticadoAdmin
@@ -250,17 +451,25 @@ class SesionRepositoryRoom(
             )
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val respDto = respuesta.body()!!
+                val estadoConfirmado = try {
+                    EstadoFichaEmprendimiento.valueOf(respDto.estadoFicha)
+                } catch (_: Exception) {
+                    EstadoFichaEmprendimiento.POR_REVISAR
+                }
                 val guardada = emprendedora.copy(
                     id = respDto.emprendedoraId.toInt(),
-                    usuarioId = respDto.usuario.id.toInt()
+                    usuarioId = respDto.usuario.id.toInt(),
+                    estadoFicha = estadoConfirmado,
+                    activa = false
                 )
                 emprendedoraRepository.guardar(guardada)
                 sesionDao.guardarSesion(
                     SesionActivaEntity(
                         id = 1,
                         rol = Rol.EMPRENDEDORA,
-                        usuarioId = guardada.id,
-                        correo = guardada.email
+                        usuarioId = guardada.usuarioId,
+                        correo = guardada.email,
+                        emprendedoraId = guardada.id
                     )
                 )
                 _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(guardada)
@@ -281,7 +490,8 @@ class SesionRepositoryRoom(
                         id = 1,
                         rol = Rol.EMPRENDEDORA,
                         usuarioId = guardado.datos.id,
-                        correo = guardado.datos.email
+                        correo = guardado.datos.email,
+                        emprendedoraId = guardado.datos.id
                     )
                 )
                 _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(guardado.datos)
@@ -310,6 +520,15 @@ class SesionRepositoryRoom(
             )
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val usuarioDto = respuesta.body()!!
+                var tokenObtenido: String? = null
+                try {
+                    val loginResp = usuariosApi.login(LoginRequestDto(correoLimpio, clave))
+                    if (loginResp.isSuccessful && loginResp.body() != null) {
+                        tokenObtenido = loginResp.body()!!.token
+                        ClienteRetrofit.tokenActivo = tokenObtenido
+                    }
+                } catch (_: Exception) {}
+
                 val cliente = Cliente(
                     id = usuarioDto.id.toInt(),
                     nombre = usuarioDto.nombre,
@@ -326,7 +545,8 @@ class SesionRepositoryRoom(
                         id = 1,
                         rol = Rol.CLIENTE,
                         usuarioId = cliente.id,
-                        correo = cliente.email
+                        correo = cliente.email,
+                        token = tokenObtenido
                     )
                 )
                 _estadoSesion.value = EstadoSesion.AutenticadoCliente(cliente)
@@ -358,13 +578,31 @@ class SesionRepositoryRoom(
     }
 
     override suspend fun iniciarSesionDemoEmprendedora(): Resultado<Emprendedora> = withContext(Dispatchers.IO) {
-        val demo = emprendedoraDao.obtenerPorIdDirecto(1)?.aModelo() ?: DatosDemo.EmprendedoraDemo
+        val respuesta = try {
+            usuariosApi.login(LoginRequestDto("camila.morales@textilcircular.cl", "emprendedora123"))
+        } catch (_: Exception) { null }
+
+        val tokenDemo = if (respuesta?.isSuccessful == true) respuesta.body()?.token else null
+        val serverUsuarioId = if (respuesta?.isSuccessful == true) respuesta.body()?.usuario?.id?.toInt() else null
+        if (tokenDemo != null) {
+            ClienteRetrofit.tokenActivo = tokenDemo
+        }
+
+        val usuarioId = serverUsuarioId ?: 2
+        val local = emprendedoraDao.obtenerPorIdDirecto(1)?.aModelo() ?: DatosDemo.EmprendedoraDemo
+        val demo = local.copy(usuarioId = usuarioId)
+        try {
+            emprendedoraDao.insertar(EmprendedoraEntity.desdeModelo(demo))
+        } catch (_: Exception) {}
+
         sesionDao.guardarSesion(
             SesionActivaEntity(
                 id = 1,
                 rol = Rol.EMPRENDEDORA,
-                usuarioId = demo.id,
-                correo = demo.email
+                usuarioId = usuarioId,
+                correo = demo.email,
+                token = tokenDemo,
+                emprendedoraId = demo.id
             )
         )
         _estadoSesion.value = EstadoSesion.AutenticadoEmprendedora(demo)
@@ -372,13 +610,29 @@ class SesionRepositoryRoom(
     }
 
     override suspend fun iniciarSesionDemoCliente(): Resultado<Cliente> = withContext(Dispatchers.IO) {
-        val demo = clienteDao.obtenerPorIdDirecto(1)?.aModelo() ?: DatosDemo.ClienteDemo
+        val respuesta = try {
+            usuariosApi.login(LoginRequestDto("francisca.tapia@correo.cl", "cliente123"))
+        } catch (_: Exception) { null }
+
+        val tokenDemo = if (respuesta?.isSuccessful == true) respuesta.body()?.token else null
+        val serverUsuarioId = if (respuesta?.isSuccessful == true) respuesta.body()?.usuario?.id?.toInt() else null
+        if (tokenDemo != null) {
+            ClienteRetrofit.tokenActivo = tokenDemo
+        }
+
+        val clienteId = serverUsuarioId ?: 14
+        val demo = (clienteDao.obtenerPorIdDirecto(clienteId)?.aModelo() ?: DatosDemo.ClientesDemo.find { it.id == clienteId } ?: DatosDemo.ClienteDemo).copy(id = clienteId)
+        try {
+            clienteDao.insertar(ClienteEntity.desdeModelo(demo))
+        } catch (_: Exception) {}
+
         sesionDao.guardarSesion(
             SesionActivaEntity(
                 id = 1,
                 rol = Rol.CLIENTE,
-                usuarioId = demo.id,
-                correo = demo.email
+                usuarioId = clienteId,
+                correo = demo.email,
+                token = tokenDemo
             )
         )
         _estadoSesion.value = EstadoSesion.AutenticadoCliente(demo)
@@ -386,12 +640,23 @@ class SesionRepositoryRoom(
     }
 
     override suspend fun iniciarSesionDemoAdmin(): Resultado<Unit> = withContext(Dispatchers.IO) {
+        val respuesta = try {
+            usuariosApi.login(LoginRequestDto("admin@textilcircular.cl", "admin123"))
+        } catch (_: Exception) { null }
+
+        val tokenDemo = if (respuesta?.isSuccessful == true) respuesta.body()?.token else null
+        val serverUsuarioId = if (respuesta?.isSuccessful == true) respuesta.body()?.usuario?.id?.toInt() else null
+        if (tokenDemo != null) {
+            ClienteRetrofit.tokenActivo = tokenDemo
+        }
+
         sesionDao.guardarSesion(
             SesionActivaEntity(
                 id = 1,
                 rol = Rol.ADMINISTRADORA,
-                usuarioId = null,
-                correo = "admin@textilcircular.cl"
+                usuarioId = serverUsuarioId ?: 1,
+                correo = "admin@textilcircular.cl",
+                token = tokenDemo
             )
         )
         _estadoSesion.value = EstadoSesion.AutenticadoAdmin

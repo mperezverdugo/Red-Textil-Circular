@@ -59,6 +59,17 @@ class RoomRepositoriosTest {
             return listado.find { it.id == id }
         }
 
+        override suspend fun obtenerPorUsuarioIdDirecto(usuarioId: Int): EmprendedoraEntity? {
+            return listado.find { it.usuarioId == usuarioId }
+        }
+
+        override suspend fun eliminarTodas(): Int {
+            val count = listado.size
+            listado.clear()
+            notificar()
+            return count
+        }
+
         override suspend fun obtenerPorRutDirecto(rut: String): EmprendedoraEntity? {
             return listado.find { it.rut.equals(rut.trim(), ignoreCase = true) }
         }
@@ -217,6 +228,17 @@ class RoomRepositoriosTest {
 
         override fun obtenerPorEmprendedora(emprendedoraId: Int): Flow<List<ProductoEntity>> {
             return _flow.map { lista -> lista.filter { it.emprendedoraId == emprendedoraId } }
+        }
+
+        override suspend fun obtenerPorEmprendedoraDirecto(emprendedoraId: Int): List<ProductoEntity> {
+            return productos.filter { it.emprendedoraId == emprendedoraId }
+        }
+
+        override suspend fun eliminarPorEmprendedora(emprendedoraId: Int): Int {
+            val antes = productos.size
+            productos.removeAll { it.emprendedoraId == emprendedoraId }
+            notificar()
+            return antes - productos.size
         }
 
         override fun obtenerTodos(): Flow<List<ProductoEntity>> = _flow.asStateFlow()

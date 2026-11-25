@@ -240,4 +240,98 @@ class AdminEmprendedoraTest {
         mvc.perform(delete("/admin/emprendedoras/1"))
                 .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.codigo").value("TOKEN_REQUERIDO"));
     }
+
+    @Test
+    void flujoCompletoRegistroPendienteLuegoAprobacionYListadoPublico() throws Exception {
+        // 1. Emprendedora se registra -> queda POR_REVISAR y NO aparece en GET /emprendedoras
+        RegistroEmprendedoraRequest solicitud = new RegistroEmprendedoraRequest(
+                "Nueva Artesana E2E",
+                "nueva.e2e@textil.cl",
+                "secreto123",
+                true,
+                "15.420.312-5",
+                "Taller E2E Circular",
+                "Valparaíso",
+                "Valparaíso",
+                List.of(Rubro.SUPRARRECICLAJE),
+                "@tallere2e"
+        );
+
+        String respuestaRegistro = mvc.perform(post("/auth/registro/emprendedora")
+                        .contentType("application/json")
+                        .content(json.writeValueAsString(solicitud)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.estadoFicha").value("POR_REVISAR"))
+                .andReturn().getResponse().getContentAsString();
+
+        Long fichaId = json.readTree(respuestaRegistro).get("emprendedoraId").asLong();
+
+        // No puede iniciar sesión mientras está POR_REVISAR
+        mvc.perform(post("/auth/login")
+                        .contentType("application/json")
+                        .content("{\"email\":\"nueva.e2e@textil.cl\",\"password\":\"secreto123\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.codigo").value("CUENTA_POR_REVISAR"));
+
+        // 2. Admin lista fichas pendientes (con y sin filtro) y encuentra la nueva
+        String authAdmin = tokenAdmin();
+        mvc.perform(get("/admin/emprendedoras").header("Authorization", authAdmin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + fichaId + ")].estadoFicha").value("POR_REVISAR"));
+
+        mvc.perform(get("/admin/emprendedoras?estado=POR_REVISAR").header("Authorization", authAdmin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + fichaId + ")].nombreComercial").value("Taller E2E Circular"));
+
+        // Aún no aparece en el inicio público
+        String authCli = tokenCliente();
+        mvc.perform(get("/emprendedoras").header("Authorization", authCli))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + fichaId + ")]").isEmpty());
+
+        // 3. Admin aprueba la ficha vía PATCH /admin/emprendedoras/{id}/revision
+        mvc.perform(patch("/admin/emprendedoras/{id}/revision", fichaId)
+                        .header("Authorization", authAdmin)
+                        .contentType("application/json")
+                        .content("{\"accion\":\"APROBAR\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estadoFicha").value("ACTIVA"));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        Emprendedora aprobada = emprendedoras.findById(fichaId).orElseThrow();
+        assertThat(aprobada.getEstadoFicha()).isEqualTo(EstadoFichaEmprendimiento.ACTIVA);
+        assertThat(aprobada.isActiva()).isTrue();
+
+        // 4. Aparece inmediatamente en GET /emprendedoras (público) y puede iniciar sesión
+        mvc.perform(get("/emprendedoras").header("Authorization", authCli))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + fichaId + ")].nombreComercial").value("Taller E2E Circular"));
+
+        mvc.perform(post("/auth/login")
+                        .contentType("application/json")
+                        .content("{\"email\":\"nueva.e2e@textil.cl\",\"password\":\"secreto123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isString());
+    }
+
+    @Test
+    void listarAdminIncluyeFichasDadasDeBajaMientrasNoEstenEliminadas() throws Exception {
+        Emprendedora activa = crearFicha("act@textil.cl", "777777777", "Taller Activo",
+                EstadoFichaEmprendimiento.ACTIVA, null);
+        Emprendedora dadaDeBaja = crearFicha("baja@textil.cl", "888888888", "Taller Baja",
+                EstadoFichaEmprendimiento.ACTIVA, null);
+        dadaDeBaja.darDeBaja(java.time.Instant.now());
+        emprendedoras.save(dadaDeBaja);
+
+        mvc.perform(get("/admin/emprendedoras").header("Authorization", tokenAdmin()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+
+        mvc.perform(get("/admin/emprendedoras?estado=DADA_DE_BAJA").header("Authorization", tokenAdmin()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(dadaDeBaja.getId()));
+    }
 }

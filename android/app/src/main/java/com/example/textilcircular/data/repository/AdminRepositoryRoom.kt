@@ -4,37 +4,104 @@ import com.example.textilcircular.data.local.dao.AdminDao
 import com.example.textilcircular.data.local.dao.EmprendedoraDao
 import com.example.textilcircular.data.local.entity.EmprendedoraEntity
 import com.example.textilcircular.data.local.entity.MetricaEventoEntity
+import com.example.textilcircular.data.remote.ClienteRetrofit
+import com.example.textilcircular.data.remote.api.UsuariosApi
+import com.example.textilcircular.data.remote.dto.EditarFichaAdminRequestDto
+import com.example.textilcircular.data.remote.dto.RegistroEmprendedoraRequestDto
+import com.example.textilcircular.data.remote.dto.RevisionFichaRequestDto
 import com.example.textilcircular.model.EstadoCorreo
 import com.example.textilcircular.model.EstadoFichaEmprendimiento
 import com.example.textilcircular.model.FichaAdminEmprendimiento
 import com.example.textilcircular.model.RegistroAutomatizacionCorreo
 import com.example.textilcircular.util.Resultado
 import com.example.textilcircular.util.validacion.AuditorFichas
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// Implementación del repositorio de administración respaldado en las tablas de SQLite.
+// Implementación del repositorio de administración respaldado en SQLite y sincronizado con ms-usuarios.
 class AdminRepositoryRoom(
     private val adminDao: AdminDao,
     private val emprendedoraDao: EmprendedoraDao,
+    private val usuariosApi: UsuariosApi = ClienteRetrofit.usuariosApi,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : AdminRepository {
 
-    // Retorna todas las fichas para moderación administrativa
-    override fun obtenerFichas(): Flow<List<FichaAdminEmprendimiento>> {
-        return adminDao.obtenerFichas().map { lista ->
-            lista.map { it.aFichaAdmin() }
+    // Sincroniza todas las fichas desde ms-usuarios (/admin/emprendedoras) hacia Room
+    override suspend fun sincronizarFichas(): Resultado<Unit> = withContext(Dispatchers.IO) {
+        val token = ClienteRetrofit.tokenActivo
+        if (token.isNullOrBlank()) {
+            return@withContext Resultado.Error("Se requiere una sesión de administradora activa con token")
+        }
+        try {
+            val respuesta = usuariosApi.listarEmprendedorasAdmin(autorizacion = "Bearer $token")
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val entidades = respuesta.body()!!.map { dto ->
+                    val emp = dto.aModelo()
+                    val problemas = AuditorFichas.auditar(emp)
+                    EmprendedoraEntity.desdeModelo(
+                        emprendedora = emp.copy(
+                            activa = dto.activa && dto.aEstadoFicha() == EstadoFichaEmprendimiento.ACTIVA
+                        ),
+                        estadoFicha = dto.aEstadoFicha(),
+                        problemas = problemas,
+                        motivoRevision = dto.motivoRevision
+                    )
+                }
+                emprendedoraDao.eliminarTodas()
+                emprendedoraDao.insertarVarias(entidades)
+                Resultado.Exito(Unit)
+            } else {
+                val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                Resultado.Error(errorMsg)
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Resultado.Error("Error al sincronizar fichas desde el servidor: ${e.message}")
         }
     }
 
-    // Retorna una ficha específica con su diagnóstico de problemas
-    override fun obtenerFichaPorId(id: Int): Flow<FichaAdminEmprendimiento?> {
-        return adminDao.obtenerFichaPorId(id).map { it?.aFichaAdmin() }
+    // Retorna todas las fichas para moderación administrativa, refrescando desde ms-usuarios si hay sesión
+    override fun obtenerFichas(): Flow<List<FichaAdminEmprendimiento>> = flow {
+        if (!ClienteRetrofit.tokenActivo.isNullOrBlank()) {
+            sincronizarFichas()
+        }
+        adminDao.obtenerFichas().collect { lista ->
+            emit(lista.map { it.aFichaAdmin() })
+        }
+    }
+
+    // Retorna una ficha específica con su diagnóstico de problemas, consultando primero al servidor si hay sesión
+    override fun obtenerFichaPorId(id: Int): Flow<FichaAdminEmprendimiento?> = flow {
+        val token = ClienteRetrofit.tokenActivo
+        if (!token.isNullOrBlank()) {
+            try {
+                val respuesta = usuariosApi.obtenerEmprendedoraAdmin(
+                    autorizacion = "Bearer $token",
+                    id = id.toLong()
+                )
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val dto = respuesta.body()!!
+                    val emp = dto.aModelo()
+                    val entidad = EmprendedoraEntity.desdeModelo(
+                        emprendedora = emp,
+                        estadoFicha = dto.aEstadoFicha(),
+                        problemas = AuditorFichas.auditar(emp),
+                        motivoRevision = dto.motivoRevision
+                    )
+                    emprendedoraDao.insertar(entidad)
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
+        adminDao.obtenerFichaPorId(id).collect { emit(it?.aFichaAdmin()) }
     }
 
     // Calcula de forma reactiva las métricas de impacto a partir de las tablas de SQLite
@@ -111,55 +178,139 @@ class AdminRepositoryRoom(
         }
     }
 
-    // Guarda una ficha auditando sus datos para detectar inconsistencias
+    // Crea o edita una ficha administrativa en ms-usuarios y actualiza Room con la respuesta del servidor
     override suspend fun guardarFicha(ficha: FichaAdminEmprendimiento): Resultado<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val problemas = AuditorFichas.auditar(ficha.emprendedora)
-            val entidad = EmprendedoraEntity.desdeModelo(
-                emprendedora = ficha.emprendedora,
-                estadoFicha = ficha.estadoFicha,
-                problemas = problemas
-            )
-            emprendedoraDao.insertar(entidad)
+        val token = ClienteRetrofit.tokenActivo
+        if (token.isNullOrBlank()) {
+            return@withContext Resultado.Error("Se requiere una sesión de administradora activa con token")
+        }
 
-            // TODO: cuando haya servidor, sincronizar ficha administrativa con la API REST
-            Resultado.Exito(Unit)
+        try {
+            val emp = ficha.emprendedora
+            val respuesta = if (emp.id <= 0) {
+                usuariosApi.crearEmprendedoraAdmin(
+                    autorizacion = "Bearer $token",
+                    solicitud = RegistroEmprendedoraRequestDto(
+                        nombre = emp.nombre.trim(),
+                        email = emp.email.trim().lowercase(),
+                        password = "emprendedora123",
+                        aceptaLeyDatos = true,
+                        rut = emp.rut.trim(),
+                        nombreComercial = emp.nombreComercial.trim(),
+                        region = emp.region.trim(),
+                        comuna = emp.comuna.trim(),
+                        rubros = emp.rubros.map { it.name },
+                        instagram = emp.instagram?.trim()?.ifBlank { null }
+                    )
+                )
+            } else {
+                usuariosApi.editarEmprendedoraAdmin(
+                    autorizacion = "Bearer $token",
+                    id = emp.id.toLong(),
+                    solicitud = EditarFichaAdminRequestDto(
+                        nombreComercial = emp.nombreComercial.trim(),
+                        region = emp.region.trim(),
+                        comuna = emp.comuna.trim(),
+                        rubros = emp.rubros.map { it.name },
+                        instagram = emp.instagram?.trim()?.ifBlank { null }
+                    )
+                )
+            }
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val dto = respuesta.body()!!
+                val empGuardada = dto.aModelo()
+                val entidad = EmprendedoraEntity.desdeModelo(
+                    emprendedora = empGuardada,
+                    estadoFicha = dto.aEstadoFicha(),
+                    problemas = AuditorFichas.auditar(empGuardada),
+                    motivoRevision = dto.motivoRevision
+                )
+                emprendedoraDao.insertar(entidad)
+                sincronizarFichas()
+                Resultado.Exito(Unit)
+            } else {
+                val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                Resultado.Error(errorMsg)
+            }
         } catch (e: Exception) {
-            Resultado.Error("Error al guardar la ficha: ${e.message}")
+            if (e is CancellationException) throw e
+            Resultado.Error("Error al guardar ficha en el servidor: ${e.message}")
         }
     }
 
-    // Cambia el estado de moderación (ACTIVA, OCULTA, POR_REVISAR, DADA_DE_BAJA)
+    // Cambia el estado de moderación (APROBAR, OCULTAR, RECHAZAR) vía PATCH en ms-usuarios y actualiza Room
     override suspend fun cambiarEstadoFicha(
         emprendedoraId: Int,
         nuevoEstado: EstadoFichaEmprendimiento
     ): Resultado<Unit> = withContext(Dispatchers.IO) {
+        val token = ClienteRetrofit.tokenActivo
+        if (token.isNullOrBlank()) {
+            return@withContext Resultado.Error("Se requiere una sesión de administradora activa con token")
+        }
+
+        val accionRemota = when (nuevoEstado) {
+            EstadoFichaEmprendimiento.ACTIVA -> "APROBAR"
+            EstadoFichaEmprendimiento.OCULTA -> "OCULTAR"
+            EstadoFichaEmprendimiento.RECHAZADA -> "RECHAZAR"
+            EstadoFichaEmprendimiento.DADA_DE_BAJA -> "OCULTAR"
+            EstadoFichaEmprendimiento.POR_REVISAR ->
+                return@withContext Resultado.Error("No es posible devolver una ficha a POR_REVISAR mediante moderación")
+        }
+
+        val motivo = if (accionRemota == "RECHAZAR") {
+            "No cumple con los criterios de la Red Textil Circular"
+        } else null
+
         try {
-            val activa = nuevoEstado == EstadoFichaEmprendimiento.ACTIVA
-            val filas = emprendedoraDao.cambiarEstadoFicha(emprendedoraId, nuevoEstado, activa)
-            if (filas > 0) {
-                // TODO: cuando haya servidor, notificar cambio de estado de moderación a la API REST
+            val respuesta = usuariosApi.revisarEmprendedora(
+                autorizacion = "Bearer $token",
+                id = emprendedoraId.toLong(),
+                solicitud = RevisionFichaRequestDto(accion = accionRemota, motivo = motivo)
+            )
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val respDto = respuesta.body()!!
+                val estadoConfirmado = try {
+                    EstadoFichaEmprendimiento.valueOf(respDto.estadoFicha)
+                } catch (_: Exception) {
+                    nuevoEstado
+                }
+                val activa = estadoConfirmado == EstadoFichaEmprendimiento.ACTIVA
+                emprendedoraDao.cambiarEstadoFicha(emprendedoraId, estadoConfirmado, activa)
+                sincronizarFichas()
                 Resultado.Exito(Unit)
             } else {
-                Resultado.Error("Ficha de emprendimiento no encontrada")
+                val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                Resultado.Error(errorMsg)
             }
         } catch (e: Exception) {
-            Resultado.Error("No se pudo cambiar el estado de la ficha: ${e.message}")
+            if (e is CancellationException) throw e
+            Resultado.Error("Error al moderar la ficha en el servidor: ${e.message}")
         }
     }
 
-    // Elimina una ficha por completo de la base de datos
+    // Elimina lógicamente una ficha en ms-usuarios y la remueve de la caché local
     override suspend fun eliminarFicha(emprendedoraId: Int): Resultado<Unit> = withContext(Dispatchers.IO) {
+        val token = ClienteRetrofit.tokenActivo
+        if (token.isNullOrBlank()) {
+            return@withContext Resultado.Error("Se requiere una sesión de administradora activa con token")
+        }
         try {
-            val filas = emprendedoraDao.eliminarPorId(emprendedoraId)
-            if (filas > 0) {
-                // TODO: cuando haya servidor, registrar baja de ficha en la API REST
+            val respuesta = usuariosApi.eliminarEmprendedoraAdmin(
+                autorizacion = "Bearer $token",
+                id = emprendedoraId.toLong()
+            )
+            if (respuesta.isSuccessful) {
+                emprendedoraDao.eliminarPorId(emprendedoraId)
+                sincronizarFichas()
                 Resultado.Exito(Unit)
             } else {
-                Resultado.Error("No se encontró la ficha a eliminar")
+                val errorMsg = ClienteRetrofit.extraerMensajeError(respuesta.errorBody()?.string())
+                Resultado.Error(errorMsg)
             }
         } catch (e: Exception) {
-            Resultado.Error("Error al eliminar la ficha: ${e.message}")
+            if (e is CancellationException) throw e
+            Resultado.Error("Error al eliminar la ficha en el servidor: ${e.message}")
         }
     }
 
@@ -167,7 +318,6 @@ class AdminRepositoryRoom(
     override suspend fun reenviarCorreo(correoId: Int): Resultado<Unit> = withContext(Dispatchers.IO) {
         try {
             adminDao.actualizarEstadoCorreo(correoId, EstadoCorreo.ENVIADO, "Reenviado hace un momento")
-            // TODO: cuando haya servidor, conectar con el servidor para reintento de envío de correo
             Resultado.Exito(Unit)
         } catch (e: Exception) {
             Resultado.Error("Error al reenviar el correo: ${e.message}")

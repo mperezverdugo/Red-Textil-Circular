@@ -28,12 +28,19 @@ class CatalogoViewModel(
     private val _uiState = MutableStateFlow(CatalogoUiState(estaCargando = true))
     val uiState: StateFlow<CatalogoUiState> = _uiState.asStateFlow()
 
+    private var jobObservacion: kotlinx.coroutines.Job? = null
+
     init {
         observarCatalogo()
     }
 
+    fun recargar() {
+        observarCatalogo()
+    }
+
     private fun observarCatalogo() {
-        viewModelScope.launch {
+        jobObservacion?.cancel()
+        jobObservacion = viewModelScope.launch {
             sesionRepository.estadoSesion.collect { estadoSesion ->
                 val emprendedoraId = when (estadoSesion) {
                     is EstadoSesion.AutenticadoEmprendedora -> estadoSesion.emprendedora.usuarioId

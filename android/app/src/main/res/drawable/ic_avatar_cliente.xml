@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Cabeza y torso de persona en verde petróleo -->
+    <path
+        android:fillColor="#006865"
+        android:pathData="M24,20c3.87,0 7,-3.13 7,-7s-3.13,-7 -7,-7 -7,3.13 -7,7 3.13,7 7,7zM24,24c-4.67,0 -14,2.34 -14,7v7h28v-7c0,-4.66 -9.33,-7 -14,-7z" />
+    <!-- Hoja / brote sustentable en el torso -->
+    <path
+        android:fillColor="#E2A03F"
+        android:pathData="M32,30c0,0 4,-2 6,2c2,4 -1,6 -3,6c-2,0 -3,-5 -3,-8z" />
+</vector>
